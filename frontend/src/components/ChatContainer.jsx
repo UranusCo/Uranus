@@ -39,6 +39,30 @@ const ChatContainer = () => {
   const [showSearch, setShowSearch] = useState(false);
   const [showPinned, setShowPinned] = useState(false);
   const [activeMessageMenu, setActiveMessageMenu] = useState(null);
+  const [messageMenuPos, setMessageMenuPos] = useState({ top: 0, left: 0 });
+
+  const openMessageMenu = (messageId, buttonRect) => {
+    const menuHeight = 260;
+    const menuWidth = 220;
+    const offset = 8;
+
+    let top = buttonRect.bottom + offset;
+    if (top + menuHeight > window.innerHeight) {
+      top = Math.max(offset, buttonRect.top - menuHeight - offset);
+    }
+
+    let left = buttonRect.left;
+    if (left + menuWidth > window.innerWidth - 12) {
+      left = Math.max(offset, window.innerWidth - menuWidth - offset);
+    }
+
+    setMessageMenuPos({ top, left });
+    setActiveMessageMenu(messageId);
+  };
+
+  const closeMessageMenu = () => setActiveMessageMenu(null);
+
+  const activeMenuMessage = activeMessageMenu ? messages.find((m) => m._id === activeMessageMenu) : null;
 
   const handleLongPressStart = (messageId) => {
     longPressRef.current = setTimeout(() => {
@@ -203,24 +227,16 @@ const ChatContainer = () => {
                         className="btn btn-xs btn-ghost"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setActiveMessageMenu(
-                            activeMessageMenu === message._id ? null : message._id
-                          );
+                          const rect = e.currentTarget.getBoundingClientRect();
+                          if (activeMessageMenu === message._id) {
+                            closeMessageMenu();
+                          } else {
+                            openMessageMenu(message._id, rect);
+                          }
                         }}
                       >
                         <MoreVertical size={14} />
                       </button>
-                      {activeMessageMenu === message._id && (
-                        <div
-                          className="absolute top-full right-0 mt-2 z-50"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <MessageActions
-                            message={message}
-                            onClose={() => setActiveMessageMenu(null)}
-                          />
-                        </div>
-                      )}
                     </div>
                   )}
 
@@ -301,24 +317,16 @@ const ChatContainer = () => {
                         className="btn btn-xs btn-ghost"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setActiveMessageMenu(
-                            activeMessageMenu === message._id ? null : message._id
-                          );
+                          const rect = e.currentTarget.getBoundingClientRect();
+                          if (activeMessageMenu === message._id) {
+                            closeMessageMenu();
+                          } else {
+                            openMessageMenu(message._id, rect);
+                          }
                         }}
                       >
                         <MoreVertical size={14} />
                       </button>
-                      {activeMessageMenu === message._id && (
-                        <div
-                          className="absolute top-full right-0 mt-2 z-50"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <MessageActions
-                            message={message}
-                            onClose={() => setActiveMessageMenu(null)}
-                          />
-                        </div>
-                      )}
                     </div>
                   )}
                 </div>
@@ -343,6 +351,21 @@ const ChatContainer = () => {
             </div>
           );
         })}
+
+        {activeMessageMenu && <div className="fixed inset-0 z-40" onClick={closeMessageMenu} />}
+
+        {activeMenuMessage && (
+          <div
+            className="fixed z-50"
+            style={{ top: `${messageMenuPos.top}px`, left: `${messageMenuPos.left}px`, minWidth: "220px" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <MessageActions
+              message={activeMenuMessage}
+              onClose={closeMessageMenu}
+            />
+          </div>
+        )}
 
         {/* Typing Indicator */}
         {typingUsers.length > 0 && (
