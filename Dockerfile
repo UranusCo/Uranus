@@ -27,10 +27,12 @@ COPY backend ./backend
 # Copy built frontend into backend/public
 COPY --from=frontend-build /app/frontend/dist ./backend/public
 
+# Set production environment
 ENV NODE_ENV=production
 
 WORKDIR /app/backend
 
 EXPOSE 5001
 
-CMD ["node", "src/index.js"]
+# Ensure node_env is production for startup
+CMD ["node", "--trace-uncaught", "src/index.js"]

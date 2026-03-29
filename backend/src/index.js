@@ -9,9 +9,17 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load environment variables from .env file if it exists (local development)
-// In production, environment variables are set directly by the platform (e.g., Koyeb)
-dotenv.config();
+// Load environment variables from .env file if it exists (local development only)
+// The .env file is NOT copied to Docker, so this will fail silently in production
+// In production (e.g., Koyeb), environment variables are set directly via the platform's UI
+const result = dotenv.config();
+if (result.error && result.error.code !== 'ENOENT') {
+  console.warn('Warning loading .env file:', result.error.message);
+}
+
+// Debug: Log which environment variables are loaded
+console.log("Environment check - MONGODB_URL is", process.env.MONGODB_URL ? "SET" : "NOT SET");
+console.log("Environment check - PORT is", process.env.PORT || "NOT SET (using default 5000)");
 
 import { connectDB } from "./lib/db.js";
 
