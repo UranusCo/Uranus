@@ -9,7 +9,9 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+// Load environment variables from .env file if it exists (local development)
+// In production, environment variables are set directly by the platform (e.g., Koyeb)
+dotenv.config();
 
 import { connectDB } from "./lib/db.js";
 
