@@ -10,8 +10,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Qwanta Chat',
-        short_name: 'Qwanta',
+        name: 'Uranus Chat',
+        short_name: 'Uranus',
         description: 'Modern next-gen chat app with advanced QoL features.',
         theme_color: '#070724',
         background_color: '#0b0f19',
