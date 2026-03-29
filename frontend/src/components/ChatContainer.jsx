@@ -212,7 +212,7 @@ const ChatContainer = () => {
                       </button>
                       {activeMessageMenu === message._id && (
                         <div
-                          className="absolute bottom-full right-0 mb-2 z-50"
+                          className="absolute top-full right-0 mt-2 z-50"
                           onClick={(e) => e.stopPropagation()}
                         >
                           <MessageActions
@@ -310,7 +310,7 @@ const ChatContainer = () => {
                       </button>
                       {activeMessageMenu === message._id && (
                         <div
-                          className="absolute bottom-full right-0 mb-2 z-50"
+                          className="absolute top-full right-0 mt-2 z-50"
                           onClick={(e) => e.stopPropagation()}
                         >
                           <MessageActions

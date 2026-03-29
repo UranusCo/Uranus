@@ -148,7 +148,7 @@ const ChatContainer = () => {
                         <MoreVertical size={14} />
                       </button>
                       {activeMessageMenu === message._id && (
-                        <div className="absolute bottom-full right-0 mb-2 z-50">
+                        <div className="absolute top-full right-0 mt-2 z-50">
                           <MessageActions
                             message={message}
                             onClose={() => setActiveMessageMenu(null)}
@@ -230,7 +230,7 @@ const ChatContainer = () => {
                         <MoreVertical size={14} />
                       </button>
                       {activeMessageMenu === message._id && (
-                        <div className="absolute bottom-full right-0 mb-2 z-50">
+                        <div className="absolute top-full right-0 mt-2 z-50">
                           <MessageActions
                             message={message}
                             onClose={() => setActiveMessageMenu(null)}
