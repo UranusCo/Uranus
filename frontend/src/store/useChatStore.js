@@ -85,10 +85,11 @@ export const useChatStore = create((set, get) => ({
       const res = await axiosInstance.post(`/messages/reaction/${messageId}/add`, { emoji });
       set({
         messages: get().messages.map(msg =>
-          msg._id === messageId ? { ...msg, reactions: res.data } : msg
+          msg._id === messageId ? { ...msg, reactions: res.data?.reactions || {} } : msg
         ),
       });
     } catch (error) {
+      console.error("Error adding reaction:", error);
       useErrorStore.getState().handleApiError(error, "add reaction");
     }
   },
@@ -98,10 +99,11 @@ export const useChatStore = create((set, get) => ({
       const res = await axiosInstance.post(`/messages/reaction/${messageId}/remove`, { emoji });
       set({
         messages: get().messages.map(msg =>
-          msg._id === messageId ? { ...msg, reactions: res.data } : msg
+          msg._id === messageId ? { ...msg, reactions: res.data?.reactions || {} } : msg
         ),
       });
     } catch (error) {
+      console.error("Error removing reaction:", error);
       useErrorStore.getState().handleApiError(error, "remove reaction");
     }
   },
@@ -145,10 +147,11 @@ export const useChatStore = create((set, get) => ({
       const res = await axiosInstance.patch(`/messages/pin/${messageId}`);
       set({
         messages: get().messages.map(msg =>
-          msg._id === messageId ? res.data : msg
+          msg._id === messageId ? { ...msg, ...res.data } : msg
         ),
       });
     } catch (error) {
+      console.error("Error toggling pin:", error);
       useErrorStore.getState().handleApiError(error, "pin message");
     }
   },
@@ -262,21 +265,31 @@ export const useChatStore = create((set, get) => ({
     });
 
     socket.on("messageReactionAdded", (data) => {
-      const { messageId, reactions } = data;
-      set({
-        messages: get().messages.map(msg =>
-          msg._id === messageId ? { ...msg, reactions } : msg
-        ),
-      });
+      try {
+        const { messageId, reactions } = data;
+        if (!messageId || !reactions) return;
+        set({
+          messages: get().messages.map(msg =>
+            msg._id === messageId ? { ...msg, reactions: reactions || {} } : msg
+          ),
+        });
+      } catch (error) {
+        console.error("Error handling messageReactionAdded:", error);
+      }
     });
 
     socket.on("messageReactionRemoved", (data) => {
-      const { messageId, reactions } = data;
-      set({
-        messages: get().messages.map(msg =>
-          msg._id === messageId ? { ...msg, reactions } : msg
-        ),
-      });
+      try {
+        const { messageId, reactions } = data;
+        if (!messageId) return;
+        set({
+          messages: get().messages.map(msg =>
+            msg._id === messageId ? { ...msg, reactions: reactions || {} } : msg
+          ),
+        });
+      } catch (error) {
+        console.error("Error handling messageReactionRemoved:", error);
+      }
     });
 
     socket.on("messageEdited", (data) => {
@@ -300,12 +313,17 @@ export const useChatStore = create((set, get) => ({
     });
 
     socket.on("messagePinToggled", (data) => {
-      const { messageId, isPinned } = data;
-      set({
-        messages: get().messages.map(msg =>
-          msg._id === messageId ? { ...msg, isPinned } : msg
-        ),
-      });
+      try {
+        const { messageId, isPinned } = data;
+        if (!messageId) return;
+        set({
+          messages: get().messages.map(msg =>
+            msg._id === messageId ? { ...msg, isPinned: Boolean(isPinned) } : msg
+          ),
+        });
+      } catch (error) {
+        console.error("Error handling messagePinToggled:", error);
+      }
     });
 
     socket.on("userStatusChanged", (data) => {
