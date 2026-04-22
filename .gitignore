@@ -25,6 +25,8 @@ dist-ssr
 *.sw?
 
 .env
+*.enc
+
 
 # Iframe embed files (not to be tracked)
 iframe-embed.html

@@ -1,4 +1,4 @@
-# ---------- 1️⃣ Build Frontend ----------
+# ---------- Build Frontend ----------
 FROM node:20-alpine AS frontend-build
 
 WORKDIR /app/frontend
@@ -12,7 +12,7 @@ COPY frontend .
 RUN npm run build
 
 
-# ---------- 2️⃣ Production Image ----------
+# ---------- Production Image ----------
 FROM node:20-alpine
 
 WORKDIR /app

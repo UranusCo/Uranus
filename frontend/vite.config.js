@@ -12,7 +12,7 @@ export default defineConfig({
       manifest: {
         name: 'Uranus Chat',
         short_name: 'Uranus',
-        description: 'Modern next-gen chat app with advanced QoL features.',
+        description: 'Modern next-gen chat app with advanced features.',
         theme_color: '#070724',
         background_color: '#0b0f19',
         display: 'standalone',
