@@ -52,7 +52,15 @@ app.use("/api/notifications", notificationRoutes);
 
 if (process.env.NODE_ENV === "production") {
   // Serve static frontend files from backend/public
-  app.use(express.static(path.join(__dirname, "../public")));
+  app.use(express.static(path.join(__dirname, "../public"), {
+    setHeaders: (res, path) => {
+      if (path.endsWith(".js")) {
+        res.setHeader("Content-Type", "application/javascript");
+      } else if (path.endsWith(".css")) {
+        res.setHeader("Content-Type", "text/css");
+      }
+    }
+  }));
 
   // Return index.html for SPA routing
   app.get("*", (req, res) => {
