@@ -188,6 +188,16 @@ const MessageInput = () => {
           )}
         </div>
 
+        {/* Mobile Input */}
+        <input
+          type="text"
+          className="sm:hidden flex-1 input input-bordered rounded-lg input-sm text-[16px] disabled:opacity-50"
+          placeholder={editingMessageId ? "Edit message..." : "Type a message..."}
+          value={text}
+          onChange={handleTextChange}
+          disabled={isSending}
+        />
+
         <div className="hidden sm:flex flex-1 gap-2">
           <input
             type="text"
