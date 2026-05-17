@@ -121,8 +121,8 @@ export const useChatStore = create((set, get) => ({
     try {
       // Accept either a pre-built FormData (from the component) or a plain object
       let postData;
-      let headers = { 'Content-Type': 'multipart/form-data' };
-      if (messageData instanceof FormData) {
+      const isFormData = messageData && typeof messageData.append === "function";
+      if (isFormData) {
         postData = messageData;
       } else {
         const formData = new FormData();
@@ -135,7 +135,7 @@ export const useChatStore = create((set, get) => ({
         postData = formData;
       }
 
-      const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, postData, { headers });
+      const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, postData);
       set({ messages: [...messages, res.data], replyingToMessage: null });
     } catch (error) {
       useErrorStore.getState().handleApiError(error, "send message");
