@@ -80,38 +80,65 @@ const ChatHeader = ({ onSearchClick, onPinnedClick }) => {
               <MoreVertical size={18} />
             </button>
             {showMenu && (
-              <ul className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+              <ul
+                className="dropdown-content z-[50] menu p-2 shadow bg-base-100 rounded-box w-52"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <li>
-                  <a onClick={() => {
-                    onPinnedClick();
-                    setShowMenu(false);
-                  }}>Pinned Messages</a>
+                  <button
+                    type="button"
+                    className="w-full text-left"
+                    onClick={() => {
+                      onPinnedClick && onPinnedClick();
+                      setShowMenu(false);
+                    }}
+                  >
+                    Pinned Messages
+                  </button>
                 </li>
                 <li>
-                  <a onClick={() => {
-                    setShowPrivacyModal(true);
-                    setShowMenu(false);
-                  }}>
+                  <button
+                    type="button"
+                    className="w-full text-left"
+                    onClick={() => {
+                      setShowPrivacyModal(true);
+                      setShowMenu(false);
+                    }}
+                  >
                     Privacy Settings
-                  </a>
+                  </button>
                 </li>
                 <li>
-                  <a onClick={() => {
-                    onSearchClick();
-                    setShowMenu(false);
-                  }}>Search</a>
+                  <button
+                    type="button"
+                    className="w-full text-left"
+                    onClick={() => {
+                      onSearchClick && onSearchClick();
+                      setShowMenu(false);
+                    }}
+                  >
+                    Search
+                  </button>
                 </li>
                 <li>
-                  <a onClick={() => {
-                    setShowExportModal(true);
-                    setShowMenu(false);
-                  }}>
+                  <button
+                    type="button"
+                    className="w-full text-left flex items-center gap-2"
+                    onClick={() => {
+                      setShowExportModal(true);
+                      setShowMenu(false);
+                    }}
+                  >
                     <Download size={16} className="mr-2" />
                     Export Chat
-                  </a>
+                  </button>
                 </li>
-                <li><a>View Profile</a></li>
-                <li><a>Info</a></li>
+                <li>
+                  <button type="button" className="w-full text-left">View Profile</button>
+                </li>
+                <li>
+                  <button type="button" className="w-full text-left">Info</button>
+                </li>
               </ul>
             )}
           </div>
