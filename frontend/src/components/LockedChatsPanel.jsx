@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import ChatLockModal from "./ChatLockModal";
-import { ShieldLock, ShieldCheck } from "lucide-react";
+import { Shield, ShieldCheck } from "lucide-react";
 import { useChatStore } from "../store/useChatStore";
 
 const LockedChatsPanel = ({ onSelectUser }) => {
@@ -29,7 +29,7 @@ const LockedChatsPanel = ({ onSelectUser }) => {
     <div className="border-b border-base-300 px-4 py-3">
       <div className="mb-3 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 text-sm font-medium">
-          <ShieldLock className="size-5 text-warning" />
+          <Shield className="size-5 text-warning" />
           Locked Chats
         </div>
         <button
