@@ -36,7 +36,6 @@ const router = express.Router();
 // User and chat endpoints
 router.get("/users", protectRoute, getUsersForSidebar);
 router.get("/search", protectRoute, searchUsers);
-router.get("/:id", protectRoute, getMessages);
 router.patch("/:userId/read", protectRoute, markMessagesAsRead);
 
 // Message actions
@@ -73,5 +72,8 @@ router.get("/export/:userId", protectRoute, exportChat);
 // User preferences
 router.patch("/theme/update", protectRoute, updateTheme);
 router.post("/background", protectRoute, setChatBackground);
+
+// Fallback: get messages for a chat by user id (must be last to avoid matching static routes)
+router.get("/:id", protectRoute, getMessages);
 
 export default router;
