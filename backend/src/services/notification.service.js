@@ -1,6 +1,7 @@
 import Notification from "../models/notification.model.js";
 import User from "../models/user.model.js";
 import { io, getReceiverSocketId } from "../lib/socket.js";
+import { sendPushNotification } from "../routes/notification.route.js";
 
 class NotificationService {
   async createNotification({ recipient, actor, type, title, body, metadata }) {
@@ -44,6 +45,12 @@ class NotificationService {
         const unreadCount = await Notification.countDocuments({ recipient, isRead: false });
         io.to(receiverSocketId).emit("notification:count-update", unreadCount);
       }
+
+      // Send Push Notification
+      sendPushNotification(recipient, {
+        title,
+        body,
+      });
 
       return populatedNotification;
     } catch (error) {
