@@ -119,19 +119,23 @@ export const useChatStore = create((set, get) => ({
   sendMessage: async (messageData) => {
     const { selectedUser, messages } = get();
     try {
-      const formData = new FormData();
-      if (messageData.text) formData.append("text", messageData.text);
-      if (messageData.image) formData.append("image", messageData.image);
-      if (messageData.file) formData.append("file", messageData.file);
-      if (messageData.replyTo) formData.append("replyTo", messageData.replyTo);
-      if (messageData.viewOnce) formData.append("viewOnce", messageData.viewOnce);
-      if (messageData.expiresAt) formData.append("expiresAt", messageData.expiresAt.toISOString());
+      // Accept either a pre-built FormData (from the component) or a plain object
+      let postData;
+      let headers = { 'Content-Type': 'multipart/form-data' };
+      if (messageData instanceof FormData) {
+        postData = messageData;
+      } else {
+        const formData = new FormData();
+        if (messageData.text) formData.append("text", messageData.text);
+        if (messageData.image) formData.append("image", messageData.image);
+        if (messageData.file) formData.append("file", messageData.file);
+        if (messageData.replyTo) formData.append("replyTo", messageData.replyTo);
+        if (messageData.viewOnce) formData.append("viewOnce", messageData.viewOnce);
+        if (messageData.expiresAt) formData.append("expiresAt", messageData.expiresAt.toISOString());
+        postData = formData;
+      }
 
-      const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, postData, { headers });
       set({ messages: [...messages, res.data], replyingToMessage: null });
     } catch (error) {
       useErrorStore.getState().handleApiError(error, "send message");

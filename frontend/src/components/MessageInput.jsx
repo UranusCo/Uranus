@@ -117,7 +117,7 @@ const MessageInput = () => {
   }, []);
 
   return (
-    <div className="px-4 pt-4 pb-safe w-full border-t border-base-300">
+    <div className="fixed bottom-0 left-0 w-full px-4 pt-4 pb-safe border-t border-base-300 bg-base-100 z-50 sm:static">
       {(imagePreview || filePreview) && (
         <div className="mb-3 flex flex-col gap-2 animate-fadeIn">
           <div className="relative">

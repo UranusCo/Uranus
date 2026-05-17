@@ -185,7 +185,7 @@ const ChatContainer = () => {
 
       {/* Messages */}
       <div
-        className="flex-1 overflow-y-auto p-4 space-y-4 message-container"
+        className="flex-1 overflow-y-auto p-4 space-y-4 message-container sm:pb-4 pb-28"
         onClick={() => {
           if (ignoreNextClickRef.current) { ignoreNextClickRef.current = false; return; }
           if (activeMessageMenu) setActiveMessageMenu(null);
