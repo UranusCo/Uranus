@@ -107,15 +107,28 @@ export const useNotificationStore = create((set, get) => ({
     const socket = useAuthStore.getState().socket;
     if (!socket) return;
 
+    // Request permission if not already granted
+    if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
+      Notification.requestPermission();
+    }
+
     socket.on("notification:new", (notification) => {
       set({
         notifications: [notification, ...get().notifications],
       });
-      // Show toast for new notification
+      // Show toast
       toast.success(`${notification.title}: ${notification.body}`, {
         icon: "🔔",
         duration: 4000,
       });
+
+      // Show browser notification
+      if ("Notification" in window && Notification.permission === "granted") {
+        new Notification(notification.title, {
+          body: notification.body,
+          icon: "/uranus.svg", 
+        });
+      }
     });
 
     socket.on("notification:count-update", (count) => {
