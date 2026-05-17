@@ -4,6 +4,8 @@ import { useAuthStore } from "./useAuthStore";
 import { useErrorStore } from "./useErrorStore";
 import toast from "react-hot-toast";
 
+const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+
 export const useNotificationStore = create((set, get) => ({
   notifications: [],
   unreadCount: 0,
@@ -11,6 +13,7 @@ export const useNotificationStore = create((set, get) => ({
   page: 1,
   hasMore: true,
 
+  // ... (previous methods kept the same)
   getNotifications: async (unreadOnly = false) => {
     set({ isNotificationsLoading: true });
     try {
@@ -89,7 +92,6 @@ export const useNotificationStore = create((set, get) => ({
   updatePreferences: async (preferences) => {
     try {
       const res = await axiosInstance.patch("/notifications/preferences", { preferences });
-      // Update authUser in authStore to keep it in sync
       const authUser = useAuthStore.getState().authUser;
       if (authUser) {
         useAuthStore.setState({
@@ -103,38 +105,42 @@ export const useNotificationStore = create((set, get) => ({
     }
   },
 
+  subscribeToPushNotifications: async () => {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: VAPID_PUBLIC_KEY,
+      });
+
+      await axiosInstance.post('/notifications/push/subscribe', subscription);
+      toast.success("Push notifications enabled!");
+    } catch (error) {
+      console.error("Failed to subscribe to push:", error);
+      toast.error("Could not enable push notifications.");
+    }
+  },
+
   subscribeToNotifications: () => {
     const socket = useAuthStore.getState().socket;
     if (!socket) return;
-
-    // Request permission if not already granted
-    if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
-      Notification.requestPermission();
-    }
 
     socket.on("notification:new", (notification) => {
       set({
         notifications: [notification, ...get().notifications],
       });
-      // Show toast
       toast.success(`${notification.title}: ${notification.body}`, {
         icon: "🔔",
-        duration: 4000,
       });
-
-      // Show browser notification
-      if ("Notification" in window && Notification.permission === "granted") {
-        new Notification(notification.title, {
-          body: notification.body,
-          icon: "/uranus.svg", 
-        });
-      }
     });
 
     socket.on("notification:count-update", (count) => {
       set({ unreadCount: count });
     });
-
+    
+    // ... socket listener rest kept the same
     socket.on("notification:read", (id) => {
       set({
         notifications: get().notifications.map((n) =>

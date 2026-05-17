@@ -141,6 +141,15 @@ const SettingsPage = () => {
                   onChange={(e) => handlePreferenceChange("system", e.target.checked)}
                 />
               </div>
+
+              <div className="border-t border-base-300 pt-4">
+                <button
+                  className="btn btn-outline btn-sm w-full"
+                  onClick={() => useNotificationStore.getState().subscribeToPushNotifications()}
+                >
+                  Enable Push Notifications
+                </button>
+              </div>
             </div>
           </section>
         )}

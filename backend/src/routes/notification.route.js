@@ -8,8 +8,18 @@ import {
   deleteNotification,
   updatePreferences,
 } from "../controllers/notification.controller.js";
+import webpush from "web-push";
 
 const router = express.Router();
+
+// Push notification subscription
+router.post("/push/subscribe", protectRoute, (req, res) => {
+  const subscription = req.body;
+  // In a real app, store this subscription in DB
+  // For now, we simulate the association with the user
+  console.log("Received push subscription from user:", req.user._id);
+  res.status(201).json({ message: "Subscribed" });
+});
 
 router.get("/", protectRoute, getNotifications);
 router.get("/unread-count", protectRoute, getUnreadCount);

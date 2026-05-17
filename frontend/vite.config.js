@@ -41,6 +41,9 @@ export default defineConfig({
         navigateFallback: '/',
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
       },
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'service-worker.js',
       devOptions: {
         enabled: true,
       },
