@@ -637,9 +637,26 @@ export const forwardMessage = async (req, res) => {
     const { receiverId } = req.body;
     const senderId = req.user._id;
 
+    if (!receiverId) {
+      return res.status(400).json({ error: "Receiver ID is required" });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(messageId) || !mongoose.Types.ObjectId.isValid(receiverId)) {
+      return res.status(400).json({ error: "Invalid message or receiver ID" });
+    }
+
+    if (senderId.toString() === receiverId.toString()) {
+      return res.status(400).json({ error: "Cannot forward a message to yourself" });
+    }
+
     const originalMessage = await Message.findById(messageId);
     if (!originalMessage) {
       return res.status(404).json({ error: "Message not found" });
+    }
+
+    const receiverExists = await User.exists({ _id: receiverId });
+    if (!receiverExists) {
+      return res.status(404).json({ error: "Receiver not found" });
     }
 
     const forwardedMessage = new Message({
@@ -648,7 +665,7 @@ export const forwardMessage = async (req, res) => {
       text: originalMessage.text,
       image: originalMessage.image,
       file: originalMessage.file,
-      forwardedFrom: messageId,
+      forwardedFrom: originalMessage._id,
       isRead: false,
     });
 
@@ -661,7 +678,7 @@ export const forwardMessage = async (req, res) => {
 
     res.status(201).json(forwardedMessage);
   } catch (error) {
-    console.log("Error in forwardMessage: ", error.message);
+    console.log("Error in forwardMessage: ", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };

@@ -35,9 +35,17 @@ const UserProfileModal = ({ open, onClose, user }) => {
             </div>
           </div>
 
-          <div>
-            <h4 className="text-sm font-semibold mb-2">About</h4>
-            <p className="text-sm text-zinc-600">{user.about || 'No profile description provided.'}</p>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <h4 className="text-sm font-semibold mb-2">About</h4>
+              <p className="text-sm text-zinc-600">{user.about || 'No profile description provided.'}</p>
+            </div>
+            <div>
+              <h4 className="text-sm font-semibold mb-2">Joined</h4>
+              <p className="text-sm text-zinc-600">
+                {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Unknown'}
+              </p>
+            </div>
           </div>
         </div>
       </div>
