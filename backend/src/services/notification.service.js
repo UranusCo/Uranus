@@ -1,0 +1,66 @@
+import Notification from "../models/notification.model.js";
+import User from "../models/user.model.js";
+import { io, getReceiverSocketId } from "../lib/socket.js";
+
+class NotificationService {
+  async createNotification({ recipient, actor, type, title, body, metadata }) {
+    try {
+      // Check recipient preferences
+      const user = await User.findById(recipient);
+      if (!user) return null;
+
+      const prefs = user.notificationPreferences || {};
+      
+      let shouldNotify = true;
+      if (type === "direct_message" && !prefs.directMessage) shouldNotify = false;
+      if (type === "group_message" && !prefs.groupMessage) shouldNotify = false;
+      if (type === "mention" && !prefs.mention) shouldNotify = false;
+      if (type === "friend_request" && !prefs.friendRequest) shouldNotify = false;
+      if (type === "system" && !prefs.system) shouldNotify = false;
+
+      if (!shouldNotify) return null;
+
+      const notification = new Notification({
+        recipient,
+        actor,
+        type,
+        title,
+        body,
+        metadata,
+      });
+
+      await notification.save();
+
+      // Populate actor for the frontend
+      const populatedNotification = await Notification.findById(notification._id)
+        .populate("actor", "fullName profilePic");
+
+      // Emit realtime update
+      const receiverSocketId = getReceiverSocketId(recipient);
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("notification:new", populatedNotification);
+        
+        // Also emit count update
+        const unreadCount = await Notification.countDocuments({ recipient, isRead: false });
+        io.to(receiverSocketId).emit("notification:count-update", unreadCount);
+      }
+
+      return populatedNotification;
+    } catch (error) {
+      console.log("Error in NotificationService.createNotification", error.message);
+      return null;
+    }
+  }
+
+  async sendWelcomeNotification(userId) {
+    return this.createNotification({
+      recipient: userId,
+      actor: userId, // Self as actor for system notifications
+      type: "welcome",
+      title: "Welcome to Uranus!",
+      body: "We're glad you're here. Start chatting with your friends!",
+    });
+  }
+}
+
+export default new NotificationService();

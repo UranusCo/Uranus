@@ -4,6 +4,7 @@ import Message from "../models/message.model.js";
 
 import cloudinary from "../lib/cloudinary.js";
 import { getReceiverSocketId, io } from "../lib/socket.js";
+import NotificationService from "../services/notification.service.js";
 import multer from "multer";
 import crypto from "crypto";
 
@@ -227,6 +228,63 @@ export const sendMessage = [
         io.to(receiverSocketId).emit("newMessage", newMessage);
       }
 
+      // Send notification
+      const sender = req.user;
+      NotificationService.createNotification({
+        recipient: receiverId,
+        actor: senderId,
+        type: "direct_message",
+        title: sender.fullName,
+        body: text || (image ? "Sent an image" : "Sent a file"),
+        metadata: {
+          messageId: newMessage._id,
+          conversationId: senderId,
+        },
+      });
+
+      // Handle mentions (@username)
+      if (text) {
+        const mentionRegex = /@(\w+)/g;
+        const mentions = text.match(mentionRegex);
+        if (mentions) {
+          for (const mention of mentions) {
+            const username = mention.substring(1);
+            const mentionedUser = await User.findOne({ fullName: { $regex: new RegExp(`^${username}$`, "i") } });
+            if (mentionedUser && mentionedUser._id.toString() !== senderId.toString() && mentionedUser._id.toString() !== receiverId.toString()) {
+              NotificationService.createNotification({
+                recipient: mentionedUser._id,
+                actor: senderId,
+                type: "mention",
+                title: "Mentioned you",
+                body: text,
+                metadata: {
+                  messageId: newMessage._id,
+                  conversationId: senderId,
+                },
+              });
+            }
+          }
+        }
+      }
+
+      // Handle reply
+      if (replyTo) {
+        const originalMessage = await Message.findById(replyTo);
+        if (originalMessage && originalMessage.senderId.toString() !== senderId.toString() && originalMessage.senderId.toString() !== receiverId.toString()) {
+          NotificationService.createNotification({
+            recipient: originalMessage.senderId,
+            actor: senderId,
+            type: "reply",
+            title: "Replied to your message",
+            body: text,
+            metadata: {
+              messageId: newMessage._id,
+              conversationId: senderId,
+            },
+          });
+        }
+      }
+
       res.status(201).json(newMessage);
     } catch (error) {
       console.log("Error in sendMessage controller: ", error.message);
@@ -262,6 +320,21 @@ export const addReaction = async (req, res) => {
     }
 
     await message.save();
+
+    // Send notification to message sender
+    if (message.senderId.toString() !== userId.toString()) {
+      NotificationService.createNotification({
+        recipient: message.senderId,
+        actor: userId,
+        type: "reaction",
+        title: "Reacted to your message",
+        body: emoji,
+        metadata: {
+          messageId: message._id,
+          reactionType: emoji,
+        },
+      });
+    }
 
     // Emit to both users
     const receiverId = message.receiverId;

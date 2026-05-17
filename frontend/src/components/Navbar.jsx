@@ -4,6 +4,7 @@ import { LogOut, MessageSquare, Settings, User, MessageCircle } from "lucide-rea
 import UranusLogo from "../../public/uranus.svg";
 import { useState } from "react";
 import StatusUpdateModal from "./StatusUpdateModal";
+import NotificationBell from "./NotificationBell";
 
 
 const Navbar = () => {
@@ -33,14 +34,18 @@ const Navbar = () => {
 
             <div className="flex items-center gap-2">
               {authUser && (
-                <button
-                  onClick={() => setShowStatusModal(true)}
-                  className="btn btn-sm gap-2 transition-colors"
-                  title="Update status"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  <span className="hidden sm:inline">Status</span>
-                </button>
+                <>
+                  <button
+                    onClick={() => setShowStatusModal(true)}
+                    className="btn btn-sm gap-2 transition-colors"
+                    title="Update status"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    <span className="hidden sm:inline">Status</span>
+                  </button>
+
+                  <NotificationBell />
+                </>
               )}
               
               <Link

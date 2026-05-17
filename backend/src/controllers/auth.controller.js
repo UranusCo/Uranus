@@ -1,5 +1,6 @@
 import { generateToken } from "../lib/utils.js";
 import User from "../models/user.model.js";
+import NotificationService from "../services/notification.service.js";
 import bcrypt from "bcryptjs";
 import cloudinary from "../lib/cloudinary.js";
 
@@ -32,11 +33,15 @@ export const signup = async (req, res) => {
       generateToken(newUser._id, res);
       await newUser.save();
 
+      // Send welcome notification
+      NotificationService.sendWelcomeNotification(newUser._id);
+
       res.status(201).json({
         _id: newUser._id,
         fullName: newUser.fullName,
         email: newUser.email,
         profilePic: newUser.profilePic,
+        notificationPreferences: newUser.notificationPreferences,
       });
     } else {
       res.status(400).json({ message: "Invalid user data" });
@@ -68,6 +73,7 @@ export const login = async (req, res) => {
       fullName: user.fullName,
       email: user.email,
       profilePic: user.profilePic,
+      notificationPreferences: user.notificationPreferences,
     });
   } catch (error) {
     console.log("Error in login controller", error.message);

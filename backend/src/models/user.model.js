@@ -63,6 +63,13 @@ const userSchema = new mongoose.Schema(
       of: String,
       default: new Map(),
     },
+    notificationPreferences: {
+      directMessage: { type: Boolean, default: true },
+      groupMessage: { type: Boolean, default: true },
+      mention: { type: Boolean, default: true },
+      friendRequest: { type: Boolean, default: true },
+      system: { type: Boolean, default: true },
+    },
   },
   { timestamps: true }
 );
