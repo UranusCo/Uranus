@@ -39,10 +39,6 @@ const UserProfileModal = ({ open, onClose, user }) => {
             <h4 className="text-sm font-semibold mb-2">About</h4>
             <p className="text-sm text-zinc-600">{user.about || 'No profile description provided.'}</p>
           </div>
-
-          <div className="flex gap-2 justify-end">
-            <button className="btn btn-ghost" onClick={onClose}>Close</button>
-          </div>
         </div>
       </div>
     </div>,

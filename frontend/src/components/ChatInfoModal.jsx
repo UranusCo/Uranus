@@ -50,10 +50,6 @@ const ChatInfoModal = ({ open, onClose, user, chatSettings }) => {
               <div className="p-3 rounded-lg border bg-base-200">Locked: {chatSettings?.isLocked ? 'Yes' : 'No'}</div>
             </div>
           </div>
-
-          <div className="flex gap-2 justify-end">
-            <button className="btn btn-ghost" onClick={onClose}>Close</button>
-          </div>
         </div>
       </div>
     </div>,
