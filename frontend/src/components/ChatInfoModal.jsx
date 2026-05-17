@@ -1,11 +1,12 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 
 const ChatInfoModal = ({ open, onClose, user, chatSettings }) => {
   if (!open || !user) return null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-60 flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4"
       role="dialog"
       aria-modal="true"
       onClick={onClose}

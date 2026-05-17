@@ -1,10 +1,11 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 
 const UserProfileModal = ({ open, onClose, user }) => {
   if (!open || !user) return null;
 
-  return (
-    <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/50 p-4">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4">
       <div className="w-full max-w-md rounded-3xl border border-base-300 bg-base-100 shadow-2xl overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-base-300">
           <div>
