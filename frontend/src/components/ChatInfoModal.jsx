@@ -44,7 +44,8 @@ const ChatInfoModal = ({ open, onClose, user, chatSettings }) => {
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

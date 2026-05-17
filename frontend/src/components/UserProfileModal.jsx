@@ -33,7 +33,8 @@ const UserProfileModal = ({ open, onClose, user }) => {
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
