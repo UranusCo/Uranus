@@ -8,6 +8,7 @@ const MessageInput = () => {
   const [text, setText] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
+  const [isViewOnce, setIsViewOnce] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [showAttachMenu, setShowAttachMenu] = useState(false);
   const fileInputRef = useRef(null);
@@ -90,6 +91,7 @@ const MessageInput = () => {
         await editMessage(editingMessageId, text.trim());
       } else {
         // Send new message
+        formData.append("viewOnce", isViewOnce);
         await sendMessage(formData);
       }
 
@@ -117,7 +119,7 @@ const MessageInput = () => {
   return (
     <div className="px-4 pt-4 pb-safe w-full border-t border-base-300">
       {(imagePreview || filePreview) && (
-        <div className="mb-3 flex items-center gap-2 animate-fadeIn">
+        <div className="mb-3 flex flex-col gap-2 animate-fadeIn">
           <div className="relative">
             {imagePreview ? (
               <img
@@ -140,6 +142,15 @@ const MessageInput = () => {
               <X className="size-3" />
             </button>
           </div>
+          <label className="inline-flex items-center gap-2 text-sm text-zinc-400">
+            <input
+              type="checkbox"
+              checked={isViewOnce}
+              onChange={(e) => setIsViewOnce(e.target.checked)}
+              className="checkbox checkbox-sm"
+            />
+            View once media
+          </label>
         </div>
       )}
 
@@ -177,7 +188,7 @@ const MessageInput = () => {
           )}
         </div>
 
-        <div className="flex-1 flex gap-2">
+        <div className="hidden sm:flex flex-1 gap-2">
           <input
             type="text"
             className="w-full input input-bordered rounded-lg input-sm sm:input-md text-[16px] sm:text-sm disabled:opacity-50"

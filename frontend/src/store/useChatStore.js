@@ -20,6 +20,57 @@ export const useChatStore = create((set, get) => ({
   editingMessageId: null,
   replyingToMessage: null,
   selectedMessagesForBulk: [],
+  chatSettings: {},
+  lockedChats: [],
+  lockedChatPinPrompt: false,
+  lockedChatUser: null,
+  groups: [
+    {
+      _id: "group-1",
+      name: "Design Squad",
+      members: ["Alice", "Mika", "Rahul"],
+      latestAnnouncement: "Sprint review starts 10AM.",
+      poll: {
+        question: "Which hero screen should ship first?",
+        options: [
+          { id: "a", label: "Launch board", votes: 8 },
+          { id: "b", label: "In-app status", votes: 5 },
+          { id: "c", label: "Media hub", votes: 3 },
+        ],
+      },
+      media: [
+        { id: "m1", url: "/assets/sample-1.jpg", label: "Design board" },
+        { id: "m2", url: "/assets/sample-2.jpg", label: "Moodboard" },
+      ],
+    },
+  ],
+  communities: [
+    {
+      _id: "community-1",
+      name: "Umbrella Workspace",
+      groups: ["Design Squad", "Operations"],
+      announcements: [
+        { id: "a1", text: "Weekly town hall at 5pm on Friday." },
+        { id: "a2", text: "New guidelines for community channels released." },
+      ],
+    },
+  ],
+  channels: [
+    {
+      _id: "channel-1",
+      name: "Product Updates",
+      description: "Read-only channel for releases and product news.",
+      subscribers: 1234,
+      isSubscribed: true,
+      isAdmin: false,
+      posts: [
+        { id: "p1", title: "Version 5.3 Released", body: "Async drafts and live poll support are now live." },
+      ],
+    },
+  ],
+  selectedGroup: null,
+  selectedCommunity: null,
+  selectedChannel: null,
 
   getUsers: async () => {
     set({ isUsersLoading: true });
@@ -68,7 +119,15 @@ export const useChatStore = create((set, get) => ({
   sendMessage: async (messageData) => {
     const { selectedUser, messages } = get();
     try {
-      const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, messageData, {
+      const formData = new FormData();
+      if (messageData.text) formData.append("text", messageData.text);
+      if (messageData.image) formData.append("image", messageData.image);
+      if (messageData.file) formData.append("file", messageData.file);
+      if (messageData.replyTo) formData.append("replyTo", messageData.replyTo);
+      if (messageData.viewOnce) formData.append("viewOnce", messageData.viewOnce);
+      if (messageData.expiresAt) formData.append("expiresAt", messageData.expiresAt.toISOString());
+
+      const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -153,6 +212,64 @@ export const useChatStore = create((set, get) => ({
     } catch (error) {
       console.error("Error toggling pin:", error);
       useErrorStore.getState().handleApiError(error, "pin message");
+    }
+  },
+
+  setChatExpiry: async (userId, expiryLabel, expiresAt) => {
+    try {
+      const res = await axiosInstance.patch(`/messages/settings/disappearing/${userId}`, {
+        expiryLabel,
+        expiresAt: expiresAt ? expiresAt.toISOString() : null,
+      });
+      set({
+        chatSettings: {
+          ...get().chatSettings,
+          [userId]: res.data,
+        },
+      });
+    } catch (error) {
+      useErrorStore.getState().handleApiError(error, "update chat expiry");
+    }
+  },
+
+  getLockedChats: async () => {
+    try {
+      const res = await axiosInstance.get(`/messages/locked`);
+      set({ lockedChats: res.data });
+    } catch (error) {
+      useErrorStore.getState().handleApiError(error, "load locked chats");
+    }
+  },
+
+  lockChat: async (userId, pin) => {
+    try {
+      await axiosInstance.patch(`/messages/lock/${userId}`, { pin });
+      await get().getLockedChats();
+    } catch (error) {
+      useErrorStore.getState().handleApiError(error, "lock chat");
+    }
+  },
+
+  unlockChat: async (userId, pin) => {
+    try {
+      await axiosInstance.post(`/messages/unlock/${userId}`, { pin });
+      return true;
+    } catch (error) {
+      useErrorStore.getState().handleApiError(error, "unlock chat");
+      return false;
+    }
+  },
+
+  markViewOnceOpened: async (messageId) => {
+    try {
+      const res = await axiosInstance.patch(`/messages/view-once/${messageId}/open`);
+      set({
+        messages: get().messages.map(msg =>
+          msg._id === messageId ? res.data : msg
+        ),
+      });
+    } catch (error) {
+      useErrorStore.getState().handleApiError(error, "open media");
     }
   },
 

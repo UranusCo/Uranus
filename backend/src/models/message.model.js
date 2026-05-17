@@ -91,6 +91,19 @@ const messageSchema = new mongoose.Schema(
       ref: "Message",
       default: null,
     },
+    // View once / privacy
+    viewOnce: {
+      type: Boolean,
+      default: false,
+    },
+    viewedOnce: {
+      type: Boolean,
+      default: false,
+    },
+    viewedAt: {
+      type: Date,
+      default: null,
+    },
     // Self-destructing message
     expiresAt: {
       type: Date,

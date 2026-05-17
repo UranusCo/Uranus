@@ -4,6 +4,7 @@ import Message from "../models/message.model.js";
 import cloudinary from "../lib/cloudinary.js";
 import { getReceiverSocketId, io } from "../lib/socket.js";
 import multer from "multer";
+import crypto from "crypto";
 
 const storage = multer.memoryStorage();
 const upload = multer({
@@ -14,6 +15,35 @@ const upload = multer({
     cb(null, true);
   },
 });
+
+const hashPin = (pin) =>
+  crypto.createHash("sha256").update(pin).digest("hex");
+
+export const deleteExpiredMessages = async () => {
+  try {
+    const now = new Date();
+    const expired = await Message.find({
+      expiresAt: { $lte: now },
+      isExpired: false,
+    });
+
+    if (expired.length === 0) return;
+
+    await Message.updateMany(
+      { _id: { $in: expired.map((msg) => msg._id) } },
+      {
+        isExpired: true,
+        text: "[Message expired]",
+        image: null,
+        file: null,
+      }
+    );
+
+    console.log(`Expired ${expired.length} messages from automated cleanup`);
+  } catch (error) {
+    console.error("Failed to clean up expired messages:", error.message);
+  }
+};
 
 export const getUsersForSidebar = async (req, res) => {
   try {
@@ -100,6 +130,7 @@ export const getMessages = async (req, res) => {
         { senderId: myId, receiverId: userToChatId },
         { senderId: userToChatId, receiverId: myId },
       ],
+      isExpired: false,
     }).sort({ createdAt: 1 });
 
     res.status(200).json(messages);
@@ -144,7 +175,7 @@ export const sendMessage = [
   upload.single("file"),
   async (req, res) => {
     try {
-      const { text, image, replyTo } = req.body;
+      const { text, image, replyTo, viewOnce, expiresAt } = req.body;
       const { id: receiverId } = req.params;
       const senderId = req.user._id;
 
@@ -178,6 +209,8 @@ export const sendMessage = [
         file: fileData,
         isRead: false,
         replyTo: replyTo || null,
+        viewOnce: viewOnce === "true" || viewOnce === true,
+        expiresAt: expiresAt ? new Date(expiresAt) : null,
       });
 
       await newMessage.save();
@@ -488,6 +521,109 @@ export const searchMessages = async (req, res) => {
   }
 };
 
+export const setChatDisappearing = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { expiryLabel, expiresAt } = req.body;
+    const me = await User.findById(req.user._id);
+    if (!me) return res.status(404).json({ error: "User not found" });
+
+    const settings = me.chatSettings || new Map();
+    settings.set(userId, {
+      expiryLabel,
+      expiresAt: expiresAt ? new Date(expiresAt) : null,
+    });
+    me.chatSettings = settings;
+    await me.save();
+
+    res.status(200).json({ expiryLabel, expiresAt });
+  } catch (error) {
+    console.log("Error in setChatDisappearing: ", error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const getLockedChats = async (req, res) => {
+  try {
+    const me = await User.findById(req.user._id).select("lockedChats");
+    const lockedIds = me.lockedChats || [];
+    const chats = await User.find({ _id: { $in: lockedIds } }).select("fullName email profilePic");
+    res.status(200).json(chats);
+  } catch (error) {
+    console.log("Error in getLockedChats: ", error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const lockChat = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { pin } = req.body;
+    if (!pin || pin.length < 4) {
+      return res.status(400).json({ error: "PIN must be at least 4 digits" });
+    }
+
+    const me = await User.findById(req.user._id);
+    if (!me) return res.status(404).json({ error: "User not found" });
+
+    if (!me.lockedChats) me.lockedChats = [];
+    if (!me.lockPins) me.lockPins = new Map();
+
+    if (!me.lockedChats.some((id) => id.toString() === userId)) {
+      me.lockedChats.push(userId);
+    }
+    me.lockPins.set(userId, hashPin(pin));
+    me.markModified("lockPins");
+    await me.save();
+
+    res.status(200).json({ locked: true });
+  } catch (error) {
+    console.log("Error in lockChat: ", error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const unlockChat = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { pin } = req.body;
+
+    const me = await User.findById(req.user._id);
+    if (!me) return res.status(404).json({ error: "User not found" });
+
+    const storedHash = me.lockPins?.get(userId);
+    if (!storedHash || storedHash !== hashPin(pin)) {
+      return res.status(403).json({ error: "Invalid PIN" });
+    }
+
+    res.status(200).json({ unlocked: true });
+  } catch (error) {
+    console.log("Error in unlockChat: ", error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const markViewOnceOpened = async (req, res) => {
+  try {
+    const { messageId } = req.params;
+    const message = await Message.findById(messageId);
+    if (!message) return res.status(404).json({ error: "Message not found" });
+
+    if (!message.viewOnce || message.viewedOnce) {
+      return res.status(200).json(message);
+    }
+
+    message.viewedOnce = true;
+    message.viewedAt = new Date();
+    await message.save();
+
+    res.status(200).json(message);
+  } catch (error) {
+    console.log("Error in markViewOnceOpened: ", error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 // Forwrd message
 export const forwardMessage = async (req, res) => {
   try {
@@ -573,6 +709,16 @@ export const getUserStatus = async (req, res) => {
 };
 
 // Archive chat
+export const getCommunityData = async (req, res) => {
+  try {
+    const me = await User.findById(req.user._id).select("communityIds subscribedChannels");
+    res.status(200).json({ communityIds: me.communityIds || [], subscribedChannels: me.subscribedChannels || [] });
+  } catch (error) {
+    console.log("Error in getCommunityData: ", error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 export const toggleArchiveChat = async (req, res) => {
   try {
     const { userId } = req.params;

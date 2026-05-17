@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
 import SidebarSkeleton from "./skeletons/SidebarSkeleton";
+import LockedChatsPanel from "./LockedChatsPanel";
 import { Users, Search, X, Archive, Volume2, Pin } from "lucide-react";
 
 const Sidebar = () => {
@@ -130,6 +131,7 @@ const Sidebar = () => {
       </div>
 
       <div className="overflow-y-auto w-full py-3">
+        <LockedChatsPanel onSelectUser={handleUserSelect} />
         {filteredUsers.map((user) => {
           const isOnline = onlineUsers.includes(user._id);
           const lastMessage = user.lastMessage;

@@ -16,6 +16,12 @@ import {
   forwardMessage,
   updateUserStatus,
   getUserStatus,
+  setChatDisappearing,
+  getLockedChats,
+  lockChat,
+  unlockChat,
+  markViewOnceOpened,
+  getCommunityData,
   toggleArchiveChat,
   togglePinChat,
   toggleMuteChat,
@@ -47,6 +53,13 @@ router.post("/forward/:messageId", protectRoute, forwardMessage);
 // User status
 router.post("/status/update", protectRoute, updateUserStatus);
 router.get("/status/:userId", protectRoute, getUserStatus);
+
+// Privacy and locked chat management
+router.patch("/settings/disappearing/:userId", protectRoute, setChatDisappearing);
+router.get("/locked", protectRoute, getLockedChats);
+router.patch("/lock/:userId", protectRoute, lockChat);
+router.post("/unlock/:userId", protectRoute, unlockChat);
+router.patch("/view-once/:messageId/open", protectRoute, markViewOnceOpened);
 
 // Chat management
 router.patch("/archive/:userId", protectRoute, toggleArchiveChat);

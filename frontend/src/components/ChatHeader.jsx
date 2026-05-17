@@ -4,12 +4,14 @@ import { useChatStore } from "../store/useChatStore";
 import { useState } from "react";
 import ThemeToggle from "./ThemeToggle";
 import ExportChatModal from "./ExportChatModal";
+import ChatPrivacyMenu from "./ChatPrivacyMenu";
 
 const ChatHeader = ({ onSearchClick, onPinnedClick }) => {
-  const { selectedUser, setSelectedUser, userStatus } = useChatStore();
+  const { selectedUser, setSelectedUser, userStatus, chatSettings, lockedChats, setChatExpiry, lockChat, unlockChat } = useChatStore();
   const { onlineUsers } = useAuthStore();
   const [showMenu, setShowMenu] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
   const status = userStatus[selectedUser._id];
   const isOnline = onlineUsers.includes(selectedUser._id);
@@ -87,6 +89,14 @@ const ChatHeader = ({ onSearchClick, onPinnedClick }) => {
                 </li>
                 <li>
                   <a onClick={() => {
+                    setShowPrivacyModal(true);
+                    setShowMenu(false);
+                  }}>
+                    Privacy Settings
+                  </a>
+                </li>
+                <li>
+                  <a onClick={() => {
                     onSearchClick();
                     setShowMenu(false);
                   }}>Search</a>
@@ -119,6 +129,16 @@ const ChatHeader = ({ onSearchClick, onPinnedClick }) => {
           onClose={() => setShowExportModal(false)}
         />
       )}
+      <ChatPrivacyMenu
+        open={showPrivacyModal}
+        onClose={() => setShowPrivacyModal(false)}
+        selectedUser={selectedUser}
+        chatSettings={chatSettings}
+        isLocked={selectedUser ? lockedChats.some((chat) => chat._id === selectedUser._id) : false}
+        onSetChatExpiry={setChatExpiry}
+        onLockChat={lockChat}
+        onUnlockChat={unlockChat}
+      />
     </div>
   );
 };

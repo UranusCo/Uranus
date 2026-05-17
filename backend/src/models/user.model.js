@@ -39,6 +39,19 @@ const userSchema = new mongoose.Schema(
     pinnedChats: [mongoose.Schema.Types.ObjectId],
     mutedChats: [mongoose.Schema.Types.ObjectId],
     blockedUsers: [mongoose.Schema.Types.ObjectId],
+    lockedChats: [mongoose.Schema.Types.ObjectId],
+    lockPins: {
+      type: Map,
+      of: String,
+      default: new Map(),
+    },
+    chatSettings: {
+      type: Map,
+      of: mongoose.Schema.Types.Mixed,
+      default: new Map(),
+    },
+    communityIds: [mongoose.Schema.Types.ObjectId],
+    subscribedChannels: [mongoose.Schema.Types.ObjectId],
     // Preferences
     theme: {
       type: String,

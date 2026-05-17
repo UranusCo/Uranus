@@ -13,6 +13,7 @@ import MessageActions from "./MessageActions";
 import MessageSearch from "./MessageSearch";
 import ReplyPreview from "./ReplyPreview";
 import EditingIndicator from "./EditingIndicator";
+import ViewOnceMedia from "./ViewOnceMedia";
 
 const ChatContainer = () => {
   const {
@@ -31,6 +32,7 @@ const ChatContainer = () => {
     removeReaction,
     toggleMuteChat,
     togglePinChat,
+    markViewOnceOpened,
   } = useChatStore();
   const { authUser } = useAuthStore();
   const messageEndRef = useRef(null);
@@ -256,48 +258,60 @@ const ChatContainer = () => {
                       onTouchMove={handleLongPressEnd}
                       title="Double-click to ❤️ react"
                     >
-                      {message.image && (
-                        <img
-                          src={message.image}
-                          alt="Attachment"
-                          className="sm:max-w-[200px] rounded-md mb-2"
+                      {message.viewOnce && !message.viewedOnce ? (
+                        <ViewOnceMedia
+                          message={message}
+                          onOpened={() => markViewOnceOpened(message._id)}
                         />
-                      )}
-                      {message.file && (
-                        <div className="mb-2">
-                          {message.file.type.startsWith("image/") ? (
+                      ) : (
+                        <>
+                          {message.image && (
                             <img
-                              src={message.file.url}
-                              alt={message.file.name}
-                              className="sm:max-w-[200px] rounded-md"
+                              src={message.image}
+                              alt="Attachment"
+                              className="sm:max-w-[200px] rounded-md mb-2"
                             />
-                          ) : message.file.type.startsWith("video/") ? (
-                            <video controls className="sm:max-w-[200px] rounded-md">
-                              <source src={message.file.url} type={message.file.type} />
-                            </video>
-                          ) : (
-                            <a
-                              href={message.file.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center gap-2 p-2 bg-base-200 rounded-md hover:bg-base-300"
-                            >
-                              <Paperclip size={16} />
-                              <span className="text-sm">{message.file.name}</span>
-                              <span className="text-xs opacity-50">
-                                ({(message.file.size / 1024 / 1024).toFixed(2)} MB)
-                              </span>
-                            </a>
                           )}
-                        </div>
-                      )}
-                      {message.text && (
-                        <p>
-                          {message.text}
-                          {message.isEdited && (
-                            <span className="text-xs opacity-50 ml-2">(edited)</span>
+                          {message.file && (
+                            <div className="mb-2">
+                              {message.file.type.startsWith("image/") ? (
+                                <img
+                                  src={message.file.url}
+                                  alt={message.file.name}
+                                  className="sm:max-w-[200px] rounded-md"
+                                />
+                              ) : message.file.type.startsWith("video/") ? (
+                                <video controls className="sm:max-w-[200px] rounded-md">
+                                  <source src={message.file.url} type={message.file.type} />
+                                </video>
+                              ) : (
+                                <a
+                                  href={message.file.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-2 p-2 bg-base-200 rounded-md hover:bg-base-300"
+                                >
+                                  <Paperclip size={16} />
+                                  <span className="text-sm">{message.file.name}</span>
+                                  <span className="text-xs opacity-50">
+                                    ({(message.file.size / 1024 / 1024).toFixed(2)} MB)
+                                  </span>
+                                </a>
+                              )}
+                            </div>
                           )}
-                        </p>
+                          {message.text && (
+                            <p>
+                              {message.text}
+                              {message.isEdited && (
+                                <span className="text-xs opacity-50 ml-2">(edited)</span>
+                              )}
+                            </p>
+                          )}
+                          {message.viewOnce && message.viewedOnce && (
+                            <p className="mt-2 text-sm text-zinc-500">Opened • View once media</p>
+                          )}
+                        </>
                       )}
                     </div>
 
