@@ -1,8 +1,20 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 const UserProfileModal = ({ open, onClose, user }) => {
-  if (!open || !user) return null;
+  const [portalRoot, setPortalRoot] = useState(null);
+
+  useEffect(() => {
+    const element = document.createElement('div');
+    document.body.appendChild(element);
+    setPortalRoot(element);
+
+    return () => {
+      document.body.removeChild(element);
+    };
+  }, []);
+
+  if (!open || !user || !portalRoot) return null;
 
   return createPortal(
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4">
@@ -34,7 +46,7 @@ const UserProfileModal = ({ open, onClose, user }) => {
         </div>
       </div>
     </div>,
-    document.body
+    portalRoot
   );
 };
 

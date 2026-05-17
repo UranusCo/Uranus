@@ -1,8 +1,20 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 const ChatInfoModal = ({ open, onClose, user, chatSettings }) => {
-  if (!open || !user) return null;
+  const [portalRoot, setPortalRoot] = useState(null);
+
+  useEffect(() => {
+    const element = document.createElement('div');
+    document.body.appendChild(element);
+    setPortalRoot(element);
+
+    return () => {
+      document.body.removeChild(element);
+    };
+  }, []);
+
+  if (!open || !user || !portalRoot) return null;
 
   return createPortal(
     <div
@@ -45,7 +57,7 @@ const ChatInfoModal = ({ open, onClose, user, chatSettings }) => {
         </div>
       </div>
     </div>,
-    document.body
+    portalRoot
   );
 };
 
