@@ -5,6 +5,8 @@ import { useState } from "react";
 import ThemeToggle from "./ThemeToggle";
 import ExportChatModal from "./ExportChatModal";
 import ChatPrivacyMenu from "./ChatPrivacyMenu";
+import UserProfileModal from "./UserProfileModal";
+import ChatInfoModal from "./ChatInfoModal";
 
 const ChatHeader = ({ onSearchClick, onPinnedClick }) => {
   const { selectedUser, setSelectedUser, userStatus, chatSettings, lockedChats, setChatExpiry, lockChat, unlockChat } = useChatStore();
@@ -12,6 +14,8 @@ const ChatHeader = ({ onSearchClick, onPinnedClick }) => {
   const [showMenu, setShowMenu] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showChatInfoModal, setShowChatInfoModal] = useState(false);
 
   const status = userStatus[selectedUser._id];
   const isOnline = onlineUsers.includes(selectedUser._id);
@@ -134,10 +138,28 @@ const ChatHeader = ({ onSearchClick, onPinnedClick }) => {
                   </button>
                 </li>
                 <li>
-                  <button type="button" className="w-full text-left">View Profile</button>
+                  <button
+                    type="button"
+                    className="w-full text-left"
+                    onClick={() => {
+                      setShowProfileModal(true);
+                      setShowMenu(false);
+                    }}
+                  >
+                    View Profile
+                  </button>
                 </li>
                 <li>
-                  <button type="button" className="w-full text-left">Info</button>
+                  <button
+                    type="button"
+                    className="w-full text-left"
+                    onClick={() => {
+                      setShowChatInfoModal(true);
+                      setShowMenu(false);
+                    }}
+                  >
+                    Info
+                  </button>
                 </li>
               </ul>
             )}
@@ -166,6 +188,8 @@ const ChatHeader = ({ onSearchClick, onPinnedClick }) => {
         onLockChat={lockChat}
         onUnlockChat={unlockChat}
       />
+      <UserProfileModal open={showProfileModal} onClose={() => setShowProfileModal(false)} user={selectedUser} />
+      <ChatInfoModal open={showChatInfoModal} onClose={() => setShowChatInfoModal(false)} user={selectedUser} chatSettings={chatSettings?.[selectedUser?._id]} />
     </div>
   );
 };

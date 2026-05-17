@@ -44,7 +44,7 @@ router.post("/reaction/:messageId/add", protectRoute, addReaction);
 router.post("/reaction/:messageId/remove", protectRoute, removeReaction);
 router.patch("/edit/:messageId", protectRoute, editMessage);
 router.delete("/:messageId", protectRoute, deleteMessage);
-router.patch("/pin/:messageId", protectRoute, togglePinMessage);
+router.patch("/pin/message/:messageId", protectRoute, togglePinMessage);
 router.get("/pinned/:userId", protectRoute, getPinnedMessages);
 router.get("/search/:userId", protectRoute, searchMessages);
 router.post("/forward/:messageId", protectRoute, forwardMessage);

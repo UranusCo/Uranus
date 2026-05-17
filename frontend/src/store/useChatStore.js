@@ -203,7 +203,7 @@ export const useChatStore = create((set, get) => ({
   // Pin message
   togglePinMessage: async (messageId) => {
     try {
-      const res = await axiosInstance.patch(`/messages/pin/${messageId}`);
+      const res = await axiosInstance.patch(`/messages/pin/message/${messageId}`);
       set({
         messages: get().messages.map(msg =>
           msg._id === messageId ? { ...msg, ...res.data } : msg
