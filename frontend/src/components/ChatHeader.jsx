@@ -83,10 +83,10 @@ const ChatHeader = ({ onSearchClick, onPinnedClick }) => {
         {/* Action icons */}
         <div className="flex items-center gap-1.5 sm:gap-2">
           {/* Call & Video Call Icons */}
-          <button className="size-8 flex items-center justify-center rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors hidden sm:inline-flex" title="Voice Call">
+          <button className="size-8 flex items-center justify-center rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors flex" title="Voice Call">
             <Phone size={17} />
           </button>
-          <button className="size-8 flex items-center justify-center rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors hidden sm:inline-flex" title="Video Call">
+          <button className="size-8 flex items-center justify-center rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors flex" title="Video Call">
             <Video size={17} />
           </button>
 
