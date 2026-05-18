@@ -134,7 +134,7 @@ const ChatContainer = () => {
 
   if (isMessagesLoading) {
     return (
-      <div className="flex-1 flex flex-col overflow-auto">
+      <div className="flex-1 flex flex-col h-full bg-base-100 dark:bg-zinc-900">
         <ChatHeader />
         <MessageSkeleton />
         <MessageInput />
@@ -143,7 +143,7 @@ const ChatContainer = () => {
   }
 
   return (
-    <div className="flex-1 flex flex-col overflow-auto">
+    <div className="flex-1 flex flex-col h-full overflow-hidden bg-base-100 dark:bg-zinc-900">
       <ChatHeader
         onSearchClick={() => setShowSearch(!showSearch)}
         onPinnedClick={() => setShowPinned(!showPinned)}
@@ -151,17 +151,19 @@ const ChatContainer = () => {
 
       {/* Search Panel */}
       {showSearch && (
-        <MessageSearch userId={selectedUser._id} onClose={() => setShowSearch(false)} />
+        <div className="flex-shrink-0">
+          <MessageSearch userId={selectedUser._id} onClose={() => setShowSearch(false)} />
+        </div>
       )}
 
       {/* Pinned Messages Panel */}
       {showPinned && (
-        <div className="bg-base-100 border-b border-base-300 p-4 max-h-48 overflow-y-auto">
+        <div className="bg-base-100 border-b border-base-200 p-4 max-h-48 overflow-y-auto flex-shrink-0 z-20 shadow-inner">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold">Pinned Messages ({pinnedMessages.length})</h3>
+            <h3 className="font-semibold text-sm">Pinned Messages ({pinnedMessages.length})</h3>
             <button
               onClick={() => setShowPinned(false)}
-              className="btn btn-sm btn-ghost"
+              className="btn btn-xs btn-ghost btn-circle"
             >
               ✕
             </button>
@@ -171,21 +173,21 @@ const ChatContainer = () => {
               {pinnedMessages.map((msg) => (
                 <div
                   key={msg._id}
-                  className="p-2 bg-base-200 rounded-lg text-sm truncate hover:bg-base-300 cursor-pointer"
+                  className="p-2.5 bg-base-200 hover:bg-base-300 rounded-xl text-sm truncate cursor-pointer transition-colors"
                 >
-                  <p className="truncate">{msg.text || "[Media]"}</p>
+                  <p className="truncate font-medium text-base-content/85">{msg.text || "[Media]"}</p>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-center text-zinc-500 py-4">No pinned messages</p>
+            <p className="text-center text-xs text-base-content/40 py-4">No pinned messages</p>
           )}
         </div>
       )}
 
-      {/* Messages */}
+      {/* Messages Viewport */}
       <div
-        className="flex-1 overflow-y-auto p-4 space-y-4 message-container sm:pb-4 pb-28"
+        className="flex-1 overflow-y-auto px-6 py-6 space-y-6 message-container select-text"
         onClick={() => {
           if (ignoreNextClickRef.current) { ignoreNextClickRef.current = false; return; }
           if (activeMessageMenu) setActiveMessageMenu(null);
@@ -194,57 +196,191 @@ const ChatContainer = () => {
         {messages.map((message, index) => {
           if (message.isDeleted) return null;
 
-          return (
-            <div
-              key={message._id}
-              className={`chat ${message.senderId === authUser._id ? "chat-end" : "chat-start"} message-item group`}
-              ref={index === messages.length - 1 ? messageEndRef : null}
-              style={{
-                animation: `slideIn 0.3s ease-out ${index * 0.05}s both`,
-              }}
-            >
-              <div className="chat-image avatar">
-                <div className="size-10 rounded-full border">
-                  <img
-                    src={
-                      message.senderId === authUser._id
-                        ? authUser.profilePic || "/avatar.png"
-                        : selectedUser.profilePic || "/avatar.png"
-                    }
-                    alt="profile pic"
-                  />
-                </div>
-              </div>
+          const isSelf = message.senderId === authUser._id;
 
-              <div className={`flex flex-col ${message.senderId === authUser._id ? "items-end" : "items-start"}`}>
+          if (isSelf) {
+            // Sent message layout (aligned to right, no avatar)
+            return (
+              <div
+                key={message._id}
+                ref={index === messages.length - 1 ? messageEndRef : null}
+                className="flex flex-col items-end w-full message-item group/msg"
+                style={{
+                  animation: `slideIn 0.28s ease-out ${Math.min(index * 0.02, 0.4)}s both`,
+                }}
+              >
+                {/* Header: Sender and Time */}
+                <div className="flex items-center gap-1.5 mb-1 px-1.5 text-[11px] text-base-content/40 select-none">
+                  <span className="font-semibold text-base-content/65">You</span>
+                  <span>•</span>
+                  <time>{formatMessageTime(message.createdAt)}</time>
+                  {message.isPinned && <span className="ml-1">📌 Pinned</span>}
+                </div>
+
                 {/* Quoted Message */}
                 {message.replyTo && (
-                  <QuotedMessage replyTo={message.replyTo} />
+                  <div className="mb-1.5 max-w-[65%] text-left">
+                    <QuotedMessage replyTo={message.replyTo} />
+                  </div>
                 )}
 
-                <div className="flex gap-2 items-end group/message">
-                  {message.senderId !== authUser._id && (
-                    <div className="relative opacity-0 group-hover/message:opacity-100 transition-opacity msg-action-btn">
-                      <button
-                        className="btn btn-xs btn-ghost"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const rect = e.currentTarget.getBoundingClientRect();
-                          if (activeMessageMenu === message._id) {
-                            closeMessageMenu();
-                          } else {
-                            openMessageMenu(message._id, rect);
-                          }
-                        }}
-                      >
-                        <MoreVertical size={14} />
-                      </button>
+                {/* Bubble Row */}
+                <div className="flex gap-2 items-end justify-end group/bubble w-full max-w-[65%]">
+                  {/* Action Menu (hover) */}
+                  <div className="opacity-0 group-hover/bubble:opacity-100 transition-opacity duration-200 flex-shrink-0 select-none">
+                    <button
+                      className="btn btn-xs btn-ghost btn-circle text-base-content/40 hover:bg-base-200"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        if (activeMessageMenu === message._id) {
+                          closeMessageMenu();
+                        } else {
+                          openMessageMenu(message._id, rect);
+                        }
+                      }}
+                    >
+                      <MoreVertical size={14} />
+                    </button>
+                  </div>
+
+                  {/* Message Bubble */}
+                  <div
+                    className="chat-bubble flex flex-col hover:cursor-pointer select-text px-4 py-2.5 rounded-2xl rounded-tr-none bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-sm hover:brightness-[0.98] transition-all no-callout"
+                    onDoubleClick={() => {
+                      const hasHeart = message.reactions?.["❤️"]?.includes(authUser._id);
+                      if (hasHeart) {
+                        removeReaction(message._id, "❤️");
+                      } else {
+                        addReaction(message._id, "❤️");
+                      }
+                    }}
+                    onTouchStart={(e) => { e.stopPropagation(); handleLongPressStart(message._id); }}
+                    onTouchEnd={handleLongPressEnd}
+                    onTouchMove={handleLongPressEnd}
+                    title="Double-click to ❤️ react"
+                  >
+                    {message.viewOnce && !message.viewedOnce ? (
+                      <ViewOnceMedia
+                        message={message}
+                        onOpened={() => markViewOnceOpened(message._id)}
+                      />
+                    ) : (
+                      <>
+                        {message.image && (
+                          <img
+                            src={message.image}
+                            alt="Attachment"
+                            className="max-w-full sm:max-w-[240px] rounded-lg mb-1.5 shadow-sm"
+                          />
+                        )}
+                        {message.file && (
+                          <div className="mb-1.5">
+                            {message.file.type.startsWith("image/") ? (
+                              <img
+                                src={message.file.url}
+                                alt={message.file.name}
+                                className="max-w-full sm:max-w-[240px] rounded-lg shadow-sm"
+                              />
+                            ) : message.file.type.startsWith("video/") ? (
+                              <video controls className="max-w-full sm:max-w-[240px] rounded-lg shadow-sm">
+                                <source src={message.file.url} type={message.file.type} />
+                              </video>
+                            ) : (
+                              <a
+                                href={message.file.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2.5 p-2 bg-white/10 hover:bg-white/15 rounded-xl text-white transition-colors"
+                              >
+                                <Paperclip size={15} />
+                                <span className="text-xs font-medium truncate max-w-[120px]">{message.file.name}</span>
+                                <span className="text-[10px] opacity-75 whitespace-nowrap">
+                                  ({(message.file.size / 1024 / 1024).toFixed(2)} MB)
+                                </span>
+                              </a>
+                            )}
+                          </div>
+                        )}
+                        {message.text && (
+                          <p className="text-[14px] leading-relaxed break-words font-medium">
+                            {message.text}
+                            {message.isEdited && (
+                              <span className="text-[10px] opacity-75 ml-2 font-normal">(edited)</span>
+                            )}
+                          </p>
+                        )}
+                        {message.viewOnce && message.viewedOnce && (
+                          <p className="mt-1 text-xs text-white/60">Opened • View once media</p>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Reactions list */}
+                <div className="mr-1 mt-1.5 select-none">
+                  <MessageReactions message={message} />
+                </div>
+
+                {/* Read Status checkmark indicators */}
+                <div className="px-1.5 mt-1 text-[10px] text-base-content/40 flex items-center gap-1 select-none">
+                  {message.isRead ? (
+                    <>
+                      <CheckCheck size={11} className="text-primary" />
+                      <span>Read</span>
+                    </>
+                  ) : (
+                    <>
+                      <Check size={11} />
+                      <span>Sent</span>
+                    </>
+                  )}
+                </div>
+              </div>
+            );
+          } else {
+            // Received message layout (aligned to left, with avatar)
+            return (
+              <div
+                key={message._id}
+                ref={index === messages.length - 1 ? messageEndRef : null}
+                className="flex gap-3 items-start w-full message-item group/msg"
+                style={{
+                  animation: `slideIn 0.28s ease-out ${Math.min(index * 0.02, 0.4)}s both`,
+                }}
+              >
+                {/* Avatar */}
+                <div className="flex-shrink-0 mt-0.5 select-none">
+                  <img
+                    src={selectedUser.profilePic || "/avatar.png"}
+                    alt={selectedUser.fullName}
+                    className="size-10 rounded-full object-cover shadow-sm border border-base-200"
+                  />
+                </div>
+
+                {/* Content block */}
+                <div className="flex flex-col items-start max-w-[65%]">
+                  {/* Header: Sender and Time */}
+                  <div className="flex items-center gap-1.5 mb-1 px-1.5 text-[11px] text-base-content/40 select-none">
+                    <span className="font-semibold text-base-content/75">{selectedUser.fullName}</span>
+                    <span>•</span>
+                    <time>{formatMessageTime(message.createdAt)}</time>
+                    {message.isPinned && <span className="ml-1">📌 Pinned</span>}
+                  </div>
+
+                  {/* Quoted Message */}
+                  {message.replyTo && (
+                    <div className="mb-1.5 w-full text-left">
+                      <QuotedMessage replyTo={message.replyTo} />
                     </div>
                   )}
 
-                  <div>
+                  {/* Bubble Row */}
+                  <div className="flex gap-2 items-end group/bubble w-full">
+                    {/* Message Bubble */}
                     <div
-                      className="chat-bubble flex flex-col hover:cursor-pointer no-callout"
+                      className="chat-bubble flex flex-col hover:cursor-pointer select-text px-4 py-2.5 rounded-2xl rounded-tl-none bg-base-200/90 dark:bg-zinc-800 text-base-content shadow-sm hover:bg-base-200 dark:hover:bg-zinc-800/80 transition-all border border-base-200/30 dark:border-zinc-700/40 no-callout"
                       onDoubleClick={() => {
                         const hasHeart = message.reactions?.["❤️"]?.includes(authUser._id);
                         if (hasHeart) {
@@ -269,19 +405,19 @@ const ChatContainer = () => {
                             <img
                               src={message.image}
                               alt="Attachment"
-                              className="sm:max-w-[200px] rounded-md mb-2"
+                              className="max-w-full sm:max-w-[240px] rounded-lg mb-1.5 shadow-sm"
                             />
                           )}
                           {message.file && (
-                            <div className="mb-2">
+                            <div className="mb-1.5">
                               {message.file.type.startsWith("image/") ? (
                                 <img
                                   src={message.file.url}
                                   alt={message.file.name}
-                                  className="sm:max-w-[200px] rounded-md"
+                                  className="max-w-full sm:max-w-[240px] rounded-lg shadow-sm"
                                 />
                               ) : message.file.type.startsWith("video/") ? (
-                                <video controls className="sm:max-w-[200px] rounded-md">
+                                <video controls className="max-w-full sm:max-w-[240px] rounded-lg shadow-sm">
                                   <source src={message.file.url} type={message.file.type} />
                                 </video>
                               ) : (
@@ -289,11 +425,11 @@ const ChatContainer = () => {
                                   href={message.file.url}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="flex items-center gap-2 p-2 bg-base-200 rounded-md hover:bg-base-300"
+                                  className="flex items-center gap-2.5 p-2 bg-base-300 dark:bg-zinc-700 hover:bg-base-300/80 rounded-xl text-base-content transition-colors"
                                 >
-                                  <Paperclip size={16} />
-                                  <span className="text-sm">{message.file.name}</span>
-                                  <span className="text-xs opacity-50">
+                                  <Paperclip size={15} />
+                                  <span className="text-xs font-medium truncate max-w-[120px]">{message.file.name}</span>
+                                  <span className="text-[10px] opacity-60 whitespace-nowrap">
                                     ({(message.file.size / 1024 / 1024).toFixed(2)} MB)
                                   </span>
                                 </a>
@@ -301,34 +437,24 @@ const ChatContainer = () => {
                             </div>
                           )}
                           {message.text && (
-                            <p>
+                            <p className="text-[14px] leading-relaxed break-words font-medium text-base-content/90">
                               {message.text}
                               {message.isEdited && (
-                                <span className="text-xs opacity-50 ml-2">(edited)</span>
+                                <span className="text-[10px] opacity-55 ml-2 font-normal">(edited)</span>
                               )}
                             </p>
                           )}
                           {message.viewOnce && message.viewedOnce && (
-                            <p className="mt-2 text-sm text-zinc-500">Opened • View once media</p>
+                            <p className="mt-1 text-xs text-base-content/50">Opened • View once media</p>
                           )}
                         </>
                       )}
                     </div>
 
-                    {/* Reactions */}
-                    <MessageReactions message={message} />
-
-                    {/* Message info */}
-                    <div className="chat-header mb-1 text-xs opacity-50">
-                      <time>{formatMessageTime(message.createdAt)}</time>
-                      {message.isPinned && <span className="ml-2">📌 Pinned</span>}
-                    </div>
-                  </div>
-
-                  {message.senderId === authUser._id && (
-                    <div className="relative opacity-0 group-hover/message:opacity-100 transition-opacity msg-action-btn">
+                    {/* Action Menu (hover) */}
+                    <div className="opacity-0 group-hover/bubble:opacity-100 transition-opacity duration-200 flex-shrink-0 select-none">
                       <button
-                        className="btn btn-xs btn-ghost"
+                        className="btn btn-xs btn-ghost btn-circle text-base-content/40 hover:bg-base-200"
                         onClick={(e) => {
                           e.stopPropagation();
                           const rect = e.currentTarget.getBoundingClientRect();
@@ -342,35 +468,23 @@ const ChatContainer = () => {
                         <MoreVertical size={14} />
                       </button>
                     </div>
-                  )}
-                </div>
-
-                {/* Read Status */}
-                {message.senderId === authUser._id && (
-                  <div className="text-xs text-zinc-500 mt-1 flex items-center gap-1">
-                    {message.isRead ? (
-                      <>
-                        <CheckCheck size={12} className="text-green-500" />
-                        Read
-                      </>
-                    ) : (
-                      <>
-                        <Check size={12} />
-                        Sent
-                      </>
-                    )}
                   </div>
-                )}
+
+                  {/* Reactions list */}
+                  <div className="ml-1 mt-1.5 select-none">
+                    <MessageReactions message={message} />
+                  </div>
+                </div>
               </div>
-            </div>
-          );
+            );
+          }
         })}
 
         {activeMessageMenu && <div className="fixed inset-0 z-40" onClick={closeMessageMenu} />}
 
         {activeMenuMessage && (
           <div
-            className="fixed z-50"
+            className="fixed z-50 select-none"
             style={{ top: `${messageMenuPos.top}px`, left: `${messageMenuPos.left}px`, minWidth: "220px" }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -383,21 +497,32 @@ const ChatContainer = () => {
 
         {/* Typing Indicator */}
         {typingUsers.length > 0 && (
-          <div className="chat chat-start message-item" style={{ animation: "slideIn 0.3s ease-out" }}>
-            <div className="chat-image avatar">
-              <div className="size-10 rounded-full border">
-                <img src={selectedUser.profilePic || "/avatar.png"} alt="profile pic" />
-              </div>
+          <div className="flex gap-3 items-start w-full message-item" style={{ animation: "slideIn 0.3s ease-out" }}>
+            <div className="flex-shrink-0 mt-0.5">
+              <img
+                src={selectedUser.profilePic || "/avatar.png"}
+                alt={selectedUser.fullName}
+                className="size-10 rounded-full object-cover shadow-sm border border-base-200"
+              />
             </div>
-            <div className="chat-bubble">
-              <div className="typing">
-                <span></span>
-                <span></span>
-                <span></span>
+            <div className="flex flex-col items-start max-w-[65%]">
+              <div className="flex items-center gap-1.5 mb-1 px-1.5 text-[11px] text-base-content/40">
+                <span className="font-semibold text-base-content/75">{selectedUser.fullName}</span>
+                <span>•</span>
+                <span className="text-emerald-500 font-semibold animate-pulse">Typing</span>
+              </div>
+              <div className="px-4.5 py-3 rounded-2xl rounded-tl-none bg-base-200/90 dark:bg-zinc-800 text-base-content shadow-sm flex items-center justify-center border border-base-200/30 dark:border-zinc-700/40">
+                <div className="typing">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
               </div>
             </div>
           </div>
         )}
+
+        <div ref={messageEndRef} />
       </div>
 
       {/* Reply Preview */}
@@ -406,13 +531,16 @@ const ChatContainer = () => {
       {/* Editing Indicator */}
       <EditingIndicator />
 
-      <MessageInput />
+      {/* Input container */}
+      <div className="flex-shrink-0">
+        <MessageInput />
+      </div>
 
       <style>{`
         @keyframes slideIn {
           from {
             opacity: 0;
-            transform: translateY(10px);
+            transform: translateY(8px);
           }
           to {
             opacity: 1;
@@ -421,7 +549,36 @@ const ChatContainer = () => {
         }
 
         .message-item {
-          animation: slideIn 0.3s ease-out;
+          animation: slideIn 0.28s ease-out;
+        }
+
+        .typing span {
+          width: 5px;
+          height: 5px;
+          margin: 0 1.5px;
+          background-color: currentColor;
+          opacity: 0.45;
+          border-radius: 50%;
+          display: inline-block;
+          animation: bounceTyping 1.3s infinite ease-in-out;
+        }
+
+        .typing span:nth-child(2) {
+          animation-delay: 0.2s;
+        }
+
+        .typing span:nth-child(3) {
+          animation-delay: 0.4s;
+        }
+
+        @keyframes bounceTyping {
+          0%, 100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-4px);
+            opacity: 0.9;
+          }
         }
       `}</style>
     </div>

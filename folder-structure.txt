@@ -1,0 +1,156 @@
+Uranus Workspace Folder Structure
+==================================
+
+.
+├── .env
+├── .env.example
+├── .gitignore
+├── Dockerfile
+├── LICENSE
+├── README.md
+├── agent.md
+├── iframe-embed.html
+├── package-lock.json
+├── package.json
+├── tasks.md
+├── test.ps1
+├── backend/
+│   ├── .env
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── tasks.md
+│   ├── public/
+│   │   ├── assets/
+│   │   │   ├── index-6rgDzxxi.js
+│   │   │   ├── index-BiElmxjj.js
+│   │   │   ├── index-C8u3avHL.js
+│   │   │   ├── index-DGmtcvhO.css
+│   │   │   └── uranus-jOLa_z36.svg
+│   │   ├── avatar.png
+│   │   ├── file.enc
+│   │   ├── file.png
+│   │   ├── index.html
+│   │   ├── manifest.webmanifest
+│   │   ├── registerSW.js
+│   │   ├── robots.txt
+│   │   ├── screenshot-for-readme.png
+│   │   ├── sw.js
+│   │   ├── uranus.svg
+│   │   ├── vite.svg
+│   │   └── workbox-8c29f6e4.js
+│   └── src/
+│       ├── index.js
+│       ├── controllers/
+│       │   ├── auth.controller.js
+│       │   ├── message.controller.js
+│       │   └── notification.controller.js
+│       ├── lib/
+│       │   ├── cloudinary.js
+│       │   ├── db.js
+│       │   ├── socket.js
+│       │   └── utils.js
+│       ├── middleware/
+│       │   └── auth.middleware.js
+│       ├── models/
+│       │   ├── group.model.js
+│       │   ├── message.model.js
+│       │   ├── notification.model.js
+│       │   └── user.model.js
+│       ├── routes/
+│       │   ├── auth.route.js
+│       │   ├── message.route.js
+│       │   └── notification.route.js
+│       ├── seeds/
+│       │   └── user.seed.js
+│       └── services/
+│           └── notification.service.js
+└── frontend/
+    ├── README.md
+    ├── eslint.config.js
+    ├── index.html
+    ├── package-lock.json
+    ├── package.json
+    ├── postcss.config.js
+    ├── tailwind.config.js
+    ├── tasks.md
+    ├── vite.config.js
+    ├── dev-dist/
+    │   ├── registerSW.js
+    │   ├── sw.js
+    │   └── workbox-5a5d9309.js
+    ├── dist/
+    │   ├── assets/
+    │   ├── avatar.png
+    │   ├── file.enc
+    │   ├── file.png
+    │   ├── index.html
+    │   ├── manifest.webmanifest
+    │   ├── registerSW.js
+    │   ├── robots.txt
+    │   ├── service-worker.js
+    │   ├── uranus.svg
+    │   └── vite.svg
+    ├── public/
+    │   ├── avatar.png
+    │   ├── file.enc
+    │   ├── file.png
+    │   ├── manifest.webmanifest
+    │   ├── robots.txt
+    │   ├── uranus.svg
+    │   └── vite.svg
+    └── src/
+        ├── App.jsx
+        ├── index.css
+        ├── main.jsx
+        ├── service-worker.js
+        ├── components/
+        │   ├── AuthImagePattern.jsx
+        │   ├── ChatContainer.jsx
+        │   ├── ChatContainerNew.jsx
+        │   ├── ChatHeader.jsx
+        │   ├── ChatInfoModal.jsx
+        │   ├── ChatLockModal.jsx
+        │   ├── ChatPrivacyMenu.jsx
+        │   ├── ConversationList.jsx
+        │   ├── EditingIndicator.jsx
+        │   ├── ErrorModal.jsx
+        │   ├── ExportChatModal.jsx
+        │   ├── ForwardModal.jsx
+        │   ├── LockedChatsPanel.jsx
+        │   ├── MessageActions.jsx
+        │   ├── MessageInput.jsx
+        │   ├── MessageReactions.jsx
+        │   ├── MessageSearch.jsx
+        │   ├── Navbar.jsx
+        │   ├── NoChatSelected.jsx
+        │   ├── NotificationBell.jsx
+        │   ├── NotificationItem.jsx
+        │   ├── NotificationPanel.jsx
+        │   ├── QuotedMessage.jsx
+        │   ├── ReplyPreview.jsx
+        │   ├── Sidebar.jsx
+        │   ├── SidebarRail.jsx
+        │   ├── StatusUpdateModal.jsx
+        │   ├── ThemeToggle.jsx
+        │   ├── UserProfileModal.jsx
+        │   ├── ViewOnceMedia.jsx
+        │   └── skeletons/
+        │       ├── MessageSkeleton.jsx
+        │       └── SidebarSkeleton.jsx
+        ├── constants/
+        │   └── index.js
+        ├── lib/
+        │   ├── axios.js
+        │   └── utils.js
+        ├── pages/
+        │   ├── HomePage.jsx
+        │   ├── LoginPage.jsx
+        │   ├── ProfilePage.jsx
+        │   ├── SettingsPage.jsx
+        │   └── SignUpPage.jsx
+        └── store/
+            ├── useAuthStore.js
+            ├── useChatStore.js
+            ├── useErrorStore.js
+            ├── useNotificationStore.js
+            └── useThemeStore.js
