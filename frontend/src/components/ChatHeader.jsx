@@ -37,9 +37,9 @@ const ChatHeader = ({ onSearchClick, onPinnedClick }) => {
   }, [showMenu]);
 
   return (
-    <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md flex-shrink-0 z-20 select-none transition-colors duration-200">
+    <div className="px-3 sm:px-6 py-3 sm:py-4 border-b border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md flex-shrink-0 z-20 select-none transition-colors duration-200">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3.5 flex-1 min-w-0">
+        <div className="flex items-center gap-2 sm:gap-3.5 flex-1 min-w-0">
           {/* Back button — mobile only */}
           <button
             onClick={() => setSelectedUser(null)}
@@ -61,7 +61,7 @@ const ChatHeader = ({ onSearchClick, onPinnedClick }) => {
 
           {/* User info */}
           <div className="flex-1 min-w-0 text-left">
-            <h3 className="font-bold text-[16px] text-slate-800 dark:text-slate-100 leading-tight hover:text-blue-500 dark:hover:text-blue-400 cursor-pointer transition-colors" onClick={() => setShowProfileModal(true)}>
+            <h3 className="font-bold text-[15px] sm:text-[16px] text-slate-800 dark:text-slate-100 leading-tight hover:text-blue-500 dark:hover:text-blue-400 cursor-pointer transition-colors truncate" onClick={() => setShowProfileModal(true)}>
               {selectedUser.fullName}
             </h3>
             <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5 truncate flex items-center gap-1.5 font-semibold">
@@ -90,11 +90,13 @@ const ChatHeader = ({ onSearchClick, onPinnedClick }) => {
             <Video size={17} />
           </button>
 
-          <ThemeToggle />
+          <div className="hidden sm:block">
+            <ThemeToggle />
+          </div>
 
           <button
             onClick={onSearchClick}
-            className="size-8 flex items-center justify-center rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+            className="size-8 flex items-center justify-center rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors hidden sm:flex"
             title="Search messages"
           >
             <Search size={17} />
@@ -102,7 +104,7 @@ const ChatHeader = ({ onSearchClick, onPinnedClick }) => {
 
           <button
             onClick={onPinnedClick}
-            className="size-8 flex items-center justify-center rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+            className="size-8 flex items-center justify-center rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors hidden sm:flex"
             title="Pinned messages"
           >
             <Pin size={17} />

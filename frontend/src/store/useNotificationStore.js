@@ -104,15 +104,22 @@ export const useNotificationStore = create((set, get) => ({
       useErrorStore.getState().handleApiError(error, "update preferences");
     }
   },
-
   subscribeToPushNotifications: async () => {
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
 
     try {
+      // Dynamically fetch public key from backend
+      const keyRes = await axiosInstance.get('/notifications/push/key');
+      const publicKey = keyRes.data.publicKey;
+
+      if (!publicKey) {
+        throw new Error("VAPID public key not configured on server.");
+      }
+
       const registration = await navigator.serviceWorker.ready;
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: VAPID_PUBLIC_KEY,
+        applicationServerKey: publicKey,
       });
 
       await axiosInstance.post('/notifications/push/subscribe', subscription);
@@ -122,7 +129,6 @@ export const useNotificationStore = create((set, get) => ({
       toast.error("Could not enable push notifications.");
     }
   },
-
   subscribeToNotifications: () => {
     const socket = useAuthStore.getState().socket;
     if (!socket) return;

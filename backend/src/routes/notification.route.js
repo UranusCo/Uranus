@@ -24,6 +24,11 @@ const router = express.Router();
 // Temporary store for subscriptions
 const subscriptions = new Map();
 
+// Get VAPID public key
+router.get("/push/key", protectRoute, (req, res) => {
+  res.json({ publicKey: PUBLIC_VAPID_KEY });
+});
+
 // Push notification subscription
 router.post("/push/subscribe", protectRoute, (req, res) => {
   const subscription = req.body;
