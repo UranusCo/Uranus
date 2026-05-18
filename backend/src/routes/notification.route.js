@@ -9,6 +9,7 @@ import {
   updatePreferences,
 } from "../controllers/notification.controller.js";
 import webpush from "web-push";
+import User from "../models/user.model.js";
 
 const PUBLIC_VAPID_KEY = process.env.VAPID_PUBLIC_KEY;
 const PRIVATE_VAPID_KEY = process.env.VAPID_PRIVATE_KEY;
@@ -21,29 +22,39 @@ webpush.setVapidDetails(
 
 const router = express.Router();
 
-// Temporary store for subscriptions
-const subscriptions = new Map();
-
 // Get VAPID public key
 router.get("/push/key", protectRoute, (req, res) => {
   res.json({ publicKey: PUBLIC_VAPID_KEY });
 });
 
-// Push notification subscription
-router.post("/push/subscribe", protectRoute, (req, res) => {
-  const subscription = req.body;
-  subscriptions.set(req.user._id.toString(), subscription);
-  res.status(201).json({ message: "Subscribed" });
+// Push notification subscription - persist directly to MongoDB
+router.post("/push/subscribe", protectRoute, async (req, res) => {
+  try {
+    const subscription = req.body;
+    await User.findByIdAndUpdate(req.user._id, { pushSubscription: subscription });
+    res.status(201).json({ message: "Subscribed" });
+  } catch (error) {
+    console.error("Error in push subscription route:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
-// Helper to send push
-export const sendPushNotification = (userId, payload) => {
-  const subscription = subscriptions.get(userId.toString());
-  if (subscription) {
-    webpush.sendNotification(subscription, JSON.stringify(payload)).catch(err => {
-      console.error("Error sending push:", err);
-      if (err.statusCode === 410) subscriptions.delete(userId.toString());
-    });
+// Helper to send push dynamically querying DB
+export const sendPushNotification = async (userId, payload) => {
+  try {
+    const user = await User.findById(userId);
+    const subscription = user?.pushSubscription;
+    if (subscription) {
+      webpush.sendNotification(subscription, JSON.stringify(payload)).catch(async (err) => {
+        console.error("Error sending web push:", err.message);
+        // If subscription is expired or revoked (410 Gone), delete it from DB
+        if (err.statusCode === 410 || err.statusCode === 404) {
+          await User.findByIdAndUpdate(userId, { pushSubscription: null });
+        }
+      });
+    }
+  } catch (error) {
+    console.error("Error in sendPushNotification service:", error);
   }
 };
 

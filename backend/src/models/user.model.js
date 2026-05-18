@@ -70,6 +70,10 @@ const userSchema = new mongoose.Schema(
       friendRequest: { type: Boolean, default: true },
       system: { type: Boolean, default: true },
     },
+    pushSubscription: {
+      type: mongoose.Schema.Types.Mixed,
+      default: null,
+    },
   },
   { timestamps: true }
 );
