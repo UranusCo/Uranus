@@ -10,22 +10,8 @@ import {
   Volume2, 
   Pin, 
   Edit3, 
-  MessageSquarePlus, 
-  Lock,
   Plus
 } from "lucide-react";
-
-const MOCK_GROUP = {
-  _id: "mock-columbus-studio",
-  fullName: "Columbus Studio",
-  profilePic: "", // Blue circle letter 'C'
-  lastMessage: {
-    text: "Well? Don't we extraons how teach on the demanded?",
-    createdAt: new Date(Date.now() - 1800000).toISOString(),
-  },
-  unreadCount: 2,
-  isGroup: true,
-};
 
 const ConversationList = () => {
   const {
@@ -100,8 +86,7 @@ const ConversationList = () => {
 
   const displayUsers = searchInput ? searchResults : users;
 
-  // Prepend Mock Group to list (except if searching or filtering specific subsets)
-  let baseList = [MOCK_GROUP, ...displayUsers];
+  let baseList = [...displayUsers];
 
   // Filter logic based on tab selected
   if (activeFilter === "unread") {
@@ -132,10 +117,9 @@ const ConversationList = () => {
   if (isUsersLoading) return <SidebarSkeleton />;
 
   const renderUserItem = (user) => {
-    const isMock = user._id === "mock-columbus-studio";
-    const isOnline = isMock ? true : onlineUsers.includes(user._id);
+    const isOnline = onlineUsers.includes(user._id);
     const lastMessage = user.lastMessage;
-    const unreadCount = isMock ? user.unreadCount : (users.find(u => u._id === user._id)?.unreadCount || 0);
+    const unreadCount = users.find(u => u._id === user._id)?.unreadCount || 0;
     const isArchived = authUser?.archivedChats?.includes(user._id);
     const isPinned = authUser?.pinnedChats?.includes(user._id);
     const isMuted = authUser?.mutedChats?.includes(user._id);
@@ -174,13 +158,11 @@ const ConversationList = () => {
           }}
           onContextMenu={(e) => {
             e.preventDefault();
-            if (!isMock) {
-              setContextMenuOpen(contextMenuOpen === user._id ? null : user._id);
-            }
+            setContextMenuOpen(contextMenuOpen === user._id ? null : user._id);
           }}
-          onTouchStart={() => !isMock && handleUserLongPressStart(user._id)}
-          onTouchEnd={!isMock && handleUserLongPressEnd}
-          onTouchMove={!isMock && handleUserLongPressEnd}
+          onTouchStart={() => handleUserLongPressStart(user._id)}
+          onTouchEnd={handleUserLongPressEnd}
+          onTouchMove={handleUserLongPressEnd}
           className={`
             w-full p-3.5 flex items-center gap-3.5 rounded-2xl text-left
             transition-all duration-200 relative
@@ -192,17 +174,11 @@ const ConversationList = () => {
         >
           {/* Avatar Area */}
           <div className="relative flex-shrink-0 select-none">
-            {isMock ? (
-              <div className="size-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center font-bold text-white shadow-sm text-lg">
-                C
-              </div>
-            ) : (
-              <img
-                src={user.profilePic || "/avatar.png"}
-                alt={user.fullName || user.name}
-                className="size-12 object-cover rounded-full shadow-sm"
-              />
-            )}
+            <img
+              src={user.profilePic || "/avatar.png"}
+              alt={user.fullName || user.name}
+              className="size-12 object-cover rounded-full shadow-sm border border-slate-100 dark:border-slate-700"
+            />
             {isOnline && (
               <span
                 className="absolute bottom-0 right-0 size-3 bg-green-500 
@@ -229,7 +205,7 @@ const ConversationList = () => {
               {/* Message Time */}
               {lastMessage && (
                 <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 whitespace-nowrap ml-2">
-                  {isMock ? "13h ago" : getMessageTime(lastMessage)}
+                  {getMessageTime(lastMessage)}
                 </span>
               )}
             </div>
@@ -263,7 +239,7 @@ const ConversationList = () => {
         </button>
 
         {/* Context menu (right-click on desktop, long-press on mobile) */}
-        {contextMenuOpen === user._id && !isMock && (
+        {contextMenuOpen === user._id && (
           <div
             className="absolute right-4 top-12 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 z-50 min-w-[150px] overflow-hidden py-1 animate-fadeIn"
             onClick={(e) => e.stopPropagation()}
