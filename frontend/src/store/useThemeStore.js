@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-const DEFAULT_THEME = "lofi";
+const DEFAULT_THEME = "light";
 
 export const useThemeStore = create((set) => ({
   theme: localStorage.getItem("chat-theme") || DEFAULT_THEME,
@@ -10,7 +10,7 @@ export const useThemeStore = create((set) => ({
   },
   toggleTheme: () => {
     set((state) => {
-      const nextTheme = state.theme === "dark" ? "lofi" : "dark";
+      const nextTheme = state.theme === "dark" ? "light" : "dark";
       localStorage.setItem("chat-theme", nextTheme);
       return { theme: nextTheme };
     });

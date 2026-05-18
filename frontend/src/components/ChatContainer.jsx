@@ -134,7 +134,7 @@ const ChatContainer = () => {
 
   if (isMessagesLoading) {
     return (
-      <div className="flex-1 flex flex-col h-full bg-base-100 dark:bg-zinc-900">
+      <div className="flex-1 flex flex-col h-full bg-slate-100 dark:bg-slate-900 transition-colors duration-200">
         <ChatHeader />
         <MessageSkeleton />
         <MessageInput />
@@ -143,7 +143,7 @@ const ChatContainer = () => {
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full overflow-hidden bg-base-100 dark:bg-zinc-900">
+    <div className="flex-1 flex flex-col h-full overflow-hidden bg-slate-100 dark:bg-slate-900 transition-colors duration-200">
       <ChatHeader
         onSearchClick={() => setShowSearch(!showSearch)}
         onPinnedClick={() => setShowPinned(!showPinned)}
@@ -158,12 +158,12 @@ const ChatContainer = () => {
 
       {/* Pinned Messages Panel */}
       {showPinned && (
-        <div className="bg-base-100 border-b border-base-200 p-4 max-h-48 overflow-y-auto flex-shrink-0 z-20 shadow-inner">
+        <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-4 max-h-48 overflow-y-auto flex-shrink-0 z-20 shadow-inner transition-colors duration-200">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-sm">Pinned Messages ({pinnedMessages.length})</h3>
+            <h3 className="font-bold text-sm text-slate-800 dark:text-slate-100">Pinned Messages ({pinnedMessages.length})</h3>
             <button
               onClick={() => setShowPinned(false)}
-              className="btn btn-xs btn-ghost btn-circle"
+              className="size-5 flex items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 transition-colors text-xs font-semibold"
             >
               ✕
             </button>
@@ -173,14 +173,14 @@ const ChatContainer = () => {
               {pinnedMessages.map((msg) => (
                 <div
                   key={msg._id}
-                  className="p-2.5 bg-base-200 hover:bg-base-300 rounded-xl text-sm truncate cursor-pointer transition-colors"
+                  className="p-2.5 bg-slate-50 dark:bg-slate-900/40 hover:bg-slate-100 dark:hover:bg-slate-700/60 rounded-xl text-sm truncate cursor-pointer transition-colors text-slate-700 dark:text-slate-200 border border-slate-200/50 dark:border-slate-700/50"
                 >
-                  <p className="truncate font-medium text-base-content/85">{msg.text || "[Media]"}</p>
+                  <p className="truncate font-medium text-slate-750 dark:text-slate-200">{msg.text || "[Media]"}</p>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-center text-xs text-base-content/40 py-4">No pinned messages</p>
+            <p className="text-center text-xs text-slate-400 dark:text-slate-500 py-4 font-semibold">No pinned messages</p>
           )}
         </div>
       )}
@@ -211,11 +211,11 @@ const ChatContainer = () => {
                   }}
                 >
                   {/* Header: Sender and Time */}
-                  <div className="flex items-center gap-1.5 mb-1 px-1.5 text-[11px] text-base-content/40 select-none">
-                    <span className="font-semibold text-base-content/65">You</span>
+                  <div className="flex items-center gap-1.5 mb-1 px-1.5 text-[11px] text-slate-400 dark:text-slate-500 select-none font-semibold">
+                    <span className="text-slate-500 dark:text-slate-450 font-bold">You</span>
                     <span>•</span>
                     <time>{formatMessageTime(message.createdAt)}</time>
-                    {message.isPinned && <span className="ml-1">📌 Pinned</span>}
+                    {message.isPinned && <span className="ml-1 text-amber-500">📌 Pinned</span>}
                   </div>
 
                   {/* Quoted Message */}
@@ -230,7 +230,7 @@ const ChatContainer = () => {
                     {/* Action Menu (hover) */}
                     <div className="opacity-0 group-hover/bubble:opacity-100 transition-opacity duration-200 flex-shrink-0 select-none">
                       <button
-                        className="btn btn-xs btn-ghost btn-circle text-base-content/40 hover:bg-base-200"
+                        className="size-6 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                         onClick={(e) => {
                           e.stopPropagation();
                           const rect = e.currentTarget.getBoundingClientRect();
@@ -247,7 +247,7 @@ const ChatContainer = () => {
 
                     {/* Message Bubble */}
                     <div
-                      className="chat-bubble flex flex-col hover:cursor-pointer select-text px-4 py-2.5 rounded-2xl rounded-tr-none bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-sm hover:brightness-[0.98] transition-all no-callout"
+                      className="flex flex-col hover:cursor-pointer select-text px-4 py-2.5 rounded-2xl rounded-tr-none bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-sm hover:brightness-[0.98] transition-all no-callout"
                       onDoubleClick={() => {
                         const hasHeart = message.reactions?.["❤️"]?.includes(authUser._id);
                         if (hasHeart) {
@@ -272,7 +272,7 @@ const ChatContainer = () => {
                             <img
                               src={message.image}
                               alt="Attachment"
-                              className="max-w-full sm:max-w-[240px] rounded-lg mb-1.5 shadow-sm"
+                              className="max-w-full sm:max-w-[240px] rounded-lg mb-1.5 shadow-sm object-cover"
                             />
                           )}
                           {message.file && (
@@ -281,7 +281,7 @@ const ChatContainer = () => {
                                 <img
                                   src={message.file.url}
                                   alt={message.file.name}
-                                  className="max-w-full sm:max-w-[240px] rounded-lg shadow-sm"
+                                  className="max-w-full sm:max-w-[240px] rounded-lg shadow-sm object-cover"
                                 />
                               ) : message.file.type.startsWith("video/") ? (
                                 <video controls className="max-w-full sm:max-w-[240px] rounded-lg shadow-sm">
@@ -325,10 +325,10 @@ const ChatContainer = () => {
                   </div>
 
                   {/* Read Status checkmark indicators */}
-                  <div className="px-1.5 mt-1 text-[10px] text-base-content/40 flex items-center gap-1 select-none">
+                  <div className="px-1.5 mt-1 text-[10px] text-slate-400 dark:text-slate-500 flex items-center gap-1 select-none font-semibold">
                     {message.isRead ? (
                       <>
-                        <CheckCheck size={11} className="text-primary" />
+                        <CheckCheck size={11} className="text-blue-500 dark:text-blue-400" />
                         <span>Read</span>
                       </>
                     ) : (
@@ -356,18 +356,18 @@ const ChatContainer = () => {
                     <img
                       src={selectedUser.profilePic || "/avatar.png"}
                       alt={selectedUser.fullName}
-                      className="size-10 rounded-full object-cover shadow-sm border border-base-200"
+                      className="size-10 rounded-full object-cover shadow-sm border border-slate-200 dark:border-slate-700"
                     />
                   </div>
 
                   {/* Content block */}
                   <div className="flex flex-col items-start max-w-[60%]">
                     {/* Header: Sender and Time */}
-                    <div className="flex items-center gap-1.5 mb-1 px-1.5 text-[11px] text-base-content/40 select-none">
-                      <span className="font-semibold text-base-content/75">{selectedUser.fullName}</span>
+                    <div className="flex items-center gap-1.5 mb-1 px-1.5 text-[11px] text-slate-400 dark:text-slate-500 select-none font-semibold">
+                      <span className="font-bold text-slate-600 dark:text-slate-350">{selectedUser.fullName}</span>
                       <span>•</span>
                       <time>{formatMessageTime(message.createdAt)}</time>
-                      {message.isPinned && <span className="ml-1">📌 Pinned</span>}
+                      {message.isPinned && <span className="ml-1 text-amber-500">📌 Pinned</span>}
                     </div>
 
                     {/* Quoted Message */}
@@ -381,7 +381,7 @@ const ChatContainer = () => {
                     <div className="flex gap-2 items-end group/bubble w-full">
                       {/* Message Bubble */}
                       <div
-                        className="chat-bubble flex flex-col hover:cursor-pointer select-text px-4 py-2.5 rounded-2xl rounded-tl-none bg-base-200/90 dark:bg-zinc-800 text-base-content shadow-sm hover:bg-base-200 dark:hover:bg-zinc-800/80 transition-all border border-base-200/30 dark:border-zinc-700/40 no-callout"
+                        className="flex flex-col hover:cursor-pointer select-text px-4 py-2.5 rounded-2xl rounded-tl-none bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-100 hover:bg-slate-200/70 dark:hover:bg-slate-600/85 transition-all border border-slate-200/40 dark:border-slate-600/40 shadow-sm no-callout"
                         onDoubleClick={() => {
                           const hasHeart = message.reactions?.["❤️"]?.includes(authUser._id);
                           if (hasHeart) {
@@ -406,7 +406,7 @@ const ChatContainer = () => {
                               <img
                                 src={message.image}
                                 alt="Attachment"
-                                className="max-w-full sm:max-w-[240px] rounded-lg mb-1.5 shadow-sm"
+                                className="max-w-full sm:max-w-[240px] rounded-lg mb-1.5 shadow-sm object-cover"
                               />
                             )}
                             {message.file && (
@@ -415,7 +415,7 @@ const ChatContainer = () => {
                                   <img
                                     src={message.file.url}
                                     alt={message.file.name}
-                                    className="max-w-full sm:max-w-[240px] rounded-lg shadow-sm"
+                                    className="max-w-full sm:max-w-[240px] rounded-lg shadow-sm object-cover"
                                   />
                                 ) : message.file.type.startsWith("video/") ? (
                                   <video controls className="max-w-full sm:max-w-[240px] rounded-lg shadow-sm">
@@ -426,7 +426,7 @@ const ChatContainer = () => {
                                     href={message.file.url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex items-center gap-2.5 p-2 bg-base-300 dark:bg-zinc-700 hover:bg-base-300/80 rounded-xl text-base-content transition-colors"
+                                    className="flex items-center gap-2.5 p-2 bg-slate-200 dark:bg-slate-600 hover:bg-slate-300/80 dark:hover:bg-slate-500/80 rounded-xl text-slate-800 dark:text-slate-100 transition-colors"
                                   >
                                     <Paperclip size={15} />
                                     <span className="text-xs font-medium truncate max-w-[120px]">{message.file.name}</span>
@@ -438,7 +438,7 @@ const ChatContainer = () => {
                               </div>
                             )}
                             {message.text && (
-                              <p className="text-[14px] leading-relaxed break-words font-medium text-base-content/90">
+                              <p className="text-[14px] leading-relaxed break-words font-medium text-slate-800 dark:text-slate-100">
                                 {message.text}
                                 {message.isEdited && (
                                   <span className="text-[10px] opacity-55 ml-2 font-normal">(edited)</span>
@@ -446,7 +446,7 @@ const ChatContainer = () => {
                               </p>
                             )}
                             {message.viewOnce && message.viewedOnce && (
-                              <p className="mt-1 text-xs text-base-content/50">Opened • View once media</p>
+                              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Opened • View once media</p>
                             )}
                           </>
                         )}
@@ -455,14 +455,14 @@ const ChatContainer = () => {
                       {/* Action Menu (hover) */}
                       <div className="opacity-0 group-hover/bubble:opacity-100 transition-opacity duration-200 flex-shrink-0 select-none">
                         <button
-                          className="btn btn-xs btn-ghost btn-circle text-base-content/40 hover:bg-base-200"
+                          className="size-6 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                           onClick={(e) => {
                             e.stopPropagation();
                             const rect = e.currentTarget.getBoundingClientRect();
                             if (activeMessageMenu === message._id) {
                               closeMessageMenu();
                             } else {
-                              openMessageMenu(message._id, rect);
+                               openMessageMenu(message._id, rect);
                             }
                           }}
                         >
@@ -503,16 +503,16 @@ const ChatContainer = () => {
                 <img
                   src={selectedUser.profilePic || "/avatar.png"}
                   alt={selectedUser.fullName}
-                  className="size-10 rounded-full object-cover shadow-sm border border-base-200"
+                  className="size-10 rounded-full object-cover shadow-sm border border-slate-200 dark:border-slate-700"
                 />
               </div>
               <div className="flex flex-col items-start max-w-[60%]">
-                <div className="flex items-center gap-1.5 mb-1 px-1.5 text-[11px] text-base-content/40">
-                  <span className="font-semibold text-base-content/75">{selectedUser.fullName}</span>
+                <div className="flex items-center gap-1.5 mb-1 px-1.5 text-[11px] text-slate-400 dark:text-slate-500 font-semibold">
+                  <span className="font-bold text-slate-600 dark:text-slate-350">{selectedUser.fullName}</span>
                   <span>•</span>
-                  <span className="text-emerald-500 font-semibold animate-pulse">Typing</span>
+                  <span className="text-emerald-500 font-bold animate-pulse">Typing</span>
                 </div>
-                <div className="px-4.5 py-3 rounded-2xl rounded-tl-none bg-base-200/90 dark:bg-zinc-800 text-base-content shadow-sm flex items-center justify-center border border-base-200/30 dark:border-zinc-700/40">
+                <div className="px-4.5 py-3 rounded-2xl rounded-tl-none bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-100 shadow-sm flex items-center justify-center border border-slate-200/40 dark:border-slate-600/40">
                   <div className="typing">
                     <span></span>
                     <span></span>

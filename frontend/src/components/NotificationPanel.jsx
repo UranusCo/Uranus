@@ -20,37 +20,37 @@ const NotificationPanel = ({ onClose }) => {
   }, [unreadOnly]);
 
   return (
-    <div className="flex flex-col h-full max-h-[500px] w-[calc(100vw-2rem)] sm:w-[350px] bg-base-100 shadow-xl border border-base-300 rounded-lg overflow-hidden">
+    <div className="flex flex-col h-full max-h-[500px] w-[calc(100vw-2rem)] sm:w-[350px] bg-white dark:bg-slate-800 shadow-lg border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden transition-colors duration-200">
       {/* Header */}
-      <div className="p-4 border-b border-base-300 flex items-center justify-between bg-base-100 sticky top-0 z-10">
+      <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between bg-white dark:bg-slate-800 sticky top-0 z-10">
         <div className="flex items-center gap-2">
-          <Bell className="size-5 text-primary" />
-          <h3 className="font-bold">Notifications</h3>
+          <Bell className="size-5 text-blue-500 dark:text-blue-400" />
+          <h3 className="font-bold text-slate-800 dark:text-slate-100">Notifications</h3>
         </div>
         <div className="flex items-center gap-1">
           <button
-            className="btn btn-ghost btn-xs text-primary"
+            className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-blue-500 dark:text-blue-400 transition-colors"
             onClick={markAllAsRead}
             title="Mark all as read"
           >
             <CheckCircle className="size-4" />
           </button>
-          <button className="btn btn-ghost btn-xs" onClick={onClose}>
+          <button className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-650 dark:hover:text-slate-200 transition-colors" onClick={onClose}>
             <X className="size-4" />
           </button>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="px-4 py-2 border-b border-base-300 flex gap-2 overflow-x-auto bg-base-50">
+      <div className="px-4 py-2 border-b border-slate-200 dark:border-slate-700 flex gap-2 overflow-x-auto bg-slate-50 dark:bg-slate-900/40">
         <button
-          className={`btn btn-xs rounded-full ${!unreadOnly ? "btn-primary" : "btn-ghost"}`}
+          className={`px-2.5 py-1 text-xs font-medium rounded-full transition-all ${!unreadOnly ? "bg-blue-500 text-white" : "text-slate-600 dark:text-slate-350 hover:bg-slate-200/50 dark:hover:bg-slate-700/50"}`}
           onClick={() => setUnreadOnly(false)}
         >
           All
         </button>
         <button
-          className={`btn btn-xs rounded-full ${unreadOnly ? "btn-primary" : "btn-ghost"}`}
+          className={`px-2.5 py-1 text-xs font-medium rounded-full transition-all ${unreadOnly ? "bg-blue-500 text-white" : "text-slate-600 dark:text-slate-350 hover:bg-slate-200/50 dark:hover:bg-slate-700/50"}`}
           onClick={() => setUnreadOnly(true)}
         >
           Unread
@@ -58,11 +58,11 @@ const NotificationPanel = ({ onClose }) => {
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto divide-y divide-base-300">
+      <div className="flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-750">
         {notifications.length === 0 ? (
           <div className="p-8 text-center flex flex-col items-center gap-3">
-            <Bell className="size-12 text-base-content/20" />
-            <p className="text-base-content/50">No notifications yet</p>
+            <Bell className="size-12 text-slate-300 dark:text-slate-600" />
+            <p className="text-slate-400 dark:text-slate-500 text-sm">No notifications yet</p>
           </div>
         ) : (
           <>
@@ -76,7 +76,7 @@ const NotificationPanel = ({ onClose }) => {
             {hasMore && (
               <div className="p-4 text-center">
                 <button
-                  className="btn btn-ghost btn-sm text-primary"
+                  className="px-3 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700/50 dark:hover:bg-slate-700 text-blue-500 dark:text-blue-400 text-xs rounded-lg font-medium transition-colors"
                   onClick={() => loadMoreNotifications(unreadOnly)}
                   disabled={isNotificationsLoading}
                 >
@@ -89,9 +89,9 @@ const NotificationPanel = ({ onClose }) => {
       </div>
 
       {/* Footer */}
-      <div className="p-2 border-t border-base-300 text-center bg-base-200/50">
+      <div className="p-2 border-t border-slate-200 dark:border-slate-700 text-center bg-slate-50 dark:bg-slate-900/30">
         <button
-          className="btn btn-ghost btn-xs w-full text-base-content/50 hover:text-primary transition-colors"
+          className="w-full text-xs font-medium text-slate-500 hover:text-blue-500 dark:text-slate-400 dark:hover:text-blue-400 transition-colors py-1"
           onClick={() => {
             // Future: Navigate to a full notifications page
           }}

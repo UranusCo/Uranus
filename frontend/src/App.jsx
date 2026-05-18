@@ -27,22 +27,26 @@ const App = () => {
   }, [checkAuth]);
 
   useEffect(() => {
-    if (theme) {
-      document.documentElement.setAttribute("data-theme", theme);
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
+      document.documentElement.setAttribute("data-theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+      document.documentElement.setAttribute("data-theme", "light");
     }
   }, [theme]);
 
   if (isCheckingAuth && !authUser)
     return (
-      <div className="flex items-center justify-center h-screen">
-        <Loader className="size-10 animate-spin" />
+      <div className="flex items-center justify-center h-screen bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100">
+        <Loader className="size-10 animate-spin text-blue-500 dark:text-blue-400" />
       </div>
     );
 
   const isHomePage = location.pathname === "/";
 
   return (
-    <div data-theme={theme} className="min-h-screen bg-slate-50 dark:bg-zinc-950">
+    <div className="min-h-screen bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 transition-colors duration-200">
       {!(authUser && isHomePage) ? (
         <Navbar />
       ) : (

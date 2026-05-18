@@ -18,7 +18,7 @@ const ErrorModal = ({ error, onClose, onRetry }) => {
       return {
         title: "Connection Lost",
         message: "You're offline. Please check your internet connection and try again.",
-        icon: <WifiOff className="w-8 h-8 text-error" />,
+        icon: <WifiOff className="w-8 h-8 text-rose-500" />,
         type: "network",
         suggestions: [
           "Check your internet connection",
@@ -38,7 +38,7 @@ const ErrorModal = ({ error, onClose, onRetry }) => {
           return {
             title: "Invalid Request",
             message: data?.message || "The request contains invalid data. Please check your input.",
-            icon: <AlertCircle className="w-8 h-8 text-warning" />,
+            icon: <AlertCircle className="w-8 h-8 text-amber-500" />,
             type: "validation",
             suggestions: [
               "Check your input data",
@@ -50,7 +50,7 @@ const ErrorModal = ({ error, onClose, onRetry }) => {
           return {
             title: "Authentication Required",
             message: "You need to log in to continue.",
-            icon: <AlertCircle className="w-8 h-8 text-error" />,
+            icon: <AlertCircle className="w-8 h-8 text-rose-500" />,
             type: "auth",
             suggestions: [
               "Log in to your account",
@@ -61,7 +61,7 @@ const ErrorModal = ({ error, onClose, onRetry }) => {
           return {
             title: "Access Denied",
             message: data?.message || "You don't have permission to perform this action.",
-            icon: <AlertCircle className="w-8 h-8 text-error" />,
+            icon: <AlertCircle className="w-8 h-8 text-rose-500" />,
             type: "permission",
             suggestions: [
               "Check your account permissions",
@@ -72,7 +72,7 @@ const ErrorModal = ({ error, onClose, onRetry }) => {
           return {
             title: "Not Found",
             message: "The requested resource could not be found.",
-            icon: <AlertCircle className="w-8 h-8 text-warning" />,
+            icon: <AlertCircle className="w-8 h-8 text-amber-500" />,
             type: "not_found",
             suggestions: [
               "Check the URL or link",
@@ -84,7 +84,7 @@ const ErrorModal = ({ error, onClose, onRetry }) => {
           return {
             title: "Too Many Requests",
             message: "You're making requests too quickly. Please wait a moment.",
-            icon: <AlertCircle className="w-8 h-8 text-warning" />,
+            icon: <AlertCircle className="w-8 h-8 text-amber-500" />,
             type: "rate_limit",
             suggestions: [
               "Wait a few seconds before trying again",
@@ -98,7 +98,7 @@ const ErrorModal = ({ error, onClose, onRetry }) => {
           return {
             title: "Server Error",
             message: "Something went wrong on our end. We're working to fix it.",
-            icon: <AlertCircle className="w-8 h-8 text-error" />,
+            icon: <AlertCircle className="w-8 h-8 text-rose-500" />,
             type: "server",
             suggestions: [
               "Try again in a few moments",
@@ -110,7 +110,7 @@ const ErrorModal = ({ error, onClose, onRetry }) => {
           return {
             title: "Something Went Wrong",
             message: data?.message || "An unexpected error occurred.",
-            icon: <AlertCircle className="w-8 h-8 text-error" />,
+            icon: <AlertCircle className="w-8 h-8 text-rose-500" />,
             type: "unknown",
             suggestions: [
               "Try again",
@@ -126,7 +126,7 @@ const ErrorModal = ({ error, onClose, onRetry }) => {
       return {
         title: "Connection Error",
         message: "Unable to connect to the server. Please check your connection.",
-        icon: <Wifi className="w-8 h-8 text-warning" />,
+        icon: <Wifi className="w-8 h-8 text-amber-500" />,
         type: "network",
         suggestions: [
           "Check your internet connection",
@@ -140,7 +140,7 @@ const ErrorModal = ({ error, onClose, onRetry }) => {
     return {
       title: "Unexpected Error",
       message: error.message || "An unexpected error occurred.",
-      icon: <AlertCircle className="w-8 h-8 text-error" />,
+      icon: <AlertCircle className="w-8 h-8 text-rose-500" />,
       type: "unknown",
       suggestions: [
         "Try refreshing the page",
@@ -170,25 +170,25 @@ const ErrorModal = ({ error, onClose, onRetry }) => {
     }`}>
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
         onClick={handleClose}
       />
 
       {/* Modal */}
-      <div className={`relative bg-base-100 rounded-lg shadow-xl max-w-md w-full transform transition-all duration-300 ${
+      <div className={`relative bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl shadow-xl max-w-md w-full transform transition-all duration-300 ${
         isVisible ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'
-      }`}>
+      } overflow-hidden`}>
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-base-300">
+        <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
           <div className="flex items-center gap-3">
             {errorDetails.icon}
-            <h3 className="text-lg font-semibold text-base-content">
+            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">
               {errorDetails.title}
             </h3>
           </div>
           <button
             onClick={handleClose}
-            className="btn btn-ghost btn-sm btn-circle"
+            className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-500 dark:hover:text-slate-200 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -196,17 +196,17 @@ const ErrorModal = ({ error, onClose, onRetry }) => {
 
         {/* Content */}
         <div className="p-6">
-          <p className="text-base-content/80 mb-4">
+          <p className="text-slate-600 dark:text-slate-300 text-sm mb-4">
             {errorDetails.message}
           </p>
 
           {/* Suggestions */}
           <div className="mb-6">
-            <h4 className="font-medium text-base-content mb-2">What you can try:</h4>
-            <ul className="space-y-1">
+            <h4 className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">What you can try:</h4>
+            <ul className="space-y-1.5">
               {errorDetails.suggestions.map((suggestion, index) => (
-                <li key={index} className="text-sm text-base-content/70 flex items-start gap-2">
-                  <span className="text-primary mt-1">•</span>
+                <li key={index} className="text-xs text-slate-500 dark:text-slate-400 font-semibold flex items-start gap-2">
+                  <span className="text-blue-500 dark:text-blue-400 mt-1">•</span>
                   {suggestion}
                 </li>
               ))}
@@ -215,19 +215,19 @@ const ErrorModal = ({ error, onClose, onRetry }) => {
 
 
           {/* Actions */}
-          <div className="flex gap-3 justify-end">
+          <div className="flex gap-3 justify-end border-t border-slate-100 dark:border-slate-700/50 pt-4 mt-2">
             <button
               onClick={handleClose}
-              className="btn btn-ghost btn-sm"
+              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700/50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl font-semibold text-xs transition-all active:scale-[0.98]"
             >
               Close
             </button>
             {onRetry && errorDetails.type !== 'auth' && (
               <button
                 onClick={handleRetry}
-                className="btn btn-primary btn-sm"
+                className="px-4 py-2 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-xl font-semibold text-xs transition-all active:scale-[0.98] shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
               >
-                <RefreshCw className="w-4 h-4 mr-2" />
+                <RefreshCw className="w-3.5 h-3.5 mr-1" />
                 Try Again
               </button>
             )}

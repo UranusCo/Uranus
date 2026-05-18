@@ -138,7 +138,7 @@ const ConversationList = () => {
       <div key={user._id} className="relative group/item px-3 py-0.5">
         {/* Selected Accent Bar */}
         {isSelected && (
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-10 bg-primary rounded-r-full z-10" />
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-10 bg-blue-500 dark:bg-blue-400 rounded-r-full z-10" />
         )}
 
         <button
@@ -158,10 +158,10 @@ const ConversationList = () => {
           onTouchMove={handleUserLongPressEnd}
           className={`
             w-full p-3.5 flex items-center gap-3.5 rounded-2xl text-left
-            transition-all duration-200 relative
+            transition-all duration-205 relative
             ${isSelected 
-              ? "bg-primary/5 dark:bg-primary/10 shadow-sm border border-primary/10" 
-              : "hover:bg-base-200/60 border border-transparent"}
+              ? "bg-blue-500/5 dark:bg-blue-400/5 shadow-sm border border-blue-500/10 dark:border-blue-400/10" 
+              : "hover:bg-slate-100 dark:hover:bg-slate-700/50 border border-transparent"}
             ${isArchived ? "opacity-60" : ""}
           `}
         >
@@ -175,7 +175,7 @@ const ConversationList = () => {
             {isOnline && (
               <span
                 className="absolute bottom-0 right-0 size-3 bg-green-500 
-                rounded-full ring-2 ring-base-100"
+                rounded-full ring-2 ring-white dark:ring-slate-800"
               />
             )}
           </div>
@@ -184,20 +184,20 @@ const ConversationList = () => {
           <div className="block min-w-0 flex-1">
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-1.5 min-w-0">
-                <span className="font-semibold text-[15px] text-base-content truncate">
+                <span className="font-semibold text-[15px] text-slate-800 dark:text-slate-100 truncate">
                   {user.fullName || user.name}
                 </span>
                 {/* Chat status badges */}
                 <div className="flex gap-1 flex-shrink-0">
-                  {isPinned && <Pin size={12} className="text-warning fill-warning" />}
-                  {isMuted && <Volume2 size={12} className="text-info" />}
-                  {isArchived && <Archive size={12} className="text-zinc-500" />}
+                  {isPinned && <Pin size={12} className="text-amber-500 fill-amber-500" />}
+                  {isMuted && <Volume2 size={12} className="text-blue-500 dark:text-blue-400" />}
+                  {isArchived && <Archive size={12} className="text-slate-400" />}
                 </div>
               </div>
               
               {/* Message Time */}
               {lastMessage && (
-                <span className="text-[11px] font-medium text-base-content/40 whitespace-nowrap ml-2">
+                <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 whitespace-nowrap ml-2">
                   {getMessageTime(lastMessage)}
                 </span>
               )}
@@ -210,11 +210,11 @@ const ConversationList = () => {
                   Typing...
                 </span>
               ) : lastMessage ? (
-                <span className={`text-base-content/55 ${unreadCount > 0 ? "font-medium text-base-content dark:text-zinc-200" : ""}`}>
+                <span className={`text-slate-500 dark:text-slate-400 ${unreadCount > 0 ? "font-semibold text-slate-800 dark:text-slate-100" : ""}`}>
                   {lastMessage.text || lastMessage.image ? "📸 Image" : lastMessage.file ? "📎 File" : "No content"}
                 </span>
               ) : (
-                <span className="text-base-content/30 italic">
+                <span className="text-slate-400 dark:text-slate-500 italic">
                   {isOnline ? "Online" : "Offline"}
                 </span>
               )}
@@ -234,27 +234,27 @@ const ConversationList = () => {
         {/* Context menu (right-click on desktop, long-press on mobile) */}
         {contextMenuOpen === user._id && (
           <div
-            className="absolute right-4 top-12 bg-base-100 rounded-xl shadow-xl border border-base-200 z-50 min-w-[150px] overflow-hidden py-1"
+            className="absolute right-4 top-12 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 z-50 min-w-[150px] overflow-hidden py-1"
             onClick={(e) => e.stopPropagation()}
             onTouchStart={(e) => e.stopPropagation()}
           >
             <button
               onClick={handlePin}
-              className="w-full px-4 py-2.5 text-left hover:bg-base-200 text-sm flex items-center gap-2 font-medium"
+              className="w-full px-4 py-2.5 text-left hover:bg-slate-100 dark:hover:bg-slate-700 text-sm flex items-center gap-2 font-medium text-slate-700 dark:text-slate-200 transition-colors"
             >
-              <Pin size={14} className={isPinned ? "fill-warning text-warning" : ""} />
+              <Pin size={14} className={isPinned ? "fill-amber-500 text-amber-500" : ""} />
               {isPinned ? "Unpin Chat" : "Pin Chat"}
             </button>
             <button
               onClick={handleMute}
-              className="w-full px-4 py-2.5 text-left hover:bg-base-200 text-sm flex items-center gap-2 font-medium"
+              className="w-full px-4 py-2.5 text-left hover:bg-slate-100 dark:hover:bg-slate-700 text-sm flex items-center gap-2 font-medium text-slate-700 dark:text-slate-200 transition-colors"
             >
               <Volume2 size={14} />
               {isMuted ? "Unmute Chat" : "Mute Chat"}
             </button>
             <button
               onClick={handleArchive}
-              className="w-full px-4 py-2.5 text-left hover:bg-base-200 text-sm flex items-center gap-2 font-medium border-t border-base-200"
+              className="w-full px-4 py-2.5 text-left hover:bg-slate-100 dark:hover:bg-slate-700 text-sm flex items-center gap-2 font-medium text-slate-700 dark:text-slate-200 border-t border-slate-100 dark:border-slate-700 transition-colors"
             >
               <Archive size={14} />
               {isArchived ? "Unarchive Chat" : "Archive Chat"}
@@ -266,19 +266,19 @@ const ConversationList = () => {
   };
 
   return (
-    <aside className="h-full w-full lg:w-[300px] bg-base-100 flex flex-col transition-all duration-200 border-r border-base-200/80">
+    <aside className="h-full w-full lg:w-[300px] bg-white dark:bg-slate-800 flex flex-col transition-all duration-200 border-r border-slate-200 dark:border-slate-700 select-none">
       {/* Top Header */}
       <div className="flex items-center justify-between px-5 pt-6 pb-4 flex-shrink-0">
-        <h1 className="text-2xl font-bold text-base-content tracking-tight">Messages</h1>
+        <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">Messages</h1>
         <div className="flex items-center gap-1.5">
           <button 
             onClick={() => setShowSearchBar(!showSearchBar)}
-            className={`btn btn-sm btn-ghost btn-circle text-base-content/65 hover:bg-base-200 ${showSearchBar ? "bg-base-200" : ""}`}
+            className={`size-8 flex items-center justify-center rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors ${showSearchBar ? "bg-slate-150 dark:bg-slate-700" : ""}`}
             title="Search"
           >
             <Search className="w-4.5 h-4.5" />
           </button>
-          <button className="btn btn-sm btn-ghost btn-circle text-base-content/65 hover:bg-base-200" title="New Message">
+          <button className="size-8 flex items-center justify-center rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors" title="New Message">
             <Edit3 className="w-4.5 h-4.5" />
           </button>
         </div>
@@ -288,18 +288,18 @@ const ConversationList = () => {
       {(showSearchBar || searchInput) && (
         <div className="px-5 mb-4 flex-shrink-0">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-base-content/40" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400 dark:text-slate-500" />
             <input
               type="text"
               placeholder="Search chats..."
               value={searchInput}
               onChange={handleSearch}
-              className="w-full pl-9 pr-9 py-2 rounded-xl bg-base-200/70 border border-transparent focus:border-primary/20 focus:bg-base-100 text-sm outline-none transition-all"
+              className="w-full pl-9 pr-9 py-2 rounded-xl bg-slate-100 dark:bg-slate-700/40 border border-transparent focus:border-blue-500/20 focus:bg-white dark:focus:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm outline-none transition-all focus:ring-1 focus:ring-blue-500"
             />
             {searchInput && (
               <button
                 onClick={handleClearSearch}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/45 hover:text-base-content"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
               >
                 <X className="size-4" />
               </button>
@@ -312,8 +312,8 @@ const ConversationList = () => {
       {!searchInput && onlineList.length > 0 && (
         <div className="px-5 mb-5 flex-shrink-0">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[11px] font-bold text-base-content/40 uppercase tracking-wider">Online Now</span>
-            <span className="text-[11px] font-bold text-primary cursor-pointer hover:text-primary-focus transition-colors">See All</span>
+            <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Online Now</span>
+            <span className="text-[11px] font-bold text-blue-500 dark:text-blue-400 cursor-pointer hover:text-blue-600 transition-colors">See All</span>
           </div>
           <div className="flex gap-4 overflow-x-auto pb-1.5 scrollbar-thin select-none">
             {onlineList.map((user) => (
@@ -326,11 +326,11 @@ const ConversationList = () => {
                   <img
                     src={user.profilePic || "/avatar.png"}
                     alt={user.fullName}
-                    className="size-[46px] rounded-full object-cover border-2 border-transparent group-hover:border-primary/30 transition-all duration-200"
+                    className="size-[46px] rounded-full object-cover border-2 border-transparent group-hover:border-blue-500/30 dark:group-hover:border-blue-400/30 transition-all duration-200"
                   />
-                  <span className="absolute bottom-0 right-0 size-3 bg-green-500 rounded-full ring-2 ring-base-100" />
+                  <span className="absolute bottom-0 right-0 size-3 bg-green-500 rounded-full ring-2 ring-white dark:ring-slate-850" />
                 </div>
-                <span className="text-[11px] font-semibold text-base-content/75 truncate w-12 text-center group-hover:text-primary transition-colors">
+                <span className="text-[11px] font-semibold text-slate-650 dark:text-slate-350 truncate w-12 text-center group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors">
                   {user.fullName.split(" ")[0]}
                 </span>
               </button>
@@ -346,11 +346,11 @@ const ConversationList = () => {
             type="checkbox"
             checked={showOnlineOnly}
             onChange={(e) => setShowOnlineOnly(e.target.checked)}
-            className="checkbox checkbox-xs rounded checkbox-primary"
+            className="w-3.5 h-3.5 text-blue-500 border-slate-300 dark:border-slate-600 rounded bg-transparent focus:ring-blue-500 focus:ring-1 cursor-pointer"
           />
-          <span className="text-xs font-semibold text-base-content/50 group-hover:text-base-content/85 transition-colors">Show online only</span>
+          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200 transition-colors">Show online only</span>
         </label>
-        <span className="text-[10px] font-bold text-base-content/40 bg-base-200 px-2 py-0.5 rounded-full">
+        <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-700/60 px-2 py-0.5 rounded-full">
           {onlineUsers.length - 1} Active
         </span>
       </div>
@@ -362,9 +362,9 @@ const ConversationList = () => {
         {/* Pinned Chats Section */}
         {pinnedUsers.length > 0 && (
           <div className="space-y-0.5">
-            <div className="px-5 py-2 flex items-center gap-1.5 text-[10px] font-bold text-base-content/40 uppercase tracking-widest">
+            <div className="px-5 py-2 flex items-center gap-1.5 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
               <Pin size={11} className="fill-current" />
-              Pinned Message
+              Pinned Messages
             </div>
             {pinnedUsers.map(renderUserItem)}
           </div>
@@ -373,15 +373,15 @@ const ConversationList = () => {
         {/* All Chats Section */}
         <div className="space-y-0.5">
           {pinnedUsers.length > 0 && unpinnedUsers.length > 0 && (
-            <div className="px-5 py-3 text-[10px] font-bold text-base-content/40 uppercase tracking-widest border-t border-base-200/50 mt-2">
-              All Message
+            <div className="px-5 py-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest border-t border-slate-200/50 dark:border-slate-700/50 mt-2">
+              All Messages
             </div>
           )}
           {unpinnedUsers.map(renderUserItem)}
         </div>
 
         {filteredUsers.length === 0 && (
-          <div className="text-center text-base-content/40 py-8 text-sm">
+          <div className="text-center text-slate-400 dark:text-slate-500 py-8 text-sm">
             {searchInput ? "No users found" : "No chats yet"}
           </div>
         )}

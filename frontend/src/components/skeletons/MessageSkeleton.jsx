@@ -3,21 +3,16 @@ const MessageSkeleton = () => {
   const skeletonMessages = Array(6).fill(null);
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+    <div className="flex-1 overflow-y-auto p-6 space-y-4 transition-colors duration-200">
       {skeletonMessages.map((_, idx) => (
-        <div key={idx} className={`chat ${idx % 2 === 0 ? "chat-start" : "chat-end"}`}>
-          <div className="chat-image avatar">
-            <div className="size-10 rounded-full">
-              <div className="skeleton w-full h-full rounded-full" />
-            </div>
-          </div>
+        <div key={idx} className={`flex gap-3 items-start w-full ${idx % 2 === 0 ? "flex-row" : "flex-row-reverse"}`}>
+          {/* Avatar Skeleton */}
+          <div className="size-10 rounded-full bg-slate-200 dark:bg-slate-700 animate-pulse flex-shrink-0" />
 
-          <div className="chat-header mb-1">
-            <div className="skeleton h-4 w-16" />
-          </div>
-
-          <div className="chat-bubble bg-transparent p-0">
-            <div className="skeleton h-16 w-[200px]" />
+          {/* Message content block skeleton */}
+          <div className={`flex flex-col max-w-[60%] ${idx % 2 === 0 ? "items-start" : "items-end"}`}>
+            <div className="h-3.5 w-16 bg-slate-200 dark:bg-slate-700 animate-pulse rounded-md mb-2" />
+            <div className={`h-11 w-[200px] sm:w-[240px] bg-slate-200 dark:bg-slate-700 animate-pulse rounded-2xl ${idx % 2 === 0 ? "rounded-tl-none" : "rounded-tr-none"}`} />
           </div>
         </div>
       ))}
