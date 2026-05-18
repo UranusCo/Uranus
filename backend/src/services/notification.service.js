@@ -13,11 +13,11 @@ class NotificationService {
       const prefs = user.notificationPreferences || {};
       
       let shouldNotify = true;
-      if (type === "direct_message" && !prefs.directMessage) shouldNotify = false;
-      if (type === "group_message" && !prefs.groupMessage) shouldNotify = false;
-      if (type === "mention" && !prefs.mention) shouldNotify = false;
-      if (type === "friend_request" && !prefs.friendRequest) shouldNotify = false;
-      if (type === "system" && !prefs.system) shouldNotify = false;
+      if (type === "direct_message" && prefs.directMessage === false) shouldNotify = false;
+      if (type === "group_message" && prefs.groupMessage === false) shouldNotify = false;
+      if (type === "mention" && prefs.mention === false) shouldNotify = false;
+      if (type === "friend_request" && prefs.friendRequest === false) shouldNotify = false;
+      if (type === "system" && prefs.system === false) shouldNotify = false;
 
       if (!shouldNotify) return null;
 
