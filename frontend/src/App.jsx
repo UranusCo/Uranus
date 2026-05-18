@@ -10,6 +10,7 @@ import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "./store/useAuthStore";
 import { useThemeStore } from "./store/useThemeStore";
 import { useErrorStore } from "./store/useErrorStore";
+import { useChatStore } from "./store/useChatStore";
 import { useEffect } from "react";
 
 import { Loader } from "lucide-react";
@@ -20,6 +21,7 @@ const App = () => {
   const { authUser, checkAuth, isCheckingAuth, onlineUsers } = useAuthStore();
   const { theme } = useThemeStore();
   const { currentError, clearError, retryCurrentError } = useErrorStore();
+  const { selectedUser } = useChatStore();
   const location = useLocation();
 
   useEffect(() => {
@@ -50,7 +52,7 @@ const App = () => {
       {!(authUser && isHomePage) ? (
         <Navbar />
       ) : (
-        <div className="lg:hidden">
+        <div className={`lg:hidden ${selectedUser ? "hidden" : ""}`}>
           <Navbar />
         </div>
       )}

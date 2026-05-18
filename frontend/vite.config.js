@@ -38,7 +38,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        navigateFallback: '/',
+        navigateFallback: '/index.html',
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
       },
       strategies: 'injectManifest',

@@ -45,18 +45,30 @@ const ChatContainer = () => {
   const [messageMenuPos, setMessageMenuPos] = useState({ top: 0, left: 0 });
 
   const openMessageMenu = (messageId, buttonRect) => {
-    const menuHeight = 260;
+    const menuHeight = 270;
     const menuWidth = 220;
     const offset = 8;
 
-    let top = buttonRect.bottom + offset;
+    // Determine vertical placement
+    let top = buttonRect.top;
     if (top + menuHeight > window.innerHeight) {
-      top = Math.max(offset, buttonRect.top - menuHeight - offset);
+      top = Math.max(offset, window.innerHeight - menuHeight - offset);
     }
 
-    let left = buttonRect.left;
-    if (left + menuWidth > window.innerWidth - 12) {
-      left = Math.max(offset, window.innerWidth - menuWidth - offset);
+    // Determine horizontal placement based on screen halves
+    let left;
+    if (buttonRect.left > window.innerWidth / 2) {
+      // Sent message (on the right half): place menu to the left of the button
+      left = buttonRect.left - menuWidth - offset;
+    } else {
+      // Received message (on the left half): place menu to the right of the button
+      left = buttonRect.left + buttonRect.width + offset;
+    }
+
+    // Out of bounds screen safeguards
+    if (left < offset) left = offset;
+    if (left + menuWidth > window.innerWidth - offset) {
+      left = window.innerWidth - menuWidth - offset;
     }
 
     setMessageMenuPos({ top, left });
@@ -477,20 +489,7 @@ const ChatContainer = () => {
             }
           })}
 
-          {activeMessageMenu && <div className="fixed inset-0 z-40" onClick={closeMessageMenu} />}
 
-          {activeMenuMessage && (
-            <div
-              className="fixed z-50 select-none"
-              style={{ top: `${messageMenuPos.top}px`, left: `${messageMenuPos.left}px`, minWidth: "220px" }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <MessageActions
-                message={activeMenuMessage}
-                onClose={closeMessageMenu}
-              />
-            </div>
-          )}
 
           {/* Typing Indicator */}
           {typingUsers.length > 0 && (
@@ -579,6 +578,27 @@ const ChatContainer = () => {
           }
         }
       `}</style>
+
+      {/* Floating high-z-index Actions Context Menu Portal (escapes scrolling stack) */}
+      {activeMessageMenu && (
+        <div 
+          className="fixed inset-0 z-[9998] bg-black/[0.04] dark:bg-black/[0.12] backdrop-blur-[0.5px] transition-all" 
+          onClick={closeMessageMenu} 
+        />
+      )}
+
+      {activeMenuMessage && (
+        <div
+          className="fixed z-[9999] select-none bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-150 dark:border-slate-700/80 overflow-hidden animate-fadeIn"
+          style={{ top: `${messageMenuPos.top}px`, left: `${messageMenuPos.left}px`, minWidth: "220px" }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <MessageActions
+            message={activeMenuMessage}
+            onClose={closeMessageMenu}
+          />
+        </div>
+      )}
     </div>
   );
 };
