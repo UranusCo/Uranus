@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import { useChatStore } from "../store/useChatStore";
-import { Image, Send, X, Paperclip, Loader, Plus } from "lucide-react";
+import { Image, Send, X, Paperclip, Loader } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAuthStore } from "../store/useAuthStore";
 
@@ -10,10 +10,9 @@ const MessageInput = () => {
   const [filePreview, setFilePreview] = useState(null);
   const [isViewOnce, setIsViewOnce] = useState(false);
   const [isSending, setIsSending] = useState(false);
-  const [showAttachMenu, setShowAttachMenu] = useState(false);
   const fileInputRef = useRef(null);
   const imageInputRef = useRef(null);
-  const { sendMessage, selectedUser, editingMessageId, setEditingMessage, editMessage, replyingToMessage } = useChatStore();
+  const { sendMessage, selectedUser, editingMessageId, editMessage, replyingToMessage } = useChatStore();
   const { socket } = useAuthStore();
   const typingTimeoutRef = useRef(null);
   const sendingDelayRef = useRef(null);
@@ -117,152 +116,105 @@ const MessageInput = () => {
   }, []);
 
   return (
-    <div className="fixed bottom-0 left-0 w-full px-4 pt-4 pb-safe border-t border-base-300 bg-base-100 z-50 sm:static">
-      {(imagePreview || filePreview) && (
-        <div className="mb-3 flex flex-col gap-2 animate-fadeIn">
-          <div className="relative">
-            {imagePreview ? (
-              <img
-                src={imagePreview}
-                alt="Preview"
-                className="w-20 h-20 object-cover rounded-lg border border-zinc-700"
-              />
-            ) : (
-              <div className="w-20 h-20 flex items-center justify-center bg-base-200 rounded-lg border border-zinc-700">
-                <Paperclip size={24} />
-                <span className="ml-1 text-sm">{filePreview?.name}</span>
-              </div>
-            )}
-            <button
-              onClick={removeAttachment}
-              className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-base-300
-              flex items-center justify-center hover:bg-base-400 transition-colors"
-              type="button"
-            >
-              <X className="size-3" />
-            </button>
-          </div>
-          <label className="inline-flex items-center gap-2 text-sm text-zinc-400">
-            <input
-              type="checkbox"
-              checked={isViewOnce}
-              onChange={(e) => setIsViewOnce(e.target.checked)}
-              className="checkbox checkbox-sm"
-            />
-            View once media
-          </label>
-        </div>
-      )}
-
-      <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-        {/* Mobile attachment button */}
-        <div className="relative sm:hidden">
-          <button
-            type="button"
-            className={`btn btn-circle btn-sm ${isSending ? "opacity-50 cursor-not-allowed" : ""}`}
-            onClick={() => setShowAttachMenu(!showAttachMenu)}
-            disabled={isSending}
-            aria-label="Attach"
-          >
-            <Plus size={18} />
-          </button>
-          {showAttachMenu && (
-            <div className="absolute bottom-full left-0 mb-2 bg-base-100 rounded-xl shadow-lg border border-base-300 p-3 flex gap-3 z-50">
+    <div className="w-full px-4 sm:px-6 py-4 bg-base-100 dark:bg-zinc-900 border-t border-base-200/80 flex-shrink-0 select-none">
+      <div className="max-w-[800px] w-full mx-auto">
+        {(imagePreview || filePreview) && (
+          <div className="mb-3 flex flex-col gap-2 animate-fadeIn">
+            <div className="relative inline-block">
+              {imagePreview ? (
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="w-20 h-20 object-cover rounded-lg border border-base-300"
+                />
+              ) : (
+                <div className="w-20 h-20 flex items-center justify-center bg-base-200 rounded-lg border border-base-300">
+                  <Paperclip size={24} />
+                  <span className="ml-1 text-[10px] truncate max-w-[60px]">{filePreview?.name}</span>
+                </div>
+              )}
               <button
+                onClick={removeAttachment}
+                className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-base-300
+                flex items-center justify-center hover:bg-base-400 transition-colors"
                 type="button"
-                className="flex flex-col items-center gap-1 p-3 hover:bg-base-200 rounded-lg active:bg-base-300 transition-colors"
-                onClick={() => { imageInputRef.current?.click(); setShowAttachMenu(false); }}
               >
-                <Image size={22} />
-                <span className="text-xs">Photo</span>
-              </button>
-              <button
-                type="button"
-                className="flex flex-col items-center gap-1 p-3 hover:bg-base-200 rounded-lg active:bg-base-300 transition-colors"
-                onClick={() => { fileInputRef.current?.click(); setShowAttachMenu(false); }}
-              >
-                <Paperclip size={22} />
-                <span className="text-xs">File</span>
+                <X className="size-3" />
               </button>
             </div>
-          )}
-        </div>
+            <label className="inline-flex items-center gap-2 text-xs text-base-content/60">
+              <input
+                type="checkbox"
+                checked={isViewOnce}
+                onChange={(e) => setIsViewOnce(e.target.checked)}
+                className="checkbox checkbox-xs rounded checkbox-primary"
+              />
+              View once media
+            </label>
+          </div>
+        )}
 
-        <div className="hidden sm:flex flex-1 gap-2">
+        <form onSubmit={handleSendMessage} className="flex items-center w-full bg-base-200/70 dark:bg-zinc-800/60 border border-base-200/50 dark:border-zinc-700/60 rounded-2xl pl-4 pr-2 py-2 gap-2 shadow-sm hover:border-base-200/80 dark:hover:border-zinc-700/80 transition-all">
           <input
             type="text"
-            className="w-full input input-bordered rounded-lg input-sm sm:input-md text-[16px] sm:text-sm disabled:opacity-50"
+            className="flex-1 bg-transparent border-none outline-none focus:outline-none focus:ring-0 text-sm text-base-content placeholder-base-content/40"
             placeholder={editingMessageId ? "Edit message..." : "Type a message..."}
             value={text}
             onChange={handleTextChange}
             disabled={isSending}
           />
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            ref={imageInputRef}
-            onChange={handleImageChange}
-            disabled={isSending}
-          />
-          <input
-            type="file"
-            className="hidden"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-            disabled={isSending}
-          />
 
-          <button
-            type="button"
-            className={`hidden sm:flex btn btn-circle
-                     ${imagePreview ? "text-emerald-500" : "text-zinc-400"} 
-                     ${isSending ? "opacity-50 cursor-not-allowed" : ""}`}
-            onClick={() => imageInputRef.current?.click()}
-            disabled={isSending}
-          >
-            <Image size={20} />
-          </button>
-          <button
-            type="button"
-            className={`hidden sm:flex btn btn-circle
-                     ${filePreview ? "text-emerald-500" : "text-zinc-400"}
-                     ${isSending ? "opacity-50 cursor-not-allowed" : ""}`}
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isSending}
-          >
-            <Paperclip size={20} />
-          </button>
-        </div>
-        <button
-          type="submit"
-          className="btn btn-sm btn-circle disabled:opacity-50"
-          disabled={(!text.trim() && !imagePreview && !filePreview) || isSending}
-        >
-          {isSending ? (
-            <Loader size={22} className="animate-spin" />
-          ) : (
-            <Send size={22} />
-          )}
-        </button>
-      </form>
+          <div className="flex items-center gap-0.5">
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              ref={imageInputRef}
+              onChange={handleImageChange}
+              disabled={isSending}
+            />
+            <input
+              type="file"
+              className="hidden"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              disabled={isSending}
+            />
 
-      <style>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: scale(0.95);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1);
-          }
-        }
+            <button
+              type="button"
+              className={`btn btn-sm btn-ghost btn-circle ${imagePreview ? "text-emerald-500 animate-pulse" : "text-base-content/50 hover:bg-base-300/50"}`}
+              onClick={() => imageInputRef.current?.click()}
+              disabled={isSending}
+              title="Attach photo"
+            >
+              <Image size={18} />
+            </button>
 
-        .animate-fadeIn {
-          animation: fadeIn 0.2s ease-out;
-        }
-      `}</style>
+            <button
+              type="button"
+              className={`btn btn-sm btn-ghost btn-circle ${filePreview ? "text-emerald-500 animate-pulse" : "text-base-content/50 hover:bg-base-300/50"}`}
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isSending}
+              title="Attach file"
+            >
+              <Paperclip size={18} />
+            </button>
+
+            <button
+              type="submit"
+              className="btn btn-sm btn-circle btn-primary flex items-center justify-center shadow-md shadow-primary/10 ml-1.5"
+              disabled={(!text.trim() && !imagePreview && !filePreview) || isSending}
+            >
+              {isSending ? (
+                <Loader size={14} className="animate-spin" />
+              ) : (
+                <Send size={14} />
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

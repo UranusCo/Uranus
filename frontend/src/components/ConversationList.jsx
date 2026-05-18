@@ -266,7 +266,7 @@ const ConversationList = () => {
   };
 
   return (
-    <aside className="h-full w-full lg:w-[340px] bg-base-100 flex flex-col transition-all duration-200 border-r border-base-200/80">
+    <aside className="h-full w-full lg:w-[300px] bg-base-100 flex flex-col transition-all duration-200 border-r border-base-200/80">
       {/* Top Header */}
       <div className="flex items-center justify-between px-5 pt-6 pb-4 flex-shrink-0">
         <h1 className="text-2xl font-bold text-base-content tracking-tight">Messages</h1>

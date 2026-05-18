@@ -4,7 +4,7 @@ import { useNotificationStore } from "../store/useNotificationStore";
 import { useAuthStore } from "../store/useAuthStore";
 import NotificationPanel from "./NotificationPanel";
 
-const NotificationBell = () => {
+const NotificationBell = ({ hideText = false }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { unreadCount, getUnreadCount, subscribeToNotifications, unsubscribeFromNotifications } = useNotificationStore();
   const { authUser, socket } = useAuthStore();
@@ -34,7 +34,10 @@ const NotificationBell = () => {
   return (
     <div className="relative" ref={bellRef}>
       <button
-        className={`btn btn-sm btn-ghost gap-2 transition-all ${unreadCount > 0 ? "text-primary" : ""}`}
+        className={hideText 
+          ? `size-10 flex items-center justify-center rounded-xl bg-base-200/50 hover:bg-base-200 text-base-content/75 transition-all duration-200 ${unreadCount > 0 ? "text-primary" : ""}`
+          : `btn btn-sm btn-ghost gap-2 transition-all ${unreadCount > 0 ? "text-primary" : ""}`
+        }
         onClick={() => setIsOpen(!isOpen)}
       >
         <div className="relative">
@@ -45,7 +48,7 @@ const NotificationBell = () => {
             </span>
           )}
         </div>
-        <span className="hidden sm:inline">Notifications</span>
+        {!hideText && <span className="hidden sm:inline">Notifications</span>}
       </button>
 
       {isOpen && (
