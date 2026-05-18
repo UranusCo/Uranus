@@ -50,6 +50,7 @@ class NotificationService {
       sendPushNotification(recipient, {
         title,
         body,
+        url: metadata?.conversationId ? `/?chat=${metadata.conversationId}` : "/",
       });
 
       return populatedNotification;

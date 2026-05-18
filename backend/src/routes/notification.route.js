@@ -14,11 +14,15 @@ import User from "../models/user.model.js";
 const PUBLIC_VAPID_KEY = process.env.VAPID_PUBLIC_KEY;
 const PRIVATE_VAPID_KEY = process.env.VAPID_PRIVATE_KEY;
 
-webpush.setVapidDetails(
-  "mailto:your-email@example.com",
-  PUBLIC_VAPID_KEY,
-  PRIVATE_VAPID_KEY
-);
+if (PUBLIC_VAPID_KEY && PRIVATE_VAPID_KEY) {
+  webpush.setVapidDetails(
+    "mailto:support@uranus-chat.com",
+    PUBLIC_VAPID_KEY,
+    PRIVATE_VAPID_KEY
+  );
+} else {
+  console.warn("VAPID keys are not set. Push notifications will not work.");
+}
 
 const router = express.Router();
 

@@ -118,9 +118,18 @@ export const useNotificationStore = create((set, get) => ({
     }
   },
   subscribeToPushNotifications: async () => {
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      toast.error("Push notifications are not supported by your browser.");
+      return;
+    }
 
     try {
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') {
+        toast.error("Notification permission denied. Please enable it in your browser settings.");
+        return;
+      }
+
       // Dynamically fetch public key from backend
       const keyRes = await axiosInstance.get('/notifications/push/key');
       const publicKey = keyRes.data.publicKey;
