@@ -8,7 +8,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
+      includeAssets: ['favicon.svg', 'favicon.ico', 'robots.txt'],
       manifest: {
         name: 'Uranus Chat',
         short_name: 'Uranus',
@@ -28,12 +28,6 @@ export default defineConfig({
             src: 'vite.svg',
             sizes: '512x512',
             type: 'image/svg+xml',
-          },
-          {
-            src: 'apple-touch-icon.png',
-            sizes: '180x180',
-            type: 'image/png',
-            purpose: 'any maskable',
           },
         ],
       },
