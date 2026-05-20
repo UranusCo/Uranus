@@ -139,7 +139,9 @@ export const getMessages = async (req, res) => {
         { senderId: userToChatId, receiverId: myId },
       ],
       isExpired: false,
-    }).sort({ createdAt: 1 });
+    })
+      .sort({ createdAt: 1 })
+      .populate("replyTo");
 
     res.status(200).json(messages);
   } catch (error) {
@@ -475,7 +477,6 @@ export const editMessage = async (req, res) => {
 export const deleteMessage = async (req, res) => {
   try {
     const { messageId } = req.params;
-    const { deleteForEveryone } = req.body;
     const userId = req.user._id;
 
     const message = await Message.findById(messageId);
@@ -487,31 +488,31 @@ export const deleteMessage = async (req, res) => {
       return res.status(403).json({ error: "Can only delete your own messages" });
     }
 
-    if (deleteForEveryone) {
-      message.isDeleted = true;
-      message.deletedAt = new Date();
-      message.text = "[Message deleted]";
-      message.image = null;
-      message.file = null;
+    const sender = await User.findById(message.senderId);
+    const senderName = sender ? sender.fullName : "User";
+    const deletionText = `This massege was delted be ${senderName}`;
 
-      await message.save();
+    message.isDeleted = true;
+    message.deletedAt = new Date();
+    message.text = deletionText;
+    message.image = undefined;
+    message.file = undefined;
+    message.replyTo = undefined;
+    message.reactions = new Map();
+    message.isPinned = false;
 
-      // Emit to other user
-      const receiverId = message.receiverId;
+    await message.save();
+
+    // Emit to other user
+    const receiverId = message.receiverId;
+    if (receiverId) {
       const otherUserSocketId = getReceiverSocketId(receiverId);
       if (otherUserSocketId) {
-        io.to(otherUserSocketId).emit("messageDeleted", { messageId, deletedForEveryone: true });
+        io.to(otherUserSocketId).emit("messageDeleted", { messageId, text: deletionText });
       }
-    } else {
-      // Delete only for self
-      if (!message.deleteFor) {
-        message.deleteFor = [];
-      }
-      message.deleteFor.push(userId);
-      await message.save();
     }
 
-    res.status(200).json({ message: "Message deleted successfully" });
+    res.status(200).json({ message: "Message deleted successfully", text: deletionText });
   } catch (error) {
     console.log("Error in deleteMessage: ", error.message);
     res.status(500).json({ error: "Internal server error" });

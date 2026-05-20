@@ -198,8 +198,6 @@ const ChatContainer = () => {
       >
         <div className="max-w-[800px] w-full mx-auto space-y-3">
           {messages.map((message, index) => {
-            if (message.isDeleted) return null;
-
             const isSelf = message.senderId === authUser._id;
 
             if (isSelf) {
@@ -221,7 +219,7 @@ const ChatContainer = () => {
                   </div>
 
                   {/* Quoted Message */}
-                  {message.replyTo && (
+                  {message.replyTo && !message.isDeleted && (
                     <div className="mb-1.5 max-w-[60%] text-left">
                       <QuotedMessage replyTo={message.replyTo} />
                     </div>
@@ -230,27 +228,33 @@ const ChatContainer = () => {
                   {/* Bubble Row */}
                   <div className="flex gap-2 items-end justify-end group/bubble w-full max-w-[60%]">
                     {/* Action Menu (hover) */}
-                    <div className="opacity-0 group-hover/bubble:opacity-100 transition-opacity duration-200 flex-shrink-0 select-none">
-                      <button
-                        className="size-6 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const rect = e.currentTarget.getBoundingClientRect();
-                          if (activeMessageMenu === message._id) {
-                            closeMessageMenu();
-                          } else {
-                            openMessageMenu(message._id, rect);
-                          }
-                        }}
-                      >
-                        <MoreVertical size={14} />
-                      </button>
-                    </div>
+                    {!message.isDeleted && (
+                      <div className="opacity-0 group-hover/bubble:opacity-100 transition-opacity duration-200 flex-shrink-0 select-none">
+                        <button
+                          className="size-6 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const rect = e.currentTarget.getBoundingClientRect();
+                            if (activeMessageMenu === message._id) {
+                              closeMessageMenu();
+                            } else {
+                              openMessageMenu(message._id, rect);
+                            }
+                          }}
+                        >
+                          <MoreVertical size={14} />
+                        </button>
+                      </div>
+                    )}
 
                     {/* Message Bubble */}
                     <div
-                      className="flex flex-col hover:cursor-pointer select-text px-4 py-2.5 rounded-2xl rounded-tr-none bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-sm hover:brightness-[0.98] transition-all no-callout"
-                      onDoubleClick={() => {
+                      className={`flex flex-col select-text px-4 py-2.5 rounded-2xl rounded-tr-none border shadow-sm ${
+                        message.isDeleted
+                          ? "bg-slate-100 dark:bg-slate-800/40 text-slate-400 dark:text-slate-500 border-slate-200/80 dark:border-slate-700/80 italic font-normal"
+                          : "bg-gradient-to-br from-blue-600 to-indigo-600 text-white border-transparent hover:cursor-pointer hover:brightness-[0.98]"
+                      } transition-all no-callout`}
+                      onDoubleClick={message.isDeleted ? undefined : () => {
                         const hasHeart = message.reactions?.["❤️"]?.includes(authUser._id);
                         if (hasHeart) {
                           removeReaction(message._id, "❤️");
@@ -258,10 +262,10 @@ const ChatContainer = () => {
                           addReaction(message._id, "❤️");
                         }
                       }}
-                      onTouchStart={(e) => { e.stopPropagation(); handleLongPressStart(message._id); }}
-                      onTouchEnd={handleLongPressEnd}
-                      onTouchMove={handleLongPressEnd}
-                      title="Double-click to ❤️ react"
+                      onTouchStart={message.isDeleted ? undefined : (e) => { e.stopPropagation(); handleLongPressStart(message._id); }}
+                      onTouchEnd={message.isDeleted ? undefined : handleLongPressEnd}
+                      onTouchMove={message.isDeleted ? undefined : handleLongPressEnd}
+                      title={message.isDeleted ? undefined : "Double-click to ❤️ react"}
                     >
                       {message.viewOnce && !message.viewedOnce ? (
                         <ViewOnceMedia
@@ -308,7 +312,7 @@ const ChatContainer = () => {
                           {message.text && (
                             <p className="text-[14px] leading-relaxed break-words font-medium">
                               {message.text}
-                              {message.isEdited && (
+                              {message.isEdited && !message.isDeleted && (
                                 <span className="text-[10px] opacity-75 ml-2 font-normal">(edited)</span>
                               )}
                             </p>
@@ -322,24 +326,28 @@ const ChatContainer = () => {
                   </div>
 
                   {/* Reactions list */}
-                  <div className="mr-1 mt-1.5 select-none">
-                    <MessageReactions message={message} />
-                  </div>
+                  {!message.isDeleted && (
+                    <div className="mr-1 mt-1.5 select-none">
+                      <MessageReactions message={message} />
+                    </div>
+                  )}
 
                   {/* Read Status checkmark indicators */}
-                  <div className="px-1.5 mt-1 text-[10px] text-slate-400 dark:text-slate-500 flex items-center gap-1 select-none font-semibold">
-                    {message.isRead ? (
-                      <>
-                        <CheckCheck size={11} className="text-blue-500 dark:text-blue-400" />
-                        <span>Read</span>
-                      </>
-                    ) : (
-                      <>
-                        <Check size={11} />
-                        <span>Sent</span>
-                      </>
-                    )}
-                  </div>
+                  {!message.isDeleted && (
+                    <div className="px-1.5 mt-1 text-[10px] text-slate-400 dark:text-slate-500 flex items-center gap-1 select-none font-semibold">
+                      {message.isRead ? (
+                        <>
+                          <CheckCheck size={11} className="text-blue-500 dark:text-blue-400" />
+                          <span>Read</span>
+                        </>
+                      ) : (
+                        <>
+                          <Check size={11} />
+                          <span>Sent</span>
+                        </>
+                      )}
+                    </div>
+                  )}
                 </div>
               );
             } else {
@@ -365,7 +373,7 @@ const ChatContainer = () => {
                   {/* Content block */}
                   <div className="flex flex-col items-start max-w-[60%]">
                     {/* Header: Sender and Time */}
-                    <div className="flex items-center gap-1.5 mb-1 px-1.5 text-[11px] text-slate-400 dark:text-slate-550 select-none font-semibold">
+                    <div className="flex items-center gap-1.5 mb-1 px-1.5 text-[11px] text-slate-400 dark:text-slate-555 select-none font-semibold">
                       <span className="font-bold text-slate-600 dark:text-slate-350">{selectedUser.fullName}</span>
                       <span>•</span>
                       <time>{formatMessageTime(message.createdAt)}</time>
@@ -373,7 +381,7 @@ const ChatContainer = () => {
                     </div>
 
                     {/* Quoted Message */}
-                    {message.replyTo && (
+                    {message.replyTo && !message.isDeleted && (
                       <div className="mb-1.5 w-full text-left">
                         <QuotedMessage replyTo={message.replyTo} />
                       </div>
@@ -383,8 +391,12 @@ const ChatContainer = () => {
                     <div className="flex gap-2 items-end group/bubble w-full">
                       {/* Message Bubble */}
                       <div
-                        className="flex flex-col hover:cursor-pointer select-text px-4 py-2.5 rounded-2xl rounded-tl-none bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-750/80 transition-all border border-slate-200/50 dark:border-slate-700/50 shadow-sm no-callout"
-                        onDoubleClick={() => {
+                        className={`flex flex-col select-text px-4 py-2.5 rounded-2xl rounded-tl-none border shadow-sm ${
+                          message.isDeleted
+                            ? "bg-slate-50 dark:bg-slate-900/20 text-slate-450 dark:text-slate-500 border-slate-200 dark:border-slate-800/60 italic font-normal"
+                            : "bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-750/80 border-slate-200/50 dark:border-slate-700/50 hover:cursor-pointer"
+                        } transition-all no-callout`}
+                        onDoubleClick={message.isDeleted ? undefined : () => {
                           const hasHeart = message.reactions?.["❤️"]?.includes(authUser._id);
                           if (hasHeart) {
                             removeReaction(message._id, "❤️");
@@ -392,10 +404,10 @@ const ChatContainer = () => {
                             addReaction(message._id, "❤️");
                           }
                         }}
-                        onTouchStart={(e) => { e.stopPropagation(); handleLongPressStart(message._id); }}
-                        onTouchEnd={handleLongPressEnd}
-                        onTouchMove={handleLongPressEnd}
-                        title="Double-click to ❤️ react"
+                        onTouchStart={message.isDeleted ? undefined : (e) => { e.stopPropagation(); handleLongPressStart(message._id); }}
+                        onTouchEnd={message.isDeleted ? undefined : handleLongPressEnd}
+                        onTouchMove={message.isDeleted ? undefined : handleLongPressEnd}
+                        title={message.isDeleted ? undefined : "Double-click to ❤️ react"}
                       >
                         {message.viewOnce && !message.viewedOnce ? (
                           <ViewOnceMedia
@@ -440,9 +452,9 @@ const ChatContainer = () => {
                               </div>
                             )}
                             {message.text && (
-                              <p className="text-[14px] leading-relaxed break-words font-medium text-slate-800 dark:text-slate-100">
+                              <p className="text-[14px] leading-relaxed break-words font-medium">
                                 {message.text}
-                                {message.isEdited && (
+                                {message.isEdited && !message.isDeleted && (
                                   <span className="text-[10px] opacity-55 ml-2 font-normal">(edited)</span>
                                 )}
                               </p>
@@ -455,28 +467,32 @@ const ChatContainer = () => {
                       </div>
 
                       {/* Action Menu (hover) */}
-                      <div className="opacity-0 group-hover/bubble:opacity-100 transition-opacity duration-200 flex-shrink-0 select-none">
-                        <button
-                          className="size-6 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            const rect = e.currentTarget.getBoundingClientRect();
-                            if (activeMessageMenu === message._id) {
-                              closeMessageMenu();
-                            } else {
-                              openMessageMenu(message._id, rect);
-                            }
-                          }}
-                        >
-                          <MoreVertical size={14} />
-                        </button>
-                      </div>
+                      {!message.isDeleted && (
+                        <div className="opacity-0 group-hover/bubble:opacity-100 transition-opacity duration-200 flex-shrink-0 select-none">
+                          <button
+                            className="size-6 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const rect = e.currentTarget.getBoundingClientRect();
+                              if (activeMessageMenu === message._id) {
+                                closeMessageMenu();
+                              } else {
+                                openMessageMenu(message._id, rect);
+                              }
+                            }}
+                          >
+                            <MoreVertical size={14} />
+                          </button>
+                        </div>
+                      )}
                     </div>
 
                     {/* Reactions list */}
-                    <div className="ml-1 mt-1.5 select-none">
-                      <MessageReactions message={message} />
-                    </div>
+                    {!message.isDeleted && (
+                      <div className="ml-1 mt-1.5 select-none">
+                        <MessageReactions message={message} />
+                      </div>
+                    )}
                   </div>
                 </div>
               );

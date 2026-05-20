@@ -195,14 +195,24 @@ export const useChatStore = create((set, get) => ({
   },
 
   // Delete message
-  deleteMessage: async (messageId, deleteForEveryone = false) => {
+  deleteMessage: async (messageId) => {
     try {
-      await axiosInstance.delete(`/messages/${messageId}`, {
-        data: { deleteForEveryone },
-      });
+      const res = await axiosInstance.delete(`/messages/${messageId}`);
+      const text = res.data.text || "This massege was delted be You";
       set({
         messages: get().messages.map(msg =>
-          msg._id === messageId ? { ...msg, isDeleted: true, text: "[Message deleted]" } : msg
+          msg._id === messageId
+            ? {
+                ...msg,
+                isDeleted: true,
+                text,
+                image: null,
+                file: null,
+                replyTo: null,
+                reactions: {},
+                isPinned: false,
+              }
+            : msg
         ),
       });
       toast.success("Message deleted");
@@ -468,11 +478,20 @@ export const useChatStore = create((set, get) => ({
     });
 
     socket.on("messageDeleted", (data) => {
-      const { messageId } = data;
+      const { messageId, text } = data;
       set({
         messages: get().messages.map(msg =>
           msg._id === messageId
-            ? { ...msg, isDeleted: true, text: "[Message deleted]" }
+            ? {
+                ...msg,
+                isDeleted: true,
+                text: text || "This massege was delted be User",
+                image: null,
+                file: null,
+                replyTo: null,
+                reactions: {},
+                isPinned: false,
+              }
             : msg
         ),
       });
