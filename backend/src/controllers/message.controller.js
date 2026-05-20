@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import User from "../models/user.model.js";
 import Message from "../models/message.model.js";
+import Friendship from "../models/friendship.model.js";
 
 import cloudinary from "../lib/cloudinary.js";
 import { getReceiverSocketId, io } from "../lib/socket.js";
@@ -185,6 +186,21 @@ export const sendMessage = [
       const { text, image, replyTo, viewOnce, expiresAt } = req.body;
       const { id: receiverId } = req.params;
       const senderId = req.user._id;
+
+      // Check if users are friends (unless they are messaging themselves)
+      if (senderId.toString() !== receiverId.toString()) {
+        const friendship = await Friendship.findOne({
+          status: "accepted",
+          $or: [
+            { requesterId: senderId, receiverId: receiverId },
+            { requesterId: receiverId, receiverId: senderId }
+          ]
+        });
+
+        if (!friendship) {
+          return res.status(403).json({ error: "You can only message users you are friends with" });
+        }
+      }
 
       let imageUrl;
       if (image) {
@@ -720,6 +736,19 @@ export const forwardMessage = async (req, res) => {
 
     if (senderId.toString() === receiverId.toString()) {
       return res.status(400).json({ error: "Cannot forward a message to yourself" });
+    }
+
+    // Check if users are friends
+    const friendship = await Friendship.findOne({
+      status: "accepted",
+      $or: [
+        { requesterId: senderId, receiverId },
+        { requesterId: receiverId, receiverId: senderId }
+      ]
+    });
+
+    if (!friendship) {
+      return res.status(403).json({ error: "You can only message users you are friends with" });
     }
 
     const originalMessage = await Message.findById(messageId);

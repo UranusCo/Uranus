@@ -6,6 +6,7 @@ import ConversationList from "../components/ConversationList";
 import NoChatSelected from "../components/NoChatSelected";
 import ChatContainer from "../components/ChatContainer";
 import StatusUpdateModal from "../components/StatusUpdateModal";
+import UsersPanel from "../components/UsersPanel";
 import { 
   MessageSquare, 
   Phone, 
@@ -14,7 +15,8 @@ import {
   Video, 
   PhoneCall, 
   ArrowUpRight, 
-  ArrowDownLeft 
+  ArrowDownLeft,
+  Users
 } from "lucide-react";
 
 // Sleek high-fidelity mockup view for call logs
@@ -119,7 +121,7 @@ const StatusView = ({ onAddStatusClick }) => {
 
 const HomePage = () => {
   const { selectedUser } = useChatStore();
-  const [mobileTab, setMobileTab] = useState("chats"); // chats, calls, status
+  const [activeTab, setActiveTab] = useState("chats"); // chats, calls, status, users
   const [showStatusModal, setShowStatusModal] = useState(false);
 
   return (
@@ -128,7 +130,7 @@ const HomePage = () => {
       {/* 3-Section Layout */}
       <div className="flex flex-grow h-full overflow-hidden w-full relative">
         {/* Section 1: SidebarRail (Far Left) - desktop only */}
-        <SidebarRail />
+        <SidebarRail activeTab={activeTab} setActiveTab={setActiveTab} />
 
         {/* Section 2: ConversationList/Calls/Status (Middle) */}
         {/* Full-width on mobile when no chat is selected, hidden when chat is open */}
@@ -140,10 +142,13 @@ const HomePage = () => {
           `}
         >
           <div className="flex-grow min-h-0">
-            {mobileTab === "chats" && <ConversationList />}
-            {mobileTab === "calls" && <CallsView />}
-            {mobileTab === "status" && (
+            {activeTab === "chats" && <ConversationList />}
+            {activeTab === "calls" && <CallsView />}
+            {activeTab === "status" && (
               <StatusView onAddStatusClick={() => setShowStatusModal(true)} />
+            )}
+            {activeTab === "users" && (
+              <UsersPanel setActiveTab={setActiveTab} />
             )}
           </div>
 
@@ -151,38 +156,48 @@ const HomePage = () => {
           {!selectedUser && (
             <nav className="lg:hidden border-t border-slate-150 dark:border-slate-800 bg-white/95 dark:bg-slate-850/95 backdrop-blur-md px-6 py-2.5 flex items-center justify-between z-30 select-none transition-colors">
               <button 
-                onClick={() => setMobileTab("chats")}
+                onClick={() => setActiveTab("chats")}
                 className={`flex flex-col items-center gap-1 transition-all ${
-                  mobileTab === "chats" ? "text-blue-500 scale-105" : "text-slate-400 hover:text-slate-500 dark:hover:text-slate-300"
+                  activeTab === "chats" ? "text-blue-500 scale-105" : "text-slate-400 hover:text-slate-500 dark:hover:text-slate-350"
                 }`}
               >
-                <MessageSquare size={19} className={mobileTab === "chats" ? "fill-current" : ""} />
+                <MessageSquare size={19} className={activeTab === "chats" ? "fill-current" : ""} />
                 <span className="text-[10px] font-bold">Chats</span>
+              </button>
+              
+              <button 
+                onClick={() => setActiveTab("users")}
+                className={`flex flex-col items-center gap-1 transition-all ${
+                  activeTab === "users" ? "text-blue-500 scale-105" : "text-slate-400 hover:text-slate-500 dark:hover:text-slate-350"
+                }`}
+              >
+                <Users size={19} className={activeTab === "users" ? "fill-current" : ""} />
+                <span className="text-[10px] font-bold">Users</span>
               </button>
 
               <button 
-                onClick={() => setMobileTab("calls")}
+                onClick={() => setActiveTab("calls")}
                 className={`flex flex-col items-center gap-1 transition-all ${
-                  mobileTab === "calls" ? "text-blue-500 scale-105" : "text-slate-400 hover:text-slate-500 dark:hover:text-slate-300"
+                  activeTab === "calls" ? "text-blue-500 scale-105" : "text-slate-400 hover:text-slate-500 dark:hover:text-slate-350"
                 }`}
               >
-                <Phone size={19} className={mobileTab === "calls" ? "fill-current" : ""} />
+                <Phone size={19} className={activeTab === "calls" ? "fill-current" : ""} />
                 <span className="text-[10px] font-bold">Calls</span>
               </button>
 
               <button 
-                onClick={() => setMobileTab("status")}
+                onClick={() => setActiveTab("status")}
                 className={`flex flex-col items-center gap-1 transition-all ${
-                  mobileTab === "status" ? "text-blue-500 scale-105" : "text-slate-400 hover:text-slate-500 dark:hover:text-slate-300"
+                  activeTab === "status" ? "text-blue-500 scale-105" : "text-slate-400 hover:text-slate-500 dark:hover:text-slate-350"
                 }`}
               >
-                <Disc size={19} className={mobileTab === "status" ? "fill-current animate-spin-slow" : ""} />
+                <Disc size={19} className={activeTab === "status" ? "fill-current animate-spin-slow" : ""} />
                 <span className="text-[10px] font-bold">Status</span>
               </button>
 
               <Link 
                 to="/settings"
-                className="flex flex-col items-center gap-1 transition-all text-slate-400 hover:text-slate-500 dark:hover:text-slate-300"
+                className="flex flex-col items-center gap-1 transition-all text-slate-400 hover:text-slate-500 dark:hover:text-slate-355"
               >
                 <Settings size={19} />
                 <span className="text-[10px] font-bold">Settings</span>

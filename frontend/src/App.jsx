@@ -11,6 +11,7 @@ import { useAuthStore } from "./store/useAuthStore";
 import { useThemeStore } from "./store/useThemeStore";
 import { useErrorStore } from "./store/useErrorStore";
 import { useChatStore } from "./store/useChatStore";
+import { useFriendStore } from "./store/useFriendStore";
 import { useEffect } from "react";
 
 import { Loader } from "lucide-react";
@@ -18,7 +19,7 @@ import { Toaster } from "react-hot-toast";
 import ErrorModal from "./components/ErrorModal";
 
 const App = () => {
-  const { authUser, checkAuth, isCheckingAuth, onlineUsers } = useAuthStore();
+  const { authUser, checkAuth, isCheckingAuth, onlineUsers, socket } = useAuthStore();
   const { theme } = useThemeStore();
   const { currentError, clearError, retryCurrentError } = useErrorStore();
   const { selectedUser } = useChatStore();
@@ -27,6 +28,17 @@ const App = () => {
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
+
+  const { fetchFriends, fetchRequests, subscribeToFriendEvents, unsubscribeFromFriendEvents } = useFriendStore();
+
+  useEffect(() => {
+    if (authUser && socket) {
+      fetchFriends();
+      fetchRequests();
+      subscribeToFriendEvents();
+      return () => unsubscribeFromFriendEvents();
+    }
+  }, [authUser, socket, fetchFriends, fetchRequests, subscribeToFriendEvents, unsubscribeFromFriendEvents]);
 
   useEffect(() => {
     if (theme === "dark") {

@@ -3,6 +3,7 @@ import { useChatStore } from "../store/useChatStore";
 import { Image, Send, X, Paperclip, Loader } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAuthStore } from "../store/useAuthStore";
+import { useFriendStore } from "../store/useFriendStore";
 
 const MessageInput = () => {
   const [text, setText] = useState("");
@@ -13,7 +14,12 @@ const MessageInput = () => {
   const fileInputRef = useRef(null);
   const imageInputRef = useRef(null);
   const { sendMessage, selectedUser, editingMessageId, editMessage, replyingToMessage } = useChatStore();
-  const { socket } = useAuthStore();
+  const { socket, authUser } = useAuthStore();
+  const { friends } = useFriendStore();
+
+  const isSelf = selectedUser?._id === authUser?._id;
+  const isFriend = friends.some((f) => f._id === selectedUser?._id);
+  const canChat = isSelf || isFriend;
   const typingTimeoutRef = useRef(null);
   const sendingDelayRef = useRef(null);
 
@@ -114,6 +120,18 @@ const MessageInput = () => {
       if (sendingDelayRef.current) clearTimeout(sendingDelayRef.current);
     };
   }, []);
+
+  if (selectedUser && !canChat) {
+    return (
+      <div className="w-full px-4 sm:px-6 py-4 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 flex-shrink-0 select-none text-center transition-colors duration-200">
+        <div className="max-w-[800px] w-full mx-auto py-3 px-4 bg-slate-50 dark:bg-slate-900/20 border border-dashed border-slate-300 dark:border-slate-700 rounded-2xl">
+          <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
+            You can only chat with users after becoming friends
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full px-4 sm:px-6 py-4 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 flex-shrink-0 select-none transition-colors duration-200">
