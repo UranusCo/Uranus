@@ -21,8 +21,6 @@ const ChatContainer = () => {
     getMessages,
     isMessagesLoading,
     selectedUser,
-    subscribeToMessages,
-    unsubscribeFromMessages,
     typingUsers,
     pinnedMessages,
     getPinnedMessages,
@@ -97,11 +95,7 @@ const ChatContainer = () => {
   useEffect(() => {
     getMessages(selectedUser._id);
     getPinnedMessages(selectedUser._id);
-
-    subscribeToMessages();
-
-    return () => unsubscribeFromMessages();
-  }, [selectedUser._id, getMessages, getPinnedMessages, subscribeToMessages, unsubscribeFromMessages]);
+  }, [selectedUser._id, getMessages, getPinnedMessages]);
 
   useEffect(() => {
     if (messageEndRef.current && messages) {

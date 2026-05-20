@@ -30,15 +30,20 @@ const App = () => {
   }, [checkAuth]);
 
   const { fetchFriends, fetchRequests, subscribeToFriendEvents, unsubscribeFromFriendEvents } = useFriendStore();
+  const { subscribeToMessages, unsubscribeFromMessages } = useChatStore();
 
   useEffect(() => {
     if (authUser && socket) {
       fetchFriends();
       fetchRequests();
       subscribeToFriendEvents();
-      return () => unsubscribeFromFriendEvents();
+      subscribeToMessages();
+      return () => {
+        unsubscribeFromFriendEvents();
+        unsubscribeFromMessages();
+      };
     }
-  }, [authUser, socket, fetchFriends, fetchRequests, subscribeToFriendEvents, unsubscribeFromFriendEvents]);
+  }, [authUser, socket, fetchFriends, fetchRequests, subscribeToFriendEvents, unsubscribeFromFriendEvents, subscribeToMessages, unsubscribeFromMessages]);
 
   useEffect(() => {
     if (theme === "dark") {

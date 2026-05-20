@@ -169,7 +169,7 @@ export const markMessagesAsRead = async (req, res) => {
     // Emit read receipt to sender
     const senderSocketId = getReceiverSocketId(userId);
     if (senderSocketId) {
-      io.to(senderSocketId).emit("messagesRead", myId);
+      io.to(senderSocketId).emit("messagesReadReceipt", myId);
     }
 
     res.status(200).json({ message: "Messages marked as read" });

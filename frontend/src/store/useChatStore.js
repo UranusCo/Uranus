@@ -102,7 +102,10 @@ export const useChatStore = create((set, get) => ({
     set({ isMessagesLoading: true });
     try {
       const res = await axiosInstance.get(`/messages/${userId}`);
-      set({ messages: res.data });
+      set({ 
+        messages: res.data,
+        users: get().users.map(u => u._id === userId ? { ...u, unreadCount: 0 } : u)
+      });
 
       try {
         await axiosInstance.patch(`/messages/${userId}/read`);
@@ -136,7 +139,11 @@ export const useChatStore = create((set, get) => ({
       }
 
       const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, postData);
-      set({ messages: [...messages, res.data], replyingToMessage: null });
+      set({ 
+        messages: [...messages, res.data], 
+        replyingToMessage: null,
+        users: get().users.map(u => u._id === selectedUser._id ? { ...u, lastMessage: res.data } : u)
+      });
     } catch (error) {
       useErrorStore.getState().handleApiError(error, "send message");
     }
@@ -348,22 +355,57 @@ export const useChatStore = create((set, get) => ({
 
   // Socket subscriptions
   subscribeToMessages: () => {
-    const { selectedUser } = get();
-    if (!selectedUser) return;
-
     const socket = useAuthStore.getState().socket;
+    if (!socket) return;
 
-    socket.on("newMessage", (newMessage) => {
-      const isMessageSentFromSelectedUser = newMessage.senderId === selectedUser._id;
-      if (!isMessageSentFromSelectedUser) return;
+    // Avoid duplicate subscriptions
+    get().unsubscribeFromMessages();
 
+    socket.on("newMessage", async (newMessage) => {
+      const { selectedUser, messages, users } = get();
+      
+      // Check if message belongs to currently active chat (incoming or outgoing)
+      const isForActiveChat = selectedUser && 
+        (newMessage.senderId === selectedUser._id || newMessage.receiverId === selectedUser._id);
+
+      if (isForActiveChat) {
+        set({
+          messages: [...messages, newMessage],
+        });
+
+        // Mark as read immediately on backend
+        try {
+          await axiosInstance.patch(`/messages/${selectedUser._id}/read`);
+          socket.emit("messageRead", { senderId: selectedUser._id, receiverId: useAuthStore.getState().authUser._id });
+        } catch (error) {
+          console.error("Failed to mark message as read:", error);
+        }
+      } else {
+        // Show a custom toast/notification if it is from someone else
+        const sender = users.find(u => u._id === newMessage.senderId);
+        const senderName = sender ? sender.fullName : "Someone";
+        toast(`New message from ${senderName}`, { icon: "💬" });
+      }
+
+      // Update the users list to show the new lastMessage and increment unreadCount if not current chat
       set({
-        messages: [...get().messages, newMessage],
+        users: users.map(user => {
+          if (user._id === newMessage.senderId) {
+            const isCurrentChat = selectedUser && selectedUser._id === user._id;
+            return {
+              ...user,
+              lastMessage: newMessage,
+              unreadCount: isCurrentChat ? 0 : (user.unreadCount || 0) + 1
+            };
+          }
+          return user;
+        })
       });
     });
 
     socket.on("userTyping", (userId) => {
-      if (userId === selectedUser._id) {
+      const { selectedUser } = get();
+      if (selectedUser && userId === selectedUser._id) {
         const typingUsers = get().typingUsers;
         if (!typingUsers.includes(userId)) {
           set({ typingUsers: [...typingUsers, userId] });
@@ -372,12 +414,15 @@ export const useChatStore = create((set, get) => ({
     });
 
     socket.on("userStopTyping", (userId) => {
-      if (userId === selectedUser._id) {
+      const { selectedUser } = get();
+      if (selectedUser && userId === selectedUser._id) {
         set({ typingUsers: get().typingUsers.filter(id => id !== userId) });
       }
     });
 
     socket.on("messagesReadReceipt", (userId) => {
+      // The other user (userId) read our messages.
+      // So update messages where we are the sender (senderId = self) and they are the receiver (receiverId = userId)
       set({
         messages: get().messages.map(msg =>
           msg.receiverId === userId ? { ...msg, isRead: true } : msg
@@ -423,7 +468,7 @@ export const useChatStore = create((set, get) => ({
     });
 
     socket.on("messageDeleted", (data) => {
-      const { messageId, deletedForEveryone } = data;
+      const { messageId } = data;
       set({
         messages: get().messages.map(msg =>
           msg._id === messageId
@@ -464,6 +509,7 @@ export const useChatStore = create((set, get) => ({
 
   unsubscribeFromMessages: () => {
     const socket = useAuthStore.getState().socket;
+    if (!socket) return;
     socket.off("newMessage");
     socket.off("userTyping");
     socket.off("userStopTyping");
