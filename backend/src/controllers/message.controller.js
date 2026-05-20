@@ -66,6 +66,8 @@ export const getUsersForSidebar = async (req, res) => {
     // Get unique users from messages and organize by chat
     const userMap = new Map();
     messages.forEach((msg) => {
+      if (!msg.senderId || !msg.receiverId) return; // Skip if user account was deleted
+
       const otherUser = msg.senderId._id.toString() === loggedInUserId.toString() ? msg.receiverId : msg.senderId;
       if (otherUser && !userMap.has(otherUser._id.toString())) {
         userMap.set(otherUser._id.toString(), {
