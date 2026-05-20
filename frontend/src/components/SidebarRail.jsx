@@ -107,7 +107,7 @@ const SidebarRail = ({ activeTab = "chats", setActiveTab = () => {} }) => {
 
           {/* Notifications */}
           <div className="relative size-10 flex items-center justify-center rounded-xl transition-all duration-200">
-            <NotificationBell hideText={true} />
+            <NotificationBell hideText={true} dropdownClass="left-14 bottom-0 origin-bottom-left" />
           </div>
 
           {/* User Profile Avatar Link */}

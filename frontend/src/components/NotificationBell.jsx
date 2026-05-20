@@ -4,7 +4,7 @@ import { useNotificationStore } from "../store/useNotificationStore";
 import { useAuthStore } from "../store/useAuthStore";
 import NotificationPanel from "./NotificationPanel";
 
-const NotificationBell = ({ hideText = false }) => {
+const NotificationBell = ({ hideText = false, dropdownClass = "right-0 mt-2 origin-top-right" }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { unreadCount, getUnreadCount, subscribeToNotifications, unsubscribeFromNotifications } = useNotificationStore();
   const { authUser, socket } = useAuthStore();
@@ -52,7 +52,7 @@ const NotificationBell = ({ hideText = false }) => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 z-50 animate-in fade-in zoom-in duration-200 origin-top-right">
+        <div className={`absolute z-50 animate-in fade-in zoom-in duration-200 ${dropdownClass}`}>
           <NotificationPanel onClose={() => setIsOpen(false)} />
         </div>
       )}
