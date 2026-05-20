@@ -30,6 +30,9 @@ import friendshipRoutes from "./routes/friendship.route.js";
 import { app, server } from "./lib/socket.js";
 import { deleteExpiredMessages } from "./controllers/message.controller.js";
 
+import bcrypt from "bcryptjs";
+import User from "./models/user.model.js";
+
 const PORT = process.env.PORT || 5000;
 
 app.use(express.json({ limit: "10mb" }));
@@ -62,10 +65,37 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
+async function seedHelpCenter() {
+  try {
+    const email = "pansiluco@gmail.com";
+    const existingUser = await User.findOne({ email });
+    if (!existingUser) {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash("Pansilu2012@", salt);
+      const helpCenter = new User({
+        email,
+        fullName: "Help Center",
+        password: hashedPassword,
+        profilePic: "",
+      });
+      await helpCenter.save();
+      console.log("Help Center user seeded successfully.");
+    } else {
+      if (existingUser.fullName !== "Help Center") {
+        existingUser.fullName = "Help Center";
+        await existingUser.save();
+        console.log("Help Center user name corrected to 'Help Center'.");
+      }
+    }
+  } catch (error) {
+    console.error("Error seeding Help Center user:", error);
+  }
+}
 
 server.listen(PORT, async () => {
   console.log("server is running on PORT:" + PORT);
   await connectDB();
+  await seedHelpCenter();
   await deleteExpiredMessages();
   setInterval(deleteExpiredMessages, 20 * 60 * 1000); // every 20 minutes
 });

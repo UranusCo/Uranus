@@ -175,7 +175,8 @@ const UsersPanel = ({ setActiveTab }) => {
           filterBySearch(displayUsers).length > 0 ? (
             filterBySearch(displayUsers).map((user) => {
               const isOnline = onlineUsers.includes(user._id);
-              const relState = getRelationshipState(user._id);
+              const isHelpCenter = user.email === "pansiluco@gmail.com";
+              const relState = isHelpCenter ? "friends" : getRelationshipState(user._id);
 
               return (
                 <div
@@ -196,8 +197,13 @@ const UsersPanel = ({ setActiveTab }) => {
                       )}
                     </div>
                     <div className="min-w-0">
-                      <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 truncate">
+                      <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 truncate flex items-center gap-1.5">
                         {user.fullName}
+                        {isHelpCenter && (
+                          <span className="text-[10px] bg-blue-500/10 text-blue-500 dark:text-blue-400 border border-blue-500/20 px-1.5 py-0.5 rounded-full font-bold select-none">
+                            Support
+                          </span>
+                        )}
                       </h4>
                       <p className="text-[11px] text-slate-400 dark:text-slate-500 truncate font-semibold mt-0.5">
                         {user.email}

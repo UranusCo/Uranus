@@ -19,7 +19,8 @@ const MessageInput = () => {
 
   const isSelf = selectedUser?._id === authUser?._id;
   const isFriend = friends.some((f) => f._id === selectedUser?._id);
-  const canChat = isSelf || isFriend;
+  const isHelpCenter = selectedUser?.email === "pansiluco@gmail.com" || authUser?.email === "pansiluco@gmail.com";
+  const canChat = isSelf || isFriend || isHelpCenter;
   const typingTimeoutRef = useRef(null);
   const sendingDelayRef = useRef(null);
 

@@ -189,18 +189,28 @@ export const sendMessage = [
       const { id: receiverId } = req.params;
       const senderId = req.user._id;
 
-      // Check if users are friends (unless they are messaging themselves)
+      // Check if users are friends (unless they are messaging themselves or one is the Help Center)
       if (senderId.toString() !== receiverId.toString()) {
-        const friendship = await Friendship.findOne({
-          status: "accepted",
-          $or: [
-            { requesterId: senderId, receiverId: receiverId },
-            { requesterId: receiverId, receiverId: senderId }
-          ]
-        });
+        const isHelpCenterSender = req.user.email === "pansiluco@gmail.com";
+        let isHelpCenterReceiver = false;
 
-        if (!friendship) {
-          return res.status(403).json({ error: "You can only message users you are friends with" });
+        const receiverUser = await User.findById(receiverId);
+        if (receiverUser && receiverUser.email === "pansiluco@gmail.com") {
+          isHelpCenterReceiver = true;
+        }
+
+        if (!isHelpCenterSender && !isHelpCenterReceiver) {
+          const friendship = await Friendship.findOne({
+            status: "accepted",
+            $or: [
+              { requesterId: senderId, receiverId: receiverId },
+              { requesterId: receiverId, receiverId: senderId }
+            ]
+          });
+
+          if (!friendship) {
+            return res.status(403).json({ error: "You can only message users you are friends with" });
+          }
         }
       }
 
@@ -739,17 +749,27 @@ export const forwardMessage = async (req, res) => {
       return res.status(400).json({ error: "Cannot forward a message to yourself" });
     }
 
-    // Check if users are friends
-    const friendship = await Friendship.findOne({
-      status: "accepted",
-      $or: [
-        { requesterId: senderId, receiverId },
-        { requesterId: receiverId, receiverId: senderId }
-      ]
-    });
+    // Check if users are friends (unless one is the Help Center)
+    const isHelpCenterSender = req.user.email === "pansiluco@gmail.com";
+    let isHelpCenterReceiver = false;
 
-    if (!friendship) {
-      return res.status(403).json({ error: "You can only message users you are friends with" });
+    const receiverUser = await User.findById(receiverId);
+    if (receiverUser && receiverUser.email === "pansiluco@gmail.com") {
+      isHelpCenterReceiver = true;
+    }
+
+    if (!isHelpCenterSender && !isHelpCenterReceiver) {
+      const friendship = await Friendship.findOne({
+        status: "accepted",
+        $or: [
+          { requesterId: senderId, receiverId },
+          { requesterId: receiverId, receiverId: senderId }
+        ]
+      });
+
+      if (!friendship) {
+        return res.status(403).json({ error: "You can only message users you are friends with" });
+      }
     }
 
     const originalMessage = await Message.findById(messageId);
