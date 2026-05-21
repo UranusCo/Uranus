@@ -114,6 +114,30 @@ const MessageContent = ({
 }) => {
   const { authUser } = useAuthStore();
   
+  // Helper to linkify text
+  const linkify = (text) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    return text.split(urlRegex).map((part, i) => {
+      if (part.match(urlRegex)) {
+        return (
+          <a
+            key={i}
+            href={part}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`underline decoration-2 underline-offset-2 transition-opacity hover:opacity-80 ${
+              isSelf ? "text-white" : "text-blue-500 dark:text-blue-400"
+            }`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {part}
+          </a>
+        );
+      }
+      return part;
+    });
+  };
+
   return (
     <>
       {/* Header: Sender and Time */}
@@ -209,7 +233,7 @@ const MessageContent = ({
               {message.text && (
                 <div className="flex flex-col">
                   <p className="text-[14px] leading-relaxed break-words font-medium">
-                    {message.text}
+                    {linkify(message.text)}
                     {message.isEdited && !message.isDeleted && (
                       <span className="text-[10px] opacity-75 ml-2 font-normal">(edited)</span>
                     )}

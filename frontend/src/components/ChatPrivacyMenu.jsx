@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Lock, Clock3 } from "lucide-react";
+import { Lock, Clock3, X } from "lucide-react";
 
 const expirationOptions = [
   { label: "Off", value: "off" },
@@ -71,74 +71,103 @@ const ChatPrivacyMenu = ({
   if (!open || !selectedUser) return null;
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 transition-all duration-200">
-      <div className="w-full max-w-md rounded-3xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-2xl overflow-hidden animate-fadeIn">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-700">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm sm:p-4 transition-all duration-200"
+      onClick={onClose}
+    >
+      <div 
+        className="w-full sm:max-w-md bg-white dark:bg-slate-800 shadow-2xl sm:rounded-3xl border-t sm:border border-slate-200 dark:border-slate-700 overflow-hidden animate-fadeIn mobile-bottom-sheet h-fit max-h-[90dvh] flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Handle for mobile drag (aesthetic) */}
+        <div className="flex justify-center pt-3 sm:hidden">
+          <div className="w-12 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full" />
+        </div>
+
+        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-700/50">
           <div>
-            <p className="text-[10px] uppercase tracking-wider font-semibold text-slate-400 dark:text-slate-500">Privacy</p>
-            <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">{selectedUser.fullName || selectedUser.name}</h2>
+            <p className="text-[10px] uppercase tracking-widest font-bold text-slate-400 dark:text-slate-500">Privacy Settings</p>
+            <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 truncate max-w-[200px]">{selectedUser.fullName || selectedUser.name}</h2>
           </div>
-          <button className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700/50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs rounded-xl font-semibold transition-all active:scale-[0.98]" onClick={onClose}>
-            Close
+          <button 
+            className="size-8 flex items-center justify-center bg-slate-100 dark:bg-slate-700/50 text-slate-500 dark:text-slate-300 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors" 
+            onClick={onClose}
+          >
+            <X size={18} />
           </button>
         </div>
-        <div className="space-y-5 p-5">
-          <div className="rounded-3xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 p-4">
-            <div className="flex items-center gap-3 mb-3">
-              <Clock3 className="size-5 text-blue-500 dark:text-blue-400" />
+
+        <div className="flex-1 overflow-y-auto p-5 space-y-6 scrollbar-none">
+          {/* Disappearing Messages Section */}
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/40 p-4">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="size-9 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500">
+                <Clock3 size={18} />
+              </div>
               <div>
                 <h3 className="font-bold text-slate-800 dark:text-slate-100 text-sm">Disappearing messages</h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Messages will expire based on your selection.</p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Auto-delete messages after a period</p>
               </div>
             </div>
+            
             <div className="grid grid-cols-2 gap-2">
               {expirationOptions.map((option) => (
                 <button
                   key={option.value}
                   type="button"
                   onClick={() => setExpiryOption(option.value)}
-                  className={`rounded-xl border px-3 py-2 text-xs font-bold transition-all duration-200 ${expiryOption === option.value ? "border-blue-500 bg-blue-500/10 text-blue-600 dark:text-blue-400" : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200"}`}
+                  className={`rounded-xl border py-2.5 text-xs font-bold transition-all duration-200 ${
+                    expiryOption === option.value 
+                      ? "border-blue-500 bg-blue-500 text-white shadow-md shadow-blue-500/20" 
+                      : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600"
+                  }`}
                 >
                   {option.label}
                 </button>
               ))}
             </div>
+            
             <button
               type="button"
               onClick={handleSaveExpiry}
-              className="mt-4 w-full py-2.5 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-xl font-bold text-sm transition-all active:scale-[0.98] shadow-sm"
+              className="mt-4 w-full py-2.5 bg-slate-100 dark:bg-slate-700 hover:bg-blue-500 dark:hover:bg-blue-600 hover:text-white text-slate-700 dark:text-slate-200 rounded-xl font-bold text-xs transition-all active:scale-[0.98]"
             >
-              Save expiry
+              Update Preference
             </button>
           </div>
 
-          <div className="rounded-3xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 p-4">
-            <div className="flex items-center gap-3 mb-3">
-              <Lock className="size-5 text-blue-500 dark:text-blue-400" />
+          {/* Chat Lock Section */}
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/40 p-4">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="size-9 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-500">
+                <Lock size={18} />
+              </div>
               <div>
-                <h3 className="font-bold text-slate-800 dark:text-slate-100 text-sm">Chat lock</h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Move this chat into locked conversations.</p>
+                <h3 className="font-bold text-slate-800 dark:text-slate-100 text-sm">Chat Lock</h3>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Protect this chat with a secret PIN</p>
               </div>
             </div>
+            
             <input
               type="password"
               value={pin}
               onChange={(e) => setPin(e.target.value)}
-              placeholder="Enter PIN"
-              className="w-full px-4 py-2.5 bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 text-sm"
+              placeholder="Enter 4-digit PIN"
+              className="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm mb-3"
             />
-            <div className="mt-4 flex gap-2">
+            
+            <div className="flex gap-2">
               <button
                 type="button"
                 onClick={locked ? handleUnlock : handleLock}
-                className="flex-1 py-2.5 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-xl font-bold text-sm transition-all active:scale-[0.98] shadow-sm"
+                className="flex-[2] py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-bold text-xs transition-all active:scale-[0.98] shadow-md shadow-blue-500/10"
               >
-                {locked ? "Unlock chat" : "Lock chat"}
+                {locked ? "Unlock Conversation" : "Lock Conversation"}
               </button>
               <button
                 type="button"
                 onClick={() => setPin("")}
-                className="flex-1 py-2.5 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-750 dark:text-slate-200 rounded-xl font-bold text-sm transition-all active:scale-[0.98]"
+                className="flex-1 py-2.5 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl font-bold text-xs transition-all active:scale-[0.98]"
               >
                 Clear
               </button>
@@ -146,7 +175,9 @@ const ChatPrivacyMenu = ({
           </div>
 
           {statusMessage && (
-            <p className="rounded-2xl bg-emerald-500/10 border border-emerald-500/25 p-3 text-xs font-bold text-emerald-600 dark:text-emerald-400 text-center animate-fadeIn">{statusMessage}</p>
+            <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 text-center animate-fadeIn">
+              {statusMessage}
+            </div>
           )}
         </div>
       </div>
