@@ -16,12 +16,16 @@ Uranus Workspace Folder Structure
 ├── test.ps1
 ├── backend/
 │   ├── .env
-│   ├── .env.example
 │   ├── package-lock.json
 │   ├── package.json
 │   ├── tasks.md
 │   ├── public/
 │   │   ├── assets/
+│   │   │   ├── index-6rgDzxxi.js
+│   │   │   ├── index-BiElmxjj.js
+│   │   │   ├── index-C8u3avHL.js
+│   │   │   ├── index-DGmtcvhO.css
+│   │   │   └── uranus-jOLa_z36.svg
 │   │   ├── avatar.png
 │   │   ├── file.enc
 │   │   ├── file.png
@@ -38,26 +42,22 @@ Uranus Workspace Folder Structure
 │       ├── index.js
 │       ├── controllers/
 │       │   ├── auth.controller.js
-│       │   ├── friendship.controller.js
 │       │   ├── message.controller.js
 │       │   └── notification.controller.js
 │       ├── lib/
 │       │   ├── cloudinary.js
 │       │   ├── db.js
-│       │   ├── linkPreview.js
 │       │   ├── socket.js
 │       │   └── utils.js
 │       ├── middleware/
 │       │   └── auth.middleware.js
 │       ├── models/
-│       │   ├── friendship.model.js
 │       │   ├── group.model.js
 │       │   ├── message.model.js
 │       │   ├── notification.model.js
 │       │   └── user.model.js
 │       ├── routes/
 │       │   ├── auth.route.js
-│       │   ├── friendship.route.js
 │       │   ├── message.route.js
 │       │   └── notification.route.js
 │       ├── seeds/
@@ -74,6 +74,22 @@ Uranus Workspace Folder Structure
     ├── tailwind.config.js
     ├── tasks.md
     ├── vite.config.js
+    ├── dev-dist/
+    │   ├── registerSW.js
+    │   ├── sw.js
+    │   └── workbox-5a5d9309.js
+    ├── dist/
+    │   ├── assets/
+    │   ├── avatar.png
+    │   ├── file.enc
+    │   ├── file.png
+    │   ├── index.html
+    │   ├── manifest.webmanifest
+    │   ├── registerSW.js
+    │   ├── robots.txt
+    │   ├── service-worker.js
+    │   ├── uranus.svg
+    │   └── vite.svg
     ├── public/
     │   ├── avatar.png
     │   ├── file.enc
@@ -89,23 +105,20 @@ Uranus Workspace Folder Structure
         ├── service-worker.js
         ├── components/
         │   ├── AuthImagePattern.jsx
-        │   ├── CallsView.jsx
         │   ├── ChatContainer.jsx
+        │   ├── ChatContainerNew.jsx
         │   ├── ChatHeader.jsx
         │   ├── ChatInfoModal.jsx
         │   ├── ChatLockModal.jsx
         │   ├── ChatPrivacyMenu.jsx
         │   ├── ConversationList.jsx
         │   ├── EditingIndicator.jsx
-        │   ├── EmojiPicker.jsx
         │   ├── ErrorModal.jsx
         │   ├── ExportChatModal.jsx
         │   ├── ForwardModal.jsx
-        │   ├── LinkPreview.jsx
         │   ├── LockedChatsPanel.jsx
         │   ├── MessageActions.jsx
         │   ├── MessageInput.jsx
-        │   ├── MessageItem.jsx
         │   ├── MessageReactions.jsx
         │   ├── MessageSearch.jsx
         │   ├── Navbar.jsx
@@ -115,12 +128,11 @@ Uranus Workspace Folder Structure
         │   ├── NotificationPanel.jsx
         │   ├── QuotedMessage.jsx
         │   ├── ReplyPreview.jsx
+        │   ├── Sidebar.jsx
         │   ├── SidebarRail.jsx
         │   ├── StatusUpdateModal.jsx
-        │   ├── StatusView.jsx
         │   ├── ThemeToggle.jsx
         │   ├── UserProfileModal.jsx
-        │   ├── UsersPanel.jsx
         │   ├── ViewOnceMedia.jsx
         │   └── skeletons/
         │       ├── MessageSkeleton.jsx
@@ -140,6 +152,5 @@ Uranus Workspace Folder Structure
             ├── useAuthStore.js
             ├── useChatStore.js
             ├── useErrorStore.js
-            ├── useFriendStore.js
             ├── useNotificationStore.js
             └── useThemeStore.js

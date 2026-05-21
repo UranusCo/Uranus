@@ -29,7 +29,7 @@ const MessageReactions = ({ message }) => {
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-1 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-full px-1.5 py-0.5 shadow-sm border border-slate-200/40 dark:border-slate-700/40">
+    <div className="mt-2 flex flex-wrap items-center gap-1">
       {reactionsKeys.map((emoji) => {
         try {
           const users = message.reactions[emoji];
@@ -40,18 +40,18 @@ const MessageReactions = ({ message }) => {
             <button
               key={emoji}
               onClick={() => handleReactionClick(emoji)}
-              className={`px-1.5 py-0.5 rounded-full text-sm flex items-center gap-0.5 transition-all active:scale-90 ${
-                hasReaction
-                  ? "bg-blue-100 dark:bg-blue-900/40 shadow-sm"
-                  : "hover:bg-slate-100 dark:hover:bg-slate-700"
-              }`}
+              className={`px-2 py-1 rounded-full text-sm flex items-center gap-1 transition-colors
+                ${
+                  hasReaction
+                    ? "bg-primary text-primary-content"
+                    : "bg-base-200 hover:bg-base-300"
+                }
+              `}
               title={users?.map(id => id.substring(0, 4)).join(", ")}
             >
-              <span className="text-sm">{emoji}</span>
+              {emoji}
               {users && users.length > 0 && (
-                <span className={`text-[10px] font-bold ${hasReaction ? "text-blue-600 dark:text-blue-400" : "text-slate-500 dark:text-slate-400"}`}>
-                  {users.length > 1 ? users.length : ""}
-                </span>
+                <span className="text-xs">{users.length > 1 ? users.length : ""}</span>
               )}
             </button>
           );

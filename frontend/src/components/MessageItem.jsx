@@ -8,7 +8,6 @@ import LinkPreview from "./LinkPreview";
 
 const MessageItem = ({ 
   message, 
-  messages,
   index, 
   messagesLength, 
   messageEndRef, 

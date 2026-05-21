@@ -9,7 +9,7 @@ const PREVIEW_MESSAGES = [
 ];
 
 const SettingsPage = () => {
-  const { theme, setTheme, wallpaper, setWallpaper } = useThemeStore();
+  const { theme, setTheme } = useThemeStore();
   const { authUser } = useAuthStore();
   const { updatePreferences } = useNotificationStore();
 
@@ -48,28 +48,87 @@ const SettingsPage = () => {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {/* Theme options... */}
-              </div>
-            </section>
+                {/* Light Theme Option Card */}
+                <button
+                  type="button"
+                  onClick={() => setTheme("light")}
+                  className={`flex flex-col items-center justify-between p-4 rounded-2xl border text-left transition-all duration-200 ${
+                    theme === "light"
+                      ? "border-blue-500 bg-blue-500/5 dark:bg-blue-400/5"
+                      : "border-slate-200 dark:border-slate-700 bg-slate-50/50 hover:bg-slate-50 dark:bg-slate-900/10 dark:hover:bg-slate-900/30"
+                  }`}
+                >
+                  <div className="flex items-center gap-3 w-full mb-3">
+                    <div className="size-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center">
+                      <Sun className="size-5" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-sm text-slate-800 dark:text-slate-100">Light</p>
+                      <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold truncate max-w-[80px]">Soft colors</p>
+                    </div>
+                  </div>
+                  {/* Miniature mockup light chat list */}
+                  <div className="w-full bg-white border border-slate-200 rounded-xl p-2.5 space-y-1.5 pointer-events-none">
+                    <div className="h-2 w-12 bg-slate-200 rounded" />
+                    <div className="h-2.5 w-full bg-slate-100 rounded" />
+                    <div className="h-2 w-2/3 bg-slate-150 rounded" />
+                  </div>
+                </button>
 
-            {/* Wallpaper Section */}
-            <section className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 shadow-sm space-y-6">
-              <div>
-                <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-                  Chat Wallpaper
-                </h2>
-                <p className="text-xs text-slate-450 dark:text-slate-500 font-semibold mt-1">Select your preferred chat background</p>
-              </div>
-              <div className="grid grid-cols-3 gap-4">
-                {['default', 'stars', 'ocean'].map((wp) => (
-                  <button 
-                    key={wp} 
-                    onClick={() => setWallpaper(wp)} 
-                    className={`h-24 rounded-xl border-4 ${wallpaper === wp ? 'border-blue-500' : 'border-slate-200 dark:border-slate-700'} bg-slate-100 dark:bg-slate-900 flex items-center justify-center font-bold text-slate-500`}
-                  >
-                    {wp.charAt(0).toUpperCase() + wp.slice(1)}
-                  </button>
-                ))}
+                {/* Dark Theme Option Card */}
+                <button
+                  type="button"
+                  onClick={() => setTheme("dark")}
+                  className={`flex flex-col items-center justify-between p-4 rounded-2xl border text-left transition-all duration-200 ${
+                    theme === "dark"
+                      ? "border-blue-500 bg-blue-500/5 dark:bg-blue-400/5"
+                      : "border-slate-200 dark:border-slate-700 bg-slate-50/50 hover:bg-slate-50 dark:bg-slate-900/10 dark:hover:bg-slate-900/30"
+                  }`}
+                >
+                  <div className="flex items-center gap-3 w-full mb-3">
+                    <div className="size-10 rounded-xl bg-slate-850 dark:bg-slate-700 text-blue-400 flex items-center justify-center">
+                      <Moon className="size-5" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-sm text-slate-800 dark:text-slate-100">Dark</p>
+                      <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold truncate max-w-[80px]">Neon glow</p>
+                    </div>
+                  </div>
+                  {/* Miniature mockup dark chat list */}
+                  <div className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 space-y-1.5 pointer-events-none">
+                    <div className="h-2 w-12 bg-slate-800 rounded" />
+                    <div className="h-2.5 w-full bg-slate-850 rounded" />
+                    <div className="h-2 w-2/3 bg-slate-800 rounded" />
+                  </div>
+                </button>
+
+                {/* System Theme Option Card */}
+                <button
+                  type="button"
+                  onClick={() => setTheme("system")}
+                  className={`flex flex-col items-center justify-between p-4 rounded-2xl border text-left transition-all duration-200 ${
+                    theme === "system"
+                      ? "border-blue-500 bg-blue-500/5 dark:bg-blue-400/5"
+                      : "border-slate-200 dark:border-slate-700 bg-slate-50/50 hover:bg-slate-50 dark:bg-slate-900/10 dark:hover:bg-slate-900/30"
+                  }`}
+                >
+                  <div className="flex items-center gap-3 w-full mb-3">
+                    <div className="size-10 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center">
+                      <Laptop className="size-5" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-sm text-slate-800 dark:text-slate-100">System</p>
+                      <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold truncate max-w-[80px]">Sync with OS</p>
+                    </div>
+                  </div>
+                  {/* Miniature mockup system chat list */}
+                  <div className="w-full bg-slate-200 dark:bg-slate-600 border border-slate-300 dark:border-slate-500 rounded-xl p-2.5 space-y-1.5 pointer-events-none relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/40 to-black/40" />
+                    <div className="h-2 w-12 bg-slate-400 rounded relative z-10" />
+                    <div className="h-2.5 w-full bg-slate-300 dark:bg-slate-500 rounded relative z-10" />
+                    <div className="h-2 w-2/3 bg-slate-400 rounded relative z-10" />
+                  </div>
+                </button>
               </div>
             </section>
 
