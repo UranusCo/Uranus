@@ -267,6 +267,7 @@ const ChatContainer = () => {
                 <div className={index > 0 && !showDateSeparator ? "mt-1" : ""}>
                   <MessageItem
                     message={message}
+                    messages={messages}
                     index={index}
                     messagesLength={messages.length}
                     messageEndRef={messageEndRef}

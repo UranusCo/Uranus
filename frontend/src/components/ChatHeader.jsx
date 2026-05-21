@@ -1,4 +1,4 @@
-import { X, Search, MoreVertical, Download, ChevronLeft, Phone, Video } from "lucide-react";
+import { X, Search, MoreVertical, Download, ChevronLeft } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
 import { useState, useEffect, useRef } from "react";
@@ -82,13 +82,6 @@ const ChatHeader = ({ onSearchClick, onPinnedClick }) => {
 
         {/* Action icons */}
         <div className="flex items-center gap-0.5 sm:gap-1">
-          {/* Call & Video Call Icons - Hidden on very small screens if needed, but keeping for now */}
-          <button className="size-9 flex items-center justify-center rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors" title="Voice Call">
-            <Phone size={18} />
-          </button>
-          <button className="size-9 flex items-center justify-center rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors hidden sm:flex" title="Video Call">
-            <Video size={18} />
-          </button>
 
           <div className="hidden md:block">
             <ThemeToggle />
