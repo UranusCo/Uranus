@@ -11,7 +11,7 @@ import crypto from "crypto";
 import { getLinkMetadata } from "../lib/linkPreview.js";
 
 const storage = multer.memoryStorage();
-...
+
 export const getLinkPreview = async (req, res) => {
   try {
     const { url } = req.query;
