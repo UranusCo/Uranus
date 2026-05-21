@@ -1,4 +1,4 @@
-import { X, Pin, Search, MoreVertical, Download, ChevronLeft, Phone, Video } from "lucide-react";
+import { X, Search, MoreVertical, Download, ChevronLeft, Phone, Video } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
 import { useState, useEffect, useRef } from "react";
@@ -73,7 +73,7 @@ const ChatHeader = ({ onSearchClick, onPinnedClick }) => {
               {status?.statusMessage && (
                 <>
                   <span className="text-[10px] text-slate-300 dark:text-slate-600">•</span>
-                  <span className="text-[11px] text-slate-400 dark:text-slate-500 truncate italic font-medium">"{status.statusMessage}"</span>
+                  <span className="text-[11px] text-slate-400 dark:text-slate-500 truncate italic font-medium">&quot;{status.statusMessage}&quot;</span>
                 </>
               )}
             </div>

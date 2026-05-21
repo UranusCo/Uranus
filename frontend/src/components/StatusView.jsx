@@ -44,7 +44,7 @@ const StatusView = ({ onAddStatusClick }) => {
             </div>
             <div>
               <p className="text-sm font-bold text-slate-855 dark:text-slate-100">{story.name}</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-semibold italic">"{story.text}"</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-semibold italic">&quot;{story.text}&quot;</p>
               <p className="text-[9px] text-slate-400 dark:text-slate-500 font-extrabold mt-1.5 uppercase tracking-wider">{story.time}</p>
             </div>
           </div>

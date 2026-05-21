@@ -112,8 +112,6 @@ const MessageContent = ({
   markViewOnceOpened,
   commonBubbleClasses
 }) => {
-  const { authUser } = useAuthStore();
-  
   // Helper to linkify text
   const linkify = (text) => {
     const urlRegex = /(https?:\/\/[^\s]+)/g;

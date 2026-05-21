@@ -24,6 +24,9 @@ export const useChatStore = create((set, get) => ({
   lockedChats: [],
   lockedChatPinPrompt: false,
   lockedChatUser: null,
+  drafts: {},
+  isMoreMessagesAvailable: true,
+
   groups: [
     {
       _id: "group-1",
@@ -71,7 +74,6 @@ export const useChatStore = create((set, get) => ({
   selectedGroup: null,
   selectedCommunity: null,
   selectedChannel: null,
-  drafts: {},
 
   setDraft: (userId, text) => {
     set({
@@ -104,57 +106,54 @@ export const useChatStore = create((set, get) => ({
       const res = await axiosInstance.get(`/messages/search?query=${encodeURIComponent(query)}`);
       set({ searchResults: res.data });
     } catch (error) {
-      selectedChannel: null,
-      drafts: {},
-      isMoreMessagesAvailable: true,
+      useErrorStore.getState().handleApiError(error, "search users");
+    }
+  },
 
-      setDraft: (userId, text) => {
-      ...
-      getMessages: async (userId, isLoadMore = false) => {
-        if (!isLoadMore) set({ isMessagesLoading: true, isMoreMessagesAvailable: true });
+  getMessages: async (userId, isLoadMore = false) => {
+    if (!isLoadMore) set({ isMessagesLoading: true, isMoreMessagesAvailable: true });
+    
+    try {
+      const { messages } = get();
+      const before = isLoadMore && messages.length > 0 ? messages[0].createdAt : null;
+      const limit = 30;
 
+      const res = await axiosInstance.get(`/messages/${userId}`, {
+        params: { limit, before }
+      });
+
+      const newMessages = res.data;
+      
+      if (isLoadMore) {
+        set({
+          messages: [...newMessages, ...messages],
+          isMoreMessagesAvailable: newMessages.length === limit,
+        });
+      } else {
+        set({ 
+          messages: newMessages,
+          isMoreMessagesAvailable: newMessages.length === limit,
+          users: get().users.map(u => u._id === userId ? { ...u, unreadCount: 0 } : u)
+        });
+      }
+
+      if (!isLoadMore) {
         try {
-          const { messages } = get();
-          const before = isLoadMore && messages.length > 0 ? messages[0].createdAt : null;
-          const limit = 30;
-
-          const res = await axiosInstance.get(`/messages/${userId}`, {
-            params: { limit, before }
-          });
-
-          const newMessages = res.data;
-
-          if (isLoadMore) {
-            set({
-              messages: [...newMessages, ...messages],
-              isMoreMessagesAvailable: newMessages.length === limit,
-            });
-          } else {
-            set({ 
-              messages: newMessages,
-              isMoreMessagesAvailable: newMessages.length === limit,
-              users: get().users.map(u => u._id === userId ? { ...u, unreadCount: 0 } : u)
-            });
-          }
-
-          if (!isLoadMore) {
-            try {
-              await axiosInstance.patch(`/messages/${userId}/read`);
-            } catch (error) {
-              console.error("Failed to mark messages as read:", error);
-            }
-          }
+          await axiosInstance.patch(`/messages/${userId}/read`);
         } catch (error) {
-          useErrorStore.getState().handleApiError(error, "load messages");
-        } finally {
-          if (!isLoadMore) set({ isMessagesLoading: false });
+          console.error("Failed to mark messages as read:", error);
         }
-      },
+      }
+    } catch (error) {
+      useErrorStore.getState().handleApiError(error, "load messages");
+    } finally {
+      if (!isLoadMore) set({ isMessagesLoading: false });
+    }
+  },
 
   sendMessage: async (messageData) => {
     const { selectedUser, messages } = get();
     try {
-      // Accept either a pre-built FormData (from the component) or a plain object
       let postData;
       const isFormData = messageData && typeof messageData.append === "function";
       if (isFormData) {
@@ -181,7 +180,6 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  // Reactions
   addReaction: async (messageId, emoji) => {
     try {
       const res = await axiosInstance.post(`/messages/reaction/${messageId}/add`, { emoji });
@@ -210,7 +208,6 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  // Edit message
   editMessage: async (messageId, newText) => {
     try {
       const res = await axiosInstance.patch(`/messages/edit/${messageId}`, { text: newText });
@@ -226,7 +223,6 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  // Delete message
   deleteMessage: async (messageId) => {
     try {
       const res = await axiosInstance.delete(`/messages/${messageId}`);
@@ -263,7 +259,6 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  // Pin message
   togglePinMessage: async (messageId) => {
     try {
       const res = await axiosInstance.patch(`/messages/pin/message/${messageId}`);
@@ -336,7 +331,6 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  // Get pinned messages
   getPinnedMessages: async (userId) => {
     try {
       const res = await axiosInstance.get(`/messages/pinned/${userId}`);
@@ -346,7 +340,6 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  // Search messages
   searchMessages: async (userId, query, sender) => {
     try {
       const params = new URLSearchParams({ query });
@@ -358,7 +351,6 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  // Forward message
   forwardMessage: async (messageId, receiverId) => {
     try {
       const res = await axiosInstance.post(`/messages/forward/${messageId}`, { receiverId });
@@ -369,7 +361,6 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  // Chat management
   toggleArchiveChat: async (userId) => {
     try {
       await axiosInstance.patch(`/messages/archive/${userId}`);
@@ -405,18 +396,14 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  // Socket subscriptions
   subscribeToMessages: () => {
     const socket = useAuthStore.getState().socket;
     if (!socket) return;
 
-    // Avoid duplicate subscriptions
     get().unsubscribeFromMessages();
 
     socket.on("newMessage", async (newMessage) => {
       const { selectedUser, messages, users } = get();
-      
-      // Check if message belongs to currently active chat (incoming or outgoing)
       const isForActiveChat = selectedUser && 
         (newMessage.senderId === selectedUser._id || newMessage.receiverId === selectedUser._id);
 
@@ -424,8 +411,6 @@ export const useChatStore = create((set, get) => ({
         set({
           messages: [...messages, newMessage],
         });
-
-        // Mark as read immediately on backend
         try {
           await axiosInstance.patch(`/messages/${selectedUser._id}/read`);
           socket.emit("messageRead", { senderId: selectedUser._id, receiverId: useAuthStore.getState().authUser._id });
@@ -433,13 +418,11 @@ export const useChatStore = create((set, get) => ({
           console.error("Failed to mark message as read:", error);
         }
       } else {
-        // Show a custom toast/notification if it is from someone else
         const sender = users.find(u => u._id === newMessage.senderId);
         const senderName = sender ? sender.fullName : "Someone";
         toast(`New message from ${senderName}`, { icon: "💬" });
       }
 
-      // Update the users list to show the new lastMessage and increment unreadCount if not current chat
       set({
         users: users.map(user => {
           if (user._id === newMessage.senderId) {
@@ -473,8 +456,6 @@ export const useChatStore = create((set, get) => ({
     });
 
     socket.on("messagesReadReceipt", (userId) => {
-      // The other user (userId) read our messages.
-      // So update messages where we are the sender (senderId = self) and they are the receiver (receiverId = userId)
       set({
         messages: get().messages.map(msg =>
           msg.receiverId === userId ? { ...msg, isRead: true } : msg
@@ -625,7 +606,6 @@ export const useChatStore = create((set, get) => ({
     set({ selectedMessagesForBulk: [] });
   },
 
-  // Export chat history
   exportChat: async (userId, format = 'json', includeDeleted = false) => {
     try {
       const response = await axiosInstance.get(`/messages/export/${userId}`, {
@@ -636,7 +616,6 @@ export const useChatStore = create((set, get) => ({
       if (format === 'json') {
         return response.data;
       } else {
-        // For text/csv formats, trigger download
         const blob = new Blob([response.data], {
           type: format === 'text' ? 'text/plain' : 'text/csv'
         });
