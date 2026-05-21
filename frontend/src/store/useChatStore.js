@@ -114,6 +114,9 @@ export const useChatStore = create((set, get) => ({
     if (!isLoadMore) set({ isMessagesLoading: true, isMoreMessagesAvailable: true });
     
     try {
+      const { selectedUser } = get();
+      if (!selectedUser || selectedUser._id !== userId) return;
+
       const { messages } = get();
       const before = isLoadMore && messages.length > 0 ? messages[0].createdAt : null;
       const limit = 30;
@@ -122,11 +125,13 @@ export const useChatStore = create((set, get) => ({
         params: { limit, before }
       });
 
+      if (get().selectedUser?._id !== userId) return;
+
       const newMessages = res.data;
       
       if (isLoadMore) {
         set({
-          messages: [...newMessages, ...messages],
+          messages: [...newMessages, ...get().messages],
           isMoreMessagesAvailable: newMessages.length === limit,
         });
       } else {
@@ -145,9 +150,13 @@ export const useChatStore = create((set, get) => ({
         }
       }
     } catch (error) {
-      useErrorStore.getState().handleApiError(error, "load messages");
+      if (get().selectedUser?._id === userId) {
+        useErrorStore.getState().handleApiError(error, "load messages");
+      }
     } finally {
-      if (!isLoadMore) set({ isMessagesLoading: false });
+      if (!isLoadMore && get().selectedUser?._id === userId) {
+        set({ isMessagesLoading: false });
+      }
     }
   },
 
@@ -576,7 +585,15 @@ export const useChatStore = create((set, get) => ({
   },
 
   setSelectedUser: (selectedUser) => {
-    set({ selectedUser, searchResults: [], searchQuery: "", editingMessageId: null, replyingToMessage: null });
+    set({ 
+      selectedUser, 
+      messages: [], 
+      isMoreMessagesAvailable: true,
+      searchResults: [], 
+      searchQuery: "", 
+      editingMessageId: null, 
+      replyingToMessage: null 
+    });
   },
 
   clearSearch: () => {
