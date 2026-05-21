@@ -10,6 +10,7 @@ import MessageActions from "./MessageActions";
 import MessageSearch from "./MessageSearch";
 import ReplyPreview from "./ReplyPreview";
 import EditingIndicator from "./EditingIndicator";
+import { Loader } from "lucide-react";
 
 const ChatContainer = () => {
   const {
@@ -26,12 +27,17 @@ const ChatContainer = () => {
     toggleMuteChat,
     togglePinChat,
     markViewOnceOpened,
+    isMoreMessagesAvailable,
   } = useChatStore();
   
   const { authUser } = useAuthStore();
   const messageEndRef = useRef(null);
+  const scrollRef = useRef(null);
+  const loadingMoreRef = useRef(false);
+  const topSentinelRef = useRef(null);
   const longPressRef = useRef(null);
   const ignoreNextClickRef = useRef(false);
+
   const [showSearch, setShowSearch] = useState(false);
   const [showPinned, setShowPinned] = useState(false);
   const [activeMessageMenu, setActiveMessageMenu] = useState(null);
@@ -93,10 +99,37 @@ const ChatContainer = () => {
   }, [selectedUser._id, getMessages, getPinnedMessages]);
 
   useEffect(() => {
-    if (messageEndRef.current && messages) {
+    if (messageEndRef.current && messages && !loadingMoreRef.current) {
       messageEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
+
+  // Infinite scroll observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      async (entries) => {
+        if (entries[0].isIntersecting && isMoreMessagesAvailable && !loadingMoreRef.current && messages.length > 0) {
+          loadingMoreRef.current = true;
+          const scrollContainer = scrollRef.current;
+          const oldScrollHeight = scrollContainer.scrollHeight;
+          const oldScrollTop = scrollContainer.scrollTop;
+
+          await getMessages(selectedUser._id, true);
+          
+          // Restore scroll position after prepending messages
+          if (scrollContainer) {
+            scrollContainer.scrollTop = scrollContainer.scrollHeight - oldScrollHeight + oldScrollTop;
+          }
+          loadingMoreRef.current = false;
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (topSentinelRef.current) observer.observe(topSentinelRef.current);
+
+    return () => observer.disconnect();
+  }, [selectedUser._id, isMoreMessagesAvailable, messages.length, getMessages]);
 
   useEffect(() => {
     const handler = (e) => {
@@ -130,7 +163,7 @@ const ChatContainer = () => {
     return () => window.removeEventListener("keydown", handler);
   }, [messages, selectedUser, authUser, toggleMuteChat, togglePinChat, setEditingMessage]);
 
-  if (isMessagesLoading) {
+  if (isMessagesLoading && messages.length === 0) {
     return (
       <div className="flex-1 flex flex-col h-full bg-slate-100 dark:bg-slate-900 transition-colors duration-200">
         <ChatHeader />
@@ -186,12 +219,22 @@ const ChatContainer = () => {
       {/* Messages Viewport */}
       <div
         className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 message-container select-text"
+        ref={scrollRef}
         onClick={() => {
           if (ignoreNextClickRef.current) { ignoreNextClickRef.current = false; return; }
           if (activeMessageMenu) setActiveMessageMenu(null);
         }}
       >
         <div className="max-w-[800px] w-full mx-auto space-y-3">
+          {/* Scroll Sentinel */}
+          <div ref={topSentinelRef} className="h-1" />
+          
+          {isMoreMessagesAvailable && messages.length > 0 && (
+            <div className="flex justify-center py-2">
+              <Loader size={16} className="animate-spin text-blue-500" />
+            </div>
+          )}
+
           {messages.map((message, index) => (
             <MessageItem
               key={message._id}

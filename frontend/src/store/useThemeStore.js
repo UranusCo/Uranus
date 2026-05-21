@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-const DEFAULT_THEME = "light";
+const DEFAULT_THEME = "system";
 
 export const useThemeStore = create((set) => ({
   theme: localStorage.getItem("chat-theme") || DEFAULT_THEME,
@@ -10,7 +10,12 @@ export const useThemeStore = create((set) => ({
   },
   toggleTheme: () => {
     set((state) => {
-      const nextTheme = state.theme === "dark" ? "light" : "dark";
+      let nextTheme;
+      if (state.theme === "system") {
+        nextTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "light" : "dark";
+      } else {
+        nextTheme = state.theme === "dark" ? "light" : "dark";
+      }
       localStorage.setItem("chat-theme", nextTheme);
       return { theme: nextTheme };
     });

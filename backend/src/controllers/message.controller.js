@@ -8,8 +8,24 @@ import { getReceiverSocketId, io } from "../lib/socket.js";
 import NotificationService from "../services/notification.service.js";
 import multer from "multer";
 import crypto from "crypto";
+import { getLinkMetadata } from "../lib/linkPreview.js";
 
 const storage = multer.memoryStorage();
+...
+export const getLinkPreview = async (req, res) => {
+  try {
+    const { url } = req.query;
+    if (!url) return res.status(400).json({ error: "URL is required" });
+
+    const metadata = await getLinkMetadata(url);
+    if (!metadata) return res.status(404).json({ error: "Could not fetch metadata" });
+
+    res.status(200).json(metadata);
+  } catch (error) {
+    console.log("Error in getLinkPreview controller: ", error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 const upload = multer({
   storage,
   limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
@@ -128,6 +144,7 @@ export const searchUsers = async (req, res) => {
 export const getMessages = async (req, res) => {
   try {
     const { id: userToChatId } = req.params;
+    const { limit = 30, before } = req.query;
     const myId = req.user._id;
 
     // Validate incoming id to avoid casting strings like 'locked' to ObjectId
@@ -135,17 +152,25 @@ export const getMessages = async (req, res) => {
       return res.status(400).json({ error: "Invalid user id" });
     }
 
-    const messages = await Message.find({
+    const query = {
       $or: [
         { senderId: myId, receiverId: userToChatId },
         { senderId: userToChatId, receiverId: myId },
       ],
       isExpired: false,
-    })
-      .sort({ createdAt: 1 })
+    };
+
+    if (before) {
+      query.createdAt = { $lt: new Date(before) };
+    }
+
+    const messages = await Message.find(query)
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit))
       .populate("replyTo");
 
-    res.status(200).json(messages);
+    // Reverse to maintain chronological order for the frontend
+    res.status(200).json(messages.reverse());
   } catch (error) {
     console.log("Error in getMessages controller: ", error.message);
     res.status(500).json({ error: "Internal server error" });
@@ -502,7 +527,7 @@ export const deleteMessage = async (req, res) => {
 
     const sender = await User.findById(message.senderId);
     const senderName = sender ? sender.fullName : "User";
-    const deletionText = `This massege was delted be ${senderName}`;
+    const deletionText = `This message was deleted by ${senderName}`;
 
     message.isDeleted = true;
     message.deletedAt = new Date();

@@ -71,6 +71,16 @@ export const useChatStore = create((set, get) => ({
   selectedGroup: null,
   selectedCommunity: null,
   selectedChannel: null,
+  drafts: {},
+
+  setDraft: (userId, text) => {
+    set({
+      drafts: {
+        ...get().drafts,
+        [userId]: text,
+      },
+    });
+  },
 
   getUsers: async () => {
     set({ isUsersLoading: true });
@@ -94,30 +104,52 @@ export const useChatStore = create((set, get) => ({
       const res = await axiosInstance.get(`/messages/search?query=${encodeURIComponent(query)}`);
       set({ searchResults: res.data });
     } catch (error) {
-      useErrorStore.getState().handleApiError(error, "search users");
-    }
-  },
+      selectedChannel: null,
+      drafts: {},
+      isMoreMessagesAvailable: true,
 
-  getMessages: async (userId) => {
-    set({ isMessagesLoading: true });
-    try {
-      const res = await axiosInstance.get(`/messages/${userId}`);
-      set({ 
-        messages: res.data,
-        users: get().users.map(u => u._id === userId ? { ...u, unreadCount: 0 } : u)
-      });
+      setDraft: (userId, text) => {
+      ...
+      getMessages: async (userId, isLoadMore = false) => {
+        if (!isLoadMore) set({ isMessagesLoading: true, isMoreMessagesAvailable: true });
 
-      try {
-        await axiosInstance.patch(`/messages/${userId}/read`);
-      } catch (error) {
-        console.error("Failed to mark messages as read:", error);
-      }
-    } catch (error) {
-      useErrorStore.getState().handleApiError(error, "load messages");
-    } finally {
-      set({ isMessagesLoading: false });
-    }
-  },
+        try {
+          const { messages } = get();
+          const before = isLoadMore && messages.length > 0 ? messages[0].createdAt : null;
+          const limit = 30;
+
+          const res = await axiosInstance.get(`/messages/${userId}`, {
+            params: { limit, before }
+          });
+
+          const newMessages = res.data;
+
+          if (isLoadMore) {
+            set({
+              messages: [...newMessages, ...messages],
+              isMoreMessagesAvailable: newMessages.length === limit,
+            });
+          } else {
+            set({ 
+              messages: newMessages,
+              isMoreMessagesAvailable: newMessages.length === limit,
+              users: get().users.map(u => u._id === userId ? { ...u, unreadCount: 0 } : u)
+            });
+          }
+
+          if (!isLoadMore) {
+            try {
+              await axiosInstance.patch(`/messages/${userId}/read`);
+            } catch (error) {
+              console.error("Failed to mark messages as read:", error);
+            }
+          }
+        } catch (error) {
+          useErrorStore.getState().handleApiError(error, "load messages");
+        } finally {
+          if (!isLoadMore) set({ isMessagesLoading: false });
+        }
+      },
 
   sendMessage: async (messageData) => {
     const { selectedUser, messages } = get();

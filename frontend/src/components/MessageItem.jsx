@@ -4,6 +4,7 @@ import { Paperclip, Check, CheckCheck, MoreVertical } from "lucide-react";
 import MessageReactions from "./MessageReactions";
 import QuotedMessage from "./QuotedMessage";
 import ViewOnceMedia from "./ViewOnceMedia";
+import LinkPreview from "./LinkPreview";
 
 const MessageItem = ({ 
   message, 
@@ -179,6 +180,12 @@ const MessageContent = ({
                     <video controls className="max-w-full sm:max-w-[280px] rounded-lg shadow-sm">
                       <source src={message.file.url} type={message.file.type} />
                     </video>
+                  ) : message.file.type.startsWith("audio/") ? (
+                    <div className={`p-2 rounded-xl min-w-[200px] ${isSelf ? "bg-white/10" : "bg-slate-100 dark:bg-slate-700"}`}>
+                      <audio controls className="w-full h-8 brightness-95 contrast-125">
+                        <source src={message.file.url} type={message.file.type} />
+                      </audio>
+                    </div>
                   ) : (
                     <a
                       href={message.file.url}
@@ -200,12 +207,22 @@ const MessageContent = ({
                 </div>
               )}
               {message.text && (
-                <p className="text-[14px] leading-relaxed break-words font-medium">
-                  {message.text}
-                  {message.isEdited && !message.isDeleted && (
-                    <span className="text-[10px] opacity-75 ml-2 font-normal">(edited)</span>
-                  )}
-                </p>
+                <div className="flex flex-col">
+                  <p className="text-[14px] leading-relaxed break-words font-medium">
+                    {message.text}
+                    {message.isEdited && !message.isDeleted && (
+                      <span className="text-[10px] opacity-75 ml-2 font-normal">(edited)</span>
+                    )}
+                  </p>
+                  {!message.isDeleted && (() => {
+                    const urlRegex = /(https?:\/\/[^\s]+)/g;
+                    const match = message.text.match(urlRegex);
+                    if (match) {
+                      return <LinkPreview url={match[0]} isSelf={isSelf} />;
+                    }
+                    return null;
+                  })()}
+                </div>
               )}
               {message.viewOnce && message.viewedOnce && (
                 <p className={`mt-1 text-xs ${isSelf ? "text-white/60" : "text-slate-500 dark:text-slate-400"}`}>

@@ -29,6 +29,7 @@ import {
   updateTheme,
   setChatBackground,
   exportChat,
+  getLinkPreview,
 } from "../controllers/message.controller.js";
 
 const router = express.Router();
@@ -36,6 +37,7 @@ const router = express.Router();
 // User and chat endpoints
 router.get("/users", protectRoute, getUsersForSidebar);
 router.get("/search", protectRoute, searchUsers);
+router.get("/link-preview", protectRoute, getLinkPreview);
 router.patch("/:userId/read", protectRoute, markMessagesAsRead);
 
 // Message actions

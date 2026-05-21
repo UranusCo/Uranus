@@ -1,8 +1,7 @@
-import { THEMES } from "../constants";
 import { useThemeStore } from "../store/useThemeStore";
 import { useAuthStore } from "../store/useAuthStore";
 import { useNotificationStore } from "../store/useNotificationStore";
-import { Send, Bell, MessageSquare, Users, AtSign, Shield, Sun, Moon } from "lucide-react";
+import { Send, Bell, MessageSquare, Users, AtSign, Shield, Sun, Moon, Laptop } from "lucide-react";
 
 const PREVIEW_MESSAGES = [
   { id: 1, content: "Hey! How's it going?", isSent: false },
@@ -48,7 +47,7 @@ const SettingsPage = () => {
                 <p className="text-xs text-slate-450 dark:text-slate-500 font-semibold mt-1">Choose your preferred style for the interface</p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {/* Light Theme Option Card */}
                 <button
                   type="button"
@@ -64,8 +63,8 @@ const SettingsPage = () => {
                       <Sun className="size-5" />
                     </div>
                     <div>
-                      <p className="font-bold text-sm text-slate-800 dark:text-slate-100">Light Mode</p>
-                      <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold">Soft & spacious colors</p>
+                      <p className="font-bold text-sm text-slate-800 dark:text-slate-100">Light</p>
+                      <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold truncate max-w-[80px]">Soft colors</p>
                     </div>
                   </div>
                   {/* Miniature mockup light chat list */}
@@ -91,8 +90,8 @@ const SettingsPage = () => {
                       <Moon className="size-5" />
                     </div>
                     <div>
-                      <p className="font-bold text-sm text-slate-800 dark:text-slate-100">Dark Mode</p>
-                      <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold">Premium neon glow</p>
+                      <p className="font-bold text-sm text-slate-800 dark:text-slate-100">Dark</p>
+                      <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold truncate max-w-[80px]">Neon glow</p>
                     </div>
                   </div>
                   {/* Miniature mockup dark chat list */}
@@ -100,6 +99,34 @@ const SettingsPage = () => {
                     <div className="h-2 w-12 bg-slate-800 rounded" />
                     <div className="h-2.5 w-full bg-slate-850 rounded" />
                     <div className="h-2 w-2/3 bg-slate-800 rounded" />
+                  </div>
+                </button>
+
+                {/* System Theme Option Card */}
+                <button
+                  type="button"
+                  onClick={() => setTheme("system")}
+                  className={`flex flex-col items-center justify-between p-4 rounded-2xl border text-left transition-all duration-200 ${
+                    theme === "system"
+                      ? "border-blue-500 bg-blue-500/5 dark:bg-blue-400/5"
+                      : "border-slate-200 dark:border-slate-700 bg-slate-50/50 hover:bg-slate-50 dark:bg-slate-900/10 dark:hover:bg-slate-900/30"
+                  }`}
+                >
+                  <div className="flex items-center gap-3 w-full mb-3">
+                    <div className="size-10 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center">
+                      <Laptop className="size-5" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-sm text-slate-800 dark:text-slate-100">System</p>
+                      <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold truncate max-w-[80px]">Sync with OS</p>
+                    </div>
+                  </div>
+                  {/* Miniature mockup system chat list */}
+                  <div className="w-full bg-slate-200 dark:bg-slate-600 border border-slate-300 dark:border-slate-500 rounded-xl p-2.5 space-y-1.5 pointer-events-none relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/40 to-black/40" />
+                    <div className="h-2 w-12 bg-slate-400 rounded relative z-10" />
+                    <div className="h-2.5 w-full bg-slate-300 dark:bg-slate-500 rounded relative z-10" />
+                    <div className="h-2 w-2/3 bg-slate-400 rounded relative z-10" />
                   </div>
                 </button>
               </div>
@@ -222,7 +249,7 @@ const SettingsPage = () => {
 
                   <div className="border-t border-slate-150 dark:border-slate-700 pt-4 mt-6">
                     <button
-                      className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700/50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-750 dark:text-slate-200 rounded-xl font-bold text-xs transition-all active:scale-[0.98]"
+                      className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700/50 dark:hover:bg-slate-700 border border-slate-200 dark:border-600 text-slate-750 dark:text-slate-200 rounded-xl font-bold text-xs transition-all active:scale-[0.98]"
                       onClick={() => useNotificationStore.getState().subscribeToPushNotifications()}
                     >
                       Enable Push Notifications
