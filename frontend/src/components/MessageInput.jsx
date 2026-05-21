@@ -135,8 +135,8 @@ const MessageInput = () => {
   }
 
   return (
-    <div className="w-full px-4 sm:px-6 py-4 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 flex-shrink-0 select-none transition-colors duration-200">
-      <div className="max-w-[800px] w-full mx-auto">
+    <div className="w-full px-3 sm:px-6 py-3 sm:py-4 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 flex-shrink-0 select-none transition-colors duration-200">
+      <div className="max-w-[850px] w-full mx-auto">
         {(imagePreview || filePreview) && (
           <div className="mb-3 flex flex-col gap-2 animate-fadeIn">
             <div className="relative inline-block">
@@ -144,38 +144,38 @@ const MessageInput = () => {
                 <img
                   src={imagePreview}
                   alt="Preview"
-                  className="w-20 h-20 object-cover rounded-lg border border-slate-200 dark:border-slate-700"
+                  className="w-20 h-20 object-cover rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm"
                 />
               ) : (
-                <div className="w-20 h-20 flex items-center justify-center bg-slate-100 dark:bg-slate-900/60 rounded-lg border border-slate-200 dark:border-slate-700">
+                <div className="w-20 h-20 flex items-center justify-center bg-slate-100 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-700">
                   <Paperclip size={24} className="text-slate-400 dark:text-slate-500" />
                   <span className="ml-1 text-[10px] truncate max-w-[60px] text-slate-500 dark:text-slate-400">{filePreview?.name}</span>
                 </div>
               )}
               <button
                 onClick={removeAttachment}
-                className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 flex items-center justify-center transition-colors"
+                className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 flex items-center justify-center transition-colors shadow-sm"
                 type="button"
               >
-                <X className="size-3" />
+                <X className="size-3.5" />
               </button>
             </div>
-            <label className="inline-flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-semibold cursor-pointer">
+            <label className="inline-flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-bold cursor-pointer select-none">
               <input
                 type="checkbox"
                 checked={isViewOnce}
                 onChange={(e) => setIsViewOnce(e.target.checked)}
-                className="w-3.5 h-3.5 text-blue-500 border-slate-350 dark:border-slate-600 rounded bg-transparent focus:ring-blue-500 focus:ring-1 cursor-pointer"
+                className="w-4 h-4 text-blue-500 border-slate-300 dark:border-slate-600 rounded bg-transparent focus:ring-blue-500 focus:ring-1 cursor-pointer transition-all"
               />
               View once media
             </label>
           </div>
         )}
 
-        <form onSubmit={handleSendMessage} className="flex items-center w-full bg-slate-100 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-700 rounded-2xl pl-4 pr-2 py-2 gap-2 shadow-sm hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-205">
+        <form onSubmit={handleSendMessage} className="flex items-center w-full bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/80 rounded-2xl pl-4 pr-1.5 py-1.5 gap-2 shadow-sm focus-within:border-blue-500/50 dark:focus-within:border-blue-400/50 transition-all duration-200">
           <input
             type="text"
-            className="flex-1 bg-transparent border-none outline-none focus:outline-none focus:ring-0 text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500"
+            className="flex-1 bg-transparent border-none outline-none focus:outline-none focus:ring-0 text-[14px] text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500"
             placeholder={editingMessageId ? "Edit message..." : "Type a message..."}
             value={text}
             onChange={handleTextChange}
@@ -201,33 +201,33 @@ const MessageInput = () => {
 
             <button
               type="button"
-              className={`size-8 flex items-center justify-center rounded-full transition-colors ${imagePreview ? "text-emerald-500 animate-pulse" : "text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700"}`}
+              className={`size-9 flex items-center justify-center rounded-xl transition-all ${imagePreview ? "text-emerald-500 bg-emerald-500/10" : "text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800"}`}
               onClick={() => imageInputRef.current?.click()}
               disabled={isSending}
               title="Attach photo"
             >
-              <Image size={17} />
+              <Image size={19} />
             </button>
 
             <button
               type="button"
-              className={`size-8 flex items-center justify-center rounded-full transition-colors ${filePreview ? "text-emerald-500 animate-pulse" : "text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700"}`}
+              className={`size-9 flex items-center justify-center rounded-xl transition-all ${filePreview ? "text-emerald-500 bg-emerald-500/10" : "text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800"}`}
               onClick={() => fileInputRef.current?.click()}
               disabled={isSending}
               title="Attach file"
             >
-              <Paperclip size={17} />
+              <Paperclip size={19} />
             </button>
 
             <button
               type="submit"
-              className="size-8 flex items-center justify-center rounded-full bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white ml-1.5 transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+              className="size-9 flex items-center justify-center rounded-xl bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white ml-1 transition-all duration-200 active:scale-90 disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-blue-500/20"
               disabled={(!text.trim() && !imagePreview && !filePreview) || isSending}
             >
               {isSending ? (
-                <Loader size={14} className="animate-spin" />
+                <Loader size={16} className="animate-spin" />
               ) : (
-                <Send size={14} />
+                <Send size={16} />
               )}
             </button>
           </div>

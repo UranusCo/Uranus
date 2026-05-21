@@ -90,12 +90,15 @@ const MessageActions = ({ message, onClose }) => {
   }
 
   return (
-    <div className="bg-base-100 rounded-lg shadow-lg p-0 min-w-[200px] z-50 text-base-content">
+    <div className="bg-base-100 rounded-lg shadow-lg p-0 min-w-[200px] z-50 text-base-content max-sm:pb-4">
+      {/* Visual indicator drag handle for mobile bottom sheet */}
+      <div className="hidden max-sm:block w-12 h-1.5 bg-zinc-300 dark:bg-zinc-650 rounded-full mx-auto my-3" />
+
       {/* Emoji reactions */}
       {!showEmojiPicker && (
         <button
           onClick={() => setShowEmojiPicker(true)}
-          className="w-full px-4 py-2 hover:bg-base-300 flex items-center gap-2 text-sm"
+          className="w-full px-4 py-2 hover:bg-base-300 flex items-center gap-2 text-sm max-sm:text-base max-sm:py-3"
         >
           <Heart size={16} />
           React
@@ -104,12 +107,12 @@ const MessageActions = ({ message, onClose }) => {
 
       {showEmojiPicker && (
         <div className="p-3 border-b border-base-300">
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-8 gap-1 max-sm:gap-2">
             {emojis.map((emoji) => (
               <button
                 key={emoji}
                 onClick={() => handleReaction(emoji)}
-                className="text-xl hover:bg-base-100 p-2 rounded transition-colors"
+                className="text-xl hover:bg-base-300 p-2 rounded transition-colors max-sm:text-2xl"
               >
                 {emoji}
               </button>
@@ -120,7 +123,7 @@ const MessageActions = ({ message, onClose }) => {
 
       <button
         onClick={handleReply}
-        className="w-full px-4 py-2 hover:bg-base-300 flex items-center gap-2 text-sm border-t border-base-300"
+        className="w-full px-4 py-2 hover:bg-base-300 flex items-center gap-2 text-sm border-t border-base-300 max-sm:text-base max-sm:py-3"
       >
         <MessageCircle size={16} />
         Reply
@@ -129,7 +132,7 @@ const MessageActions = ({ message, onClose }) => {
       {message.text && (
         <button
           onClick={handleCopy}
-          className="w-full px-4 py-2 hover:bg-base-300 flex items-center gap-2 text-sm border-t border-base-300"
+          className="w-full px-4 py-2 hover:bg-base-300 flex items-center gap-2 text-sm border-t border-base-300 max-sm:text-base max-sm:py-3"
         >
           <Copy size={16} />
           Copy
@@ -138,7 +141,7 @@ const MessageActions = ({ message, onClose }) => {
 
       <button
         onClick={handlePin}
-        className="w-full px-4 py-2 hover:bg-base-300 flex items-center gap-2 text-sm border-t border-base-300"
+        className="w-full px-4 py-2 hover:bg-base-300 flex items-center gap-2 text-sm border-t border-base-300 max-sm:text-base max-sm:py-3"
       >
         <Pin size={16} />
         {message.isPinned ? "Unpin" : "Pin"}
@@ -146,7 +149,7 @@ const MessageActions = ({ message, onClose }) => {
 
       <button
         onClick={handleForward}
-        className="w-full px-4 py-2 hover:bg-base-300 flex items-center gap-2 text-sm border-t border-base-300"
+        className="w-full px-4 py-2 hover:bg-base-300 flex items-center gap-2 text-sm border-t border-base-300 max-sm:text-base max-sm:py-3"
       >
         <Share2 size={16} />
         Forward
@@ -156,7 +159,7 @@ const MessageActions = ({ message, onClose }) => {
         <>
           <button
             onClick={handleEdit}
-            className="w-full px-4 py-2 hover:bg-base-300 flex items-center gap-2 text-sm border-t border-base-300"
+            className="w-full px-4 py-2 hover:bg-base-300 flex items-center gap-2 text-sm border-t border-base-300 max-sm:text-base max-sm:py-3"
           >
             <Edit size={16} />
             Edit
@@ -164,7 +167,7 @@ const MessageActions = ({ message, onClose }) => {
 
           <button
             onClick={handleDelete}
-            className="w-full px-4 py-2 hover:bg-base-300 flex items-center gap-2 text-sm text-error border-t border-base-300"
+            className="w-full px-4 py-2 hover:bg-base-300 flex items-center gap-2 text-sm text-error border-t border-base-300 max-sm:text-base max-sm:py-3"
           >
             <Trash2 size={16} />
             Delete

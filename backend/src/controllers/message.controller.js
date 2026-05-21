@@ -507,9 +507,9 @@ export const deleteMessage = async (req, res) => {
     message.isDeleted = true;
     message.deletedAt = new Date();
     message.text = deletionText;
-    message.image = undefined;
-    message.file = undefined;
-    message.replyTo = undefined;
+    message.image = null;
+    message.file = null;
+    message.replyTo = null;
     message.reactions = new Map();
     message.isPinned = false;
 

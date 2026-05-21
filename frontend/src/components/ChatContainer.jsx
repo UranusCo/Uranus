@@ -5,15 +5,11 @@ import ChatHeader from "./ChatHeader";
 import MessageInput from "./MessageInput";
 import MessageSkeleton from "./skeletons/MessageSkeleton";
 import { useAuthStore } from "../store/useAuthStore";
-import { formatMessageTime } from "../lib/utils";
-import { Paperclip, Check, CheckCheck, MoreVertical } from "lucide-react";
-import MessageReactions from "./MessageReactions";
-import QuotedMessage from "./QuotedMessage";
+import MessageItem from "./MessageItem";
 import MessageActions from "./MessageActions";
 import MessageSearch from "./MessageSearch";
 import ReplyPreview from "./ReplyPreview";
 import EditingIndicator from "./EditingIndicator";
-import ViewOnceMedia from "./ViewOnceMedia";
 
 const ChatContainer = () => {
   const {
@@ -24,7 +20,6 @@ const ChatContainer = () => {
     typingUsers,
     pinnedMessages,
     getPinnedMessages,
-    editingMessageId,
     setEditingMessage,
     addReaction,
     removeReaction,
@@ -197,313 +192,28 @@ const ChatContainer = () => {
         }}
       >
         <div className="max-w-[800px] w-full mx-auto space-y-3">
-          {messages.map((message, index) => {
-            const isSelf = message.senderId === authUser._id;
-
-            if (isSelf) {
-              return (
-                <div
-                  key={message._id}
-                  ref={index === messages.length - 1 ? messageEndRef : null}
-                  className="flex flex-col items-end w-full message-item group/msg"
-                  style={{
-                    animation: `slideIn 0.28s ease-out ${Math.min(index * 0.02, 0.4)}s both`,
-                  }}
-                >
-                  {/* Header: Sender and Time */}
-                  <div className="flex items-center gap-1.5 mb-1 px-1.5 text-[11px] text-slate-400 dark:text-slate-500 select-none font-semibold">
-                    <span className="text-slate-500 dark:text-slate-455 font-bold">You</span>
-                    <span>•</span>
-                    <time>{formatMessageTime(message.createdAt)}</time>
-                    {message.isPinned && <span className="ml-1 text-amber-500">📌 Pinned</span>}
-                  </div>
-
-                  {/* Quoted Message */}
-                  {message.replyTo && !message.isDeleted && (
-                    <div className="mb-1.5 max-w-[60%] text-left">
-                      <QuotedMessage replyTo={message.replyTo} />
-                    </div>
-                  )}
-
-                  {/* Bubble Row */}
-                  <div className="flex gap-2 items-end justify-end group/bubble w-full max-w-[60%]">
-                    {/* Action Menu (hover) */}
-                    {!message.isDeleted && (
-                      <div className="opacity-0 group-hover/bubble:opacity-100 transition-opacity duration-200 flex-shrink-0 select-none">
-                        <button
-                          className="size-6 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            const rect = e.currentTarget.getBoundingClientRect();
-                            if (activeMessageMenu === message._id) {
-                              closeMessageMenu();
-                            } else {
-                              openMessageMenu(message._id, rect);
-                            }
-                          }}
-                        >
-                          <MoreVertical size={14} />
-                        </button>
-                      </div>
-                    )}
-
-                    {/* Message Bubble */}
-                    <div
-                      className={`flex flex-col select-text px-4 py-2.5 rounded-2xl rounded-tr-none border shadow-sm ${
-                        message.isDeleted
-                          ? "bg-slate-100 dark:bg-slate-800/40 text-slate-400 dark:text-slate-500 border-slate-200/80 dark:border-slate-700/80 italic font-normal"
-                          : "bg-gradient-to-br from-blue-600 to-indigo-600 text-white border-transparent hover:cursor-pointer hover:brightness-[0.98]"
-                      } transition-all no-callout`}
-                      onDoubleClick={message.isDeleted ? undefined : () => {
-                        const hasHeart = message.reactions?.["❤️"]?.includes(authUser._id);
-                        if (hasHeart) {
-                          removeReaction(message._id, "❤️");
-                        } else {
-                          addReaction(message._id, "❤️");
-                        }
-                      }}
-                      onTouchStart={message.isDeleted ? undefined : (e) => { e.stopPropagation(); handleLongPressStart(message._id); }}
-                      onTouchEnd={message.isDeleted ? undefined : handleLongPressEnd}
-                      onTouchMove={message.isDeleted ? undefined : handleLongPressEnd}
-                      title={message.isDeleted ? undefined : "Double-click to ❤️ react"}
-                    >
-                      {message.viewOnce && !message.viewedOnce ? (
-                        <ViewOnceMedia
-                          message={message}
-                          onOpened={() => markViewOnceOpened(message._id)}
-                        />
-                      ) : (
-                        <>
-                          {message.image && (
-                            <img
-                              src={message.image}
-                              alt="Attachment"
-                              className="max-w-full sm:max-w-[240px] rounded-lg mb-1.5 shadow-sm object-cover"
-                            />
-                          )}
-                          {message.file && (
-                            <div className="mb-1.5">
-                              {message.file.type.startsWith("image/") ? (
-                                <img
-                                  src={message.file.url}
-                                  alt={message.file.name}
-                                  className="max-w-full sm:max-w-[240px] rounded-lg shadow-sm object-cover"
-                                />
-                              ) : message.file.type.startsWith("video/") ? (
-                                <video controls className="max-w-full sm:max-w-[240px] rounded-lg shadow-sm">
-                                  <source src={message.file.url} type={message.file.type} />
-                                </video>
-                              ) : (
-                                <a
-                                  href={message.file.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="flex items-center gap-2.5 p-2 bg-white/10 hover:bg-white/15 rounded-xl text-white transition-colors"
-                                >
-                                  <Paperclip size={15} />
-                                  <span className="text-xs font-medium truncate max-w-[120px]">{message.file.name}</span>
-                                  <span className="text-[10px] opacity-75 whitespace-nowrap">
-                                    ({(message.file.size / 1024 / 1024).toFixed(2)} MB)
-                                  </span>
-                                </a>
-                              )}
-                            </div>
-                          )}
-                          {message.text && (
-                            <p className="text-[14px] leading-relaxed break-words font-medium">
-                              {message.text}
-                              {message.isEdited && !message.isDeleted && (
-                                <span className="text-[10px] opacity-75 ml-2 font-normal">(edited)</span>
-                              )}
-                            </p>
-                          )}
-                          {message.viewOnce && message.viewedOnce && (
-                            <p className="mt-1 text-xs text-white/60">Opened • View once media</p>
-                          )}
-                        </>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Reactions list */}
-                  {!message.isDeleted && (
-                    <div className="mr-1 mt-1.5 select-none">
-                      <MessageReactions message={message} />
-                    </div>
-                  )}
-
-                  {/* Read Status checkmark indicators */}
-                  {!message.isDeleted && (
-                    <div className="px-1.5 mt-1 text-[10px] text-slate-400 dark:text-slate-500 flex items-center gap-1 select-none font-semibold">
-                      {message.isRead ? (
-                        <>
-                          <CheckCheck size={11} className="text-blue-500 dark:text-blue-400" />
-                          <span>Read</span>
-                        </>
-                      ) : (
-                        <>
-                          <Check size={11} />
-                          <span>Sent</span>
-                        </>
-                      )}
-                    </div>
-                  )}
-                </div>
-              );
-            } else {
-              // Received message layout (aligned to left, with avatar)
-              return (
-                <div
-                  key={message._id}
-                  ref={index === messages.length - 1 ? messageEndRef : null}
-                  className="flex gap-3 items-start w-full message-item group/msg"
-                  style={{
-                    animation: `slideIn 0.28s ease-out ${Math.min(index * 0.02, 0.4)}s both`,
-                  }}
-                >
-                  {/* Avatar */}
-                  <div className="flex-shrink-0 mt-0.5 select-none">
-                    <img
-                      src={selectedUser.profilePic || "/avatar.png"}
-                      alt={selectedUser.fullName}
-                      className="size-10 rounded-full object-cover shadow-sm border border-slate-200 dark:border-slate-700"
-                    />
-                  </div>
-
-                  {/* Content block */}
-                  <div className="flex flex-col items-start max-w-[60%]">
-                    {/* Header: Sender and Time */}
-                    <div className="flex items-center gap-1.5 mb-1 px-1.5 text-[11px] text-slate-400 dark:text-slate-555 select-none font-semibold">
-                      <span className="font-bold text-slate-600 dark:text-slate-350">{selectedUser.fullName}</span>
-                      <span>•</span>
-                      <time>{formatMessageTime(message.createdAt)}</time>
-                      {message.isPinned && <span className="ml-1 text-amber-500">📌 Pinned</span>}
-                    </div>
-
-                    {/* Quoted Message */}
-                    {message.replyTo && !message.isDeleted && (
-                      <div className="mb-1.5 w-full text-left">
-                        <QuotedMessage replyTo={message.replyTo} />
-                      </div>
-                    )}
-
-                    {/* Bubble Row */}
-                    <div className="flex gap-2 items-end group/bubble w-full">
-                      {/* Message Bubble */}
-                      <div
-                        className={`flex flex-col select-text px-4 py-2.5 rounded-2xl rounded-tl-none border shadow-sm ${
-                          message.isDeleted
-                            ? "bg-slate-50 dark:bg-slate-900/20 text-slate-450 dark:text-slate-500 border-slate-200 dark:border-slate-800/60 italic font-normal"
-                            : "bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-750/80 border-slate-200/50 dark:border-slate-700/50 hover:cursor-pointer"
-                        } transition-all no-callout`}
-                        onDoubleClick={message.isDeleted ? undefined : () => {
-                          const hasHeart = message.reactions?.["❤️"]?.includes(authUser._id);
-                          if (hasHeart) {
-                            removeReaction(message._id, "❤️");
-                          } else {
-                            addReaction(message._id, "❤️");
-                          }
-                        }}
-                        onTouchStart={message.isDeleted ? undefined : (e) => { e.stopPropagation(); handleLongPressStart(message._id); }}
-                        onTouchEnd={message.isDeleted ? undefined : handleLongPressEnd}
-                        onTouchMove={message.isDeleted ? undefined : handleLongPressEnd}
-                        title={message.isDeleted ? undefined : "Double-click to ❤️ react"}
-                      >
-                        {message.viewOnce && !message.viewedOnce ? (
-                          <ViewOnceMedia
-                            message={message}
-                            onOpened={() => markViewOnceOpened(message._id)}
-                          />
-                        ) : (
-                          <>
-                            {message.image && (
-                              <img
-                                src={message.image}
-                                alt="Attachment"
-                                className="max-w-full sm:max-w-[240px] rounded-lg mb-1.5 shadow-sm object-cover"
-                              />
-                            )}
-                            {message.file && (
-                              <div className="mb-1.5">
-                                {message.file.type.startsWith("image/") ? (
-                                  <img
-                                    src={message.file.url}
-                                    alt={message.file.name}
-                                    className="max-w-full sm:max-w-[240px] rounded-lg shadow-sm object-cover"
-                                  />
-                                ) : message.file.type.startsWith("video/") ? (
-                                  <video controls className="max-w-full sm:max-w-[240px] rounded-lg shadow-sm">
-                                    <source src={message.file.url} type={message.file.type} />
-                                  </video>
-                                ) : (
-                                  <a
-                                    href={message.file.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex items-center gap-2.5 p-2 bg-slate-200 dark:bg-slate-655 hover:bg-slate-300/80 dark:hover:bg-slate-500/80 rounded-xl text-slate-800 dark:text-slate-100 transition-colors"
-                                  >
-                                    <Paperclip size={15} />
-                                    <span className="text-xs font-medium truncate max-w-[120px]">{message.file.name}</span>
-                                    <span className="text-[10px] opacity-60 whitespace-nowrap">
-                                      ({(message.file.size / 1024 / 1024).toFixed(2)} MB)
-                                    </span>
-                                  </a>
-                                )}
-                              </div>
-                            )}
-                            {message.text && (
-                              <p className="text-[14px] leading-relaxed break-words font-medium">
-                                {message.text}
-                                {message.isEdited && !message.isDeleted && (
-                                  <span className="text-[10px] opacity-55 ml-2 font-normal">(edited)</span>
-                                )}
-                              </p>
-                            )}
-                            {message.viewOnce && message.viewedOnce && (
-                              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Opened • View once media</p>
-                            )}
-                          </>
-                        )}
-                      </div>
-
-                      {/* Action Menu (hover) */}
-                      {!message.isDeleted && (
-                        <div className="opacity-0 group-hover/bubble:opacity-100 transition-opacity duration-200 flex-shrink-0 select-none">
-                          <button
-                            className="size-6 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              const rect = e.currentTarget.getBoundingClientRect();
-                              if (activeMessageMenu === message._id) {
-                                closeMessageMenu();
-                              } else {
-                                openMessageMenu(message._id, rect);
-                              }
-                            }}
-                          >
-                            <MoreVertical size={14} />
-                          </button>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Reactions list */}
-                    {!message.isDeleted && (
-                      <div className="ml-1 mt-1.5 select-none">
-                        <MessageReactions message={message} />
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            }
-          })}
-
-
+          {messages.map((message, index) => (
+            <MessageItem
+              key={message._id}
+              message={message}
+              index={index}
+              messagesLength={messages.length}
+              messageEndRef={messageEndRef}
+              selectedUser={selectedUser}
+              activeMessageMenu={activeMessageMenu}
+              openMessageMenu={openMessageMenu}
+              closeMessageMenu={closeMessageMenu}
+              handleLongPressStart={handleLongPressStart}
+              handleLongPressEnd={handleLongPressEnd}
+              addReaction={addReaction}
+              removeReaction={removeReaction}
+              markViewOnceOpened={markViewOnceOpened}
+            />
+          ))}
 
           {/* Typing Indicator */}
           {typingUsers.length > 0 && (
-            <div className="flex gap-3 items-start w-full message-item" style={{ animation: "slideIn 0.3s ease-out" }}>
+            <div className="flex gap-3 items-start w-full message-item">
               <div className="flex-shrink-0 mt-0.5">
                 <img
                   src={selectedUser.profilePic || "/avatar.png"}
@@ -511,8 +221,8 @@ const ChatContainer = () => {
                   className="size-10 rounded-full object-cover shadow-sm border border-slate-200 dark:border-slate-700"
                 />
               </div>
-              <div className="flex flex-col items-start max-w-[60%]">
-                <div className="flex items-center gap-1.5 mb-1 px-1.5 text-[11px] text-slate-450 dark:text-slate-500 font-semibold">
+              <div className="flex flex-col items-start max-w-[85%] sm:max-w-[60%]">
+                <div className="flex items-center gap-1.5 mb-1 px-1.5 text-[11px] text-slate-455 dark:text-slate-500 font-semibold">
                   <span className="font-bold text-slate-600 dark:text-slate-350">{selectedUser.fullName}</span>
                   <span>•</span>
                   <span className="text-emerald-500 font-bold animate-pulse">Typing</span>
@@ -543,63 +253,17 @@ const ChatContainer = () => {
         <MessageInput />
       </div>
 
-      <style>{`
-        @keyframes slideIn {
-          from {
-            opacity: 0;
-            transform: translateY(8px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        .message-item {
-          animation: slideIn 0.28s ease-out;
-        }
-
-        .typing span {
-          width: 5px;
-          height: 5px;
-          margin: 0 1.5px;
-          background-color: currentColor;
-          opacity: 0.45;
-          border-radius: 50%;
-          display: inline-block;
-          animation: bounceTyping 1.3s infinite ease-in-out;
-        }
-
-        .typing span:nth-child(2) {
-          animation-delay: 0.2s;
-        }
-
-        .typing span:nth-child(3) {
-          animation-delay: 0.4s;
-        }
-
-        @keyframes bounceTyping {
-          0%, 100% {
-            transform: translateY(0);
-          }
-          50% {
-            transform: translateY(-4px);
-            opacity: 0.9;
-          }
-        }
-      `}</style>
-
       {/* Floating high-z-index Actions Context Menu Portal (escapes scrolling stack) */}
       {activeMessageMenu && (
         <div 
-          className="fixed inset-0 z-[9998] bg-black/[0.04] dark:bg-black/[0.12] backdrop-blur-[0.5px] transition-all" 
+          className="fixed inset-0 z-[9998] bg-black/40 dark:bg-black/60 backdrop-blur-[2px] sm:bg-black/[0.04] sm:dark:bg-black/[0.12] sm:backdrop-blur-[0.5px] transition-all" 
           onClick={closeMessageMenu} 
         />
       )}
 
       {activeMenuMessage && (
         <div
-          className="fixed z-[9999] select-none bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-150 dark:border-slate-700/80 overflow-hidden animate-fadeIn"
+          className="fixed z-[9999] select-none bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-150 dark:border-slate-700/80 overflow-hidden animate-fadeIn mobile-bottom-sheet"
           style={{ top: `${messageMenuPos.top}px`, left: `${messageMenuPos.left}px`, minWidth: "220px" }}
           onClick={(e) => e.stopPropagation()}
         >

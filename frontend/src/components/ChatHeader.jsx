@@ -37,21 +37,21 @@ const ChatHeader = ({ onSearchClick, onPinnedClick }) => {
   }, [showMenu]);
 
   return (
-    <div className="px-3 sm:px-6 py-3 sm:py-4 border-b border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md flex-shrink-0 z-20 select-none transition-colors duration-200">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 sm:gap-3.5 flex-1 min-w-0">
+    <div className="px-3 sm:px-4 py-2 sm:py-3 border-b border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md flex-shrink-0 z-20 select-none transition-colors duration-200">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
           {/* Back button — mobile only */}
           <button
             onClick={() => setSelectedUser(null)}
-            className="size-8 flex items-center justify-center rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 lg:hidden -ml-2"
+            className="size-9 flex items-center justify-center rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 lg:hidden -ml-1 transition-colors"
             aria-label="Back"
           >
-            <ChevronLeft size={22} />
+            <ChevronLeft size={24} />
           </button>
           
           {/* Avatar with Ring */}
-          <div className="relative">
-            <div className="size-11 rounded-full relative shadow-sm border border-slate-200 dark:border-slate-750 overflow-hidden flex-shrink-0">
+          <div className="relative flex-shrink-0" onClick={() => setShowProfileModal(true)}>
+            <div className="size-10 sm:size-11 rounded-full relative shadow-sm border border-slate-200 dark:border-slate-750 overflow-hidden cursor-pointer">
               <img src={selectedUser.profilePic || "/avatar.png"} alt={selectedUser.fullName} className="object-cover w-full h-full" />
               {isOnline && (
                 <span className="absolute bottom-0 right-0 size-3 bg-green-500 rounded-full ring-2 ring-white dark:ring-slate-800" />
@@ -60,62 +60,54 @@ const ChatHeader = ({ onSearchClick, onPinnedClick }) => {
           </div>
 
           {/* User info */}
-          <div className="flex-1 min-w-0 text-left">
-            <h3 className="font-bold text-[15px] sm:text-[16px] text-slate-800 dark:text-slate-100 leading-tight hover:text-blue-500 dark:hover:text-blue-400 cursor-pointer transition-colors truncate" onClick={() => setShowProfileModal(true)}>
+          <div className="flex-1 min-w-0 text-left cursor-pointer" onClick={() => setShowProfileModal(true)}>
+            <h3 className="font-bold text-[15px] sm:text-[16px] text-slate-800 dark:text-slate-100 leading-tight hover:text-blue-500 dark:hover:text-blue-400 transition-colors truncate">
               {selectedUser.fullName}
             </h3>
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5 truncate flex items-center gap-1.5 font-semibold">
+            <div className="flex items-center gap-1.5 mt-0.5">
               {isOnline ? (
-                <span className="text-emerald-500 dark:text-emerald-400 font-bold">Active Now</span>
+                <span className="text-[11px] text-emerald-500 dark:text-emerald-400 font-bold">Active Now</span>
               ) : (
-                <span className="text-slate-400 dark:text-slate-500">Offline</span>
+                <span className="text-[11px] text-slate-400 dark:text-slate-500 font-semibold">Offline</span>
               )}
               {status?.statusMessage && (
                 <>
-                  <span>•</span>
-                  <span className="truncate italic">"{status.statusMessage}"</span>
+                  <span className="text-[10px] text-slate-300 dark:text-slate-600">•</span>
+                  <span className="text-[11px] text-slate-400 dark:text-slate-500 truncate italic font-medium">"{status.statusMessage}"</span>
                 </>
               )}
-            </p>
+            </div>
           </div>
         </div>
 
         {/* Action icons */}
-        <div className="flex items-center gap-1.5 sm:gap-2">
-          {/* Call & Video Call Icons */}
-          <button className="size-8 flex items-center justify-center rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors flex" title="Voice Call">
-            <Phone size={17} />
+        <div className="flex items-center gap-0.5 sm:gap-1">
+          {/* Call & Video Call Icons - Hidden on very small screens if needed, but keeping for now */}
+          <button className="size-9 flex items-center justify-center rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors" title="Voice Call">
+            <Phone size={18} />
           </button>
-          <button className="size-8 flex items-center justify-center rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors flex" title="Video Call">
-            <Video size={17} />
+          <button className="size-9 flex items-center justify-center rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors hidden sm:flex" title="Video Call">
+            <Video size={18} />
           </button>
 
-          <div className="hidden sm:block">
+          <div className="hidden md:block">
             <ThemeToggle />
           </div>
 
           <button
             onClick={onSearchClick}
-            className="size-8 flex items-center justify-center rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors hidden sm:flex"
+            className="size-9 flex items-center justify-center rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors hidden sm:flex"
             title="Search messages"
           >
-            <Search size={17} />
-          </button>
-
-          <button
-            onClick={onPinnedClick}
-            className="size-8 flex items-center justify-center rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors hidden sm:flex"
-            title="Pinned messages"
-          >
-            <Pin size={17} />
+            <Search size={18} />
           </button>
 
           <div className="relative" ref={menuRef}>
             <button
-              className="size-8 flex items-center justify-center rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              className="size-9 flex items-center justify-center rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
               onClick={() => setShowMenu(!showMenu)}
             >
-              <MoreVertical size={17} />
+              <MoreVertical size={18} />
             </button>
             {showMenu && (
               <div

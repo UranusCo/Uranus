@@ -1,5 +1,5 @@
 const QuotedMessage = ({ replyTo }) => {
-  if (!replyTo) return null;
+  if (!replyTo || replyTo.isDeleted) return null;
 
   return (
     <div className="bg-base-200 p-2 rounded-md mb-2 border-l-4 border-primary text-sm opacity-75">

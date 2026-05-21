@@ -43,6 +43,7 @@ router.post("/send/:id", protectRoute, sendMessage);
 router.post("/reaction/:messageId/add", protectRoute, addReaction);
 router.post("/reaction/:messageId/remove", protectRoute, removeReaction);
 router.patch("/edit/:messageId", protectRoute, editMessage);
+router.delete("/clear/:userId", protectRoute, clearChatHistory);
 router.delete("/:messageId", protectRoute, deleteMessage);
 router.patch("/pin/message/:messageId", protectRoute, togglePinMessage);
 router.get("/pinned/:userId", protectRoute, getPinnedMessages);
@@ -64,7 +65,6 @@ router.patch("/view-once/:messageId/open", protectRoute, markViewOnceOpened);
 router.patch("/archive/:userId", protectRoute, toggleArchiveChat);
 router.patch("/pin/:userId", protectRoute, togglePinChat);
 router.patch("/mute/:userId", protectRoute, toggleMuteChat);
-router.delete("/clear/:userId", protectRoute, clearChatHistory);
 
 // Chat export
 router.get("/export/:userId", protectRoute, exportChat);

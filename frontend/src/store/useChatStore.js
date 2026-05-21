@@ -198,22 +198,32 @@ export const useChatStore = create((set, get) => ({
   deleteMessage: async (messageId) => {
     try {
       const res = await axiosInstance.delete(`/messages/${messageId}`);
-      const text = res.data.text || "This massege was delted be You";
+      const text = res.data.text || "This message was deleted by You";
       set({
-        messages: get().messages.map(msg =>
-          msg._id === messageId
-            ? {
-                ...msg,
-                isDeleted: true,
-                text,
-                image: null,
-                file: null,
-                replyTo: null,
-                reactions: {},
-                isPinned: false,
-              }
-            : msg
-        ),
+        messages: get().messages.map(msg => {
+          let updatedMsg = msg;
+          if (msg._id === messageId) {
+            updatedMsg = {
+              ...updatedMsg,
+              isDeleted: true,
+              text,
+              image: null,
+              file: null,
+              replyTo: null,
+              reactions: {},
+              isPinned: false,
+            };
+          }
+          if (msg.replyTo && (msg.replyTo === messageId || msg.replyTo._id === messageId)) {
+            updatedMsg = {
+              ...updatedMsg,
+              replyTo: typeof msg.replyTo === "object"
+                ? { ...msg.replyTo, isDeleted: true }
+                : { _id: msg.replyTo, isDeleted: true }
+            };
+          }
+          return updatedMsg;
+        }),
       });
       toast.success("Message deleted");
     } catch (error) {
@@ -480,20 +490,30 @@ export const useChatStore = create((set, get) => ({
     socket.on("messageDeleted", (data) => {
       const { messageId, text } = data;
       set({
-        messages: get().messages.map(msg =>
-          msg._id === messageId
-            ? {
-                ...msg,
-                isDeleted: true,
-                text: text || "This massege was delted be User",
-                image: null,
-                file: null,
-                replyTo: null,
-                reactions: {},
-                isPinned: false,
-              }
-            : msg
-        ),
+        messages: get().messages.map(msg => {
+          let updatedMsg = msg;
+          if (msg._id === messageId) {
+            updatedMsg = {
+              ...updatedMsg,
+              isDeleted: true,
+              text: text || "This message was deleted by User",
+              image: null,
+              file: null,
+              replyTo: null,
+              reactions: {},
+              isPinned: false,
+            };
+          }
+          if (msg.replyTo && (msg.replyTo === messageId || msg.replyTo._id === messageId)) {
+            updatedMsg = {
+              ...updatedMsg,
+              replyTo: typeof msg.replyTo === "object"
+                ? { ...msg.replyTo, isDeleted: true }
+                : { _id: msg.replyTo, isDeleted: true }
+            };
+          }
+          return updatedMsg;
+        }),
       });
     });
 
