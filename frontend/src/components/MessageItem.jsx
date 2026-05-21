@@ -114,7 +114,7 @@ const MessageContent = ({
 }) => {
   // Helper to linkify text
   const linkify = (text) => {
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const urlRegex = /(https?:\/\/[^\s<]+[^.,:;"'!)\]\s])/g;
     return text.split(urlRegex).map((part, i) => {
       if (part.match(urlRegex)) {
         return (
@@ -124,7 +124,7 @@ const MessageContent = ({
             target="_blank"
             rel="noopener noreferrer"
             className={`underline decoration-2 underline-offset-2 transition-opacity hover:opacity-80 ${
-              isSelf ? "text-white" : "text-blue-500 dark:text-blue-400"
+              isSelf ? "text-white font-bold" : "text-blue-500 dark:text-blue-400 font-bold"
             }`}
             onClick={(e) => e.stopPropagation()}
           >
@@ -237,7 +237,7 @@ const MessageContent = ({
                     )}
                   </p>
                   {!message.isDeleted && (() => {
-                    const urlRegex = /(https?:\/\/[^\s]+)/g;
+                    const urlRegex = /(https?:\/\/[^\s<]+[^.,:;"'!)\]\s])/;
                     const match = message.text.match(urlRegex);
                     if (match) {
                       return <LinkPreview url={match[0]} isSelf={isSelf} />;

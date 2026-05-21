@@ -14,16 +14,28 @@ const storage = multer.memoryStorage();
 
 export const getLinkPreview = async (req, res) => {
   try {
-    const { url } = req.query;
-    if (!url) return res.status(400).json({ error: "URL is required" });
+    let { url } = req.query;
+    if (!url) return res.status(400).json({ error: "URL query parameter is required" });
+
+    // Handle cases where the URL might be "undefined" as a string or empty
+    if (url === "undefined" || url === "null" || url.trim() === "") {
+      return res.status(400).json({ error: "Invalid URL provided" });
+    }
+
+    // Ensure URL has protocol
+    if (!url.startsWith("http")) {
+      url = "https://" + url;
+    }
 
     const metadata = await getLinkMetadata(url);
-    if (!metadata) return res.status(404).json({ error: "Could not fetch metadata" });
+    if (!metadata) {
+      return res.status(404).json({ error: "Could not fetch metadata for the provided URL" });
+    }
 
     res.status(200).json(metadata);
   } catch (error) {
-    console.log("Error in getLinkPreview controller: ", error.message);
-    res.status(500).json({ error: "Internal server error" });
+    console.error("Error in getLinkPreview controller:", error.message);
+    res.status(500).json({ error: "Internal server error during link preview generation" });
   }
 };
 const upload = multer({
