@@ -1,6 +1,6 @@
 import { useAuthStore } from "../store/useAuthStore";
 import { formatMessageTime } from "../lib/utils";
-import { Paperclip, Check, CheckCheck, MoreVertical } from "lucide-react";
+import { Paperclip, Check, CheckCheck, MoreVertical, Pin } from "lucide-react";
 import MessageReactions from "./MessageReactions";
 import QuotedMessage from "./QuotedMessage";
 import ViewOnceMedia from "./ViewOnceMedia";
@@ -43,36 +43,63 @@ const MessageItem = ({
     }
   };
 
-  const commonBubbleClasses = `flex flex-col select-text px-4 py-2.5 rounded-2xl border shadow-sm transition-all no-callout ${
+  const isNextSameSender = index < messagesLength - 1 &&
+    messages[index + 1].senderId === message.senderId &&
+    !messages[index + 1].isDeleted;
+
+  const isPrevSameSender = index > 0 &&
+    messages[index - 1].senderId === message.senderId &&
+    !messages[index - 1].isDeleted;
+
+  const showAvatar = !isSelf && !isNextSameSender;
+  const showNameHeader = !isSelf && (!isPrevSameSender || message.isDeleted);
+  const bubbleRoundness = isSelf
+    ? (isPrevSameSender && isNextSameSender ? "rounded-2xl"
+      : isPrevSameSender ? "rounded-br-2xl"
+      : isNextSameSender ? "rounded-tr-2xl"
+      : "rounded-br-2xl rounded-tr-none")
+    : (isPrevSameSender && isNextSameSender ? "rounded-2xl"
+      : isPrevSameSender ? "rounded-bl-2xl"
+      : isNextSameSender ? "rounded-tl-2xl"
+      : "rounded-bl-2xl rounded-tl-none");
+
+  const commonBubbleClasses = `relative flex flex-col select-text px-4 py-2.5 border shadow-sm transition-all no-callout ${bubbleRoundness} ${
     message.isDeleted
       ? "bg-slate-100 dark:bg-slate-800/40 text-slate-400 dark:text-slate-500 border-slate-200/80 dark:border-slate-700/80 italic font-normal"
       : isSelf
-        ? "bg-gradient-to-br from-blue-600 to-indigo-600 text-white border-transparent hover:brightness-[0.98] rounded-tr-none"
-        : "bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-750/80 border-slate-200/50 dark:border-slate-700/50 rounded-tl-none"
+        ? "bg-blue-500 dark:bg-blue-600 text-white border-transparent hover:brightness-110"
+        : "bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border-slate-200/50 dark:border-slate-700/50 shadow-sm"
   } hover:cursor-pointer`;
+
+  const marginBottom = isNextSameSender ? "mb-0.5" : "mb-0";
 
   return (
     <div
       ref={index === messagesLength - 1 ? messageEndRef : null}
-      className={`flex flex-col ${isSelf ? "items-end" : "items-start"} w-full message-item group/msg`}
+      className={`flex flex-col ${isSelf ? "items-end" : "items-start"} w-full message-item group/msg ${marginBottom}`}
       style={{
-        animation: `slideIn 0.28s ease-out ${Math.min(index * 0.02, 0.4)}s both`,
+        animation: `messageEntry 0.25s cubic-bezier(0.16, 1, 0.3, 1) ${Math.min(index * 0.015, 0.3)}s both`,
       }}
     >
       {!isSelf && (
-        <div className="flex gap-3 items-start w-full">
-           <div className="flex-shrink-0 mt-0.5 select-none">
-            <img
-              src={selectedUser.profilePic || "/avatar.png"}
-              alt={selectedUser.fullName}
-              className="size-10 rounded-full object-cover shadow-sm border border-slate-200 dark:border-slate-700"
-            />
-          </div>
-          <div className="flex flex-col items-start w-full min-w-0">
+        <div className={`flex gap-2 items-end w-full ${showAvatar ? "" : "ml-[52px]"} msg-bubble-container ${isSelf ? "justify-end" : ""}`}>
+          {showAvatar ? (
+            <div className="flex-shrink-0 select-none mb-0">
+              <img
+                src={selectedUser.profilePic || "/avatar.png"}
+                alt={selectedUser.fullName}
+                className="size-9 rounded-full object-cover shadow-sm border border-slate-200 dark:border-slate-700"
+              />
+            </div>
+          ) : !isNextSameSender && (
+            <div className="w-9 flex-shrink-0" />
+          )}
+          <div className="flex flex-col items-start min-w-0 flex-1">
              <MessageContent 
                isSelf={isSelf}
                message={message}
                selectedUser={selectedUser}
+               showNameHeader={showNameHeader}
                handleDoubleClick={handleDoubleClick}
                handleLongPressStart={handleLongPressStart}
                handleLongPressEnd={handleLongPressEnd}
@@ -85,17 +112,20 @@ const MessageItem = ({
       )}
 
       {isSelf && (
-        <MessageContent 
-          isSelf={isSelf}
-          message={message}
-          selectedUser={selectedUser}
-          handleDoubleClick={handleDoubleClick}
-          handleLongPressStart={handleLongPressStart}
-          handleLongPressEnd={handleLongPressEnd}
-          handleMenuClick={handleMenuClick}
-          markViewOnceOpened={markViewOnceOpened}
-          commonBubbleClasses={commonBubbleClasses}
-        />
+        <div className="msg-bubble-container">
+          <MessageContent 
+            isSelf={isSelf}
+            message={message}
+            selectedUser={selectedUser}
+            showNameHeader={false}
+            handleDoubleClick={handleDoubleClick}
+            handleLongPressStart={handleLongPressStart}
+            handleLongPressEnd={handleLongPressEnd}
+            handleMenuClick={handleMenuClick}
+            markViewOnceOpened={markViewOnceOpened}
+            commonBubbleClasses={commonBubbleClasses}
+          />
+        </div>
       )}
     </div>
   );
@@ -105,6 +135,7 @@ const MessageContent = ({
   isSelf, 
   message, 
   selectedUser, 
+  showNameHeader,
   handleDoubleClick, 
   handleLongPressStart, 
   handleLongPressEnd, 
@@ -112,7 +143,6 @@ const MessageContent = ({
   markViewOnceOpened,
   commonBubbleClasses
 }) => {
-  // Helper to linkify text
   const linkify = (text) => {
     const urlRegex = /(https?:\/\/[^\s<]+[^.,:;"'!)\]\s])/g;
     return text.split(urlRegex).map((part, i) => {
@@ -138,27 +168,24 @@ const MessageContent = ({
 
   return (
     <>
-      {/* Header: Sender and Time */}
-      <div className={`flex items-center gap-1.5 mb-1 px-1.5 text-[11px] text-slate-400 dark:text-slate-500 select-none font-semibold ${isSelf ? "justify-end" : ""}`}>
-        <span className={`${isSelf ? "text-slate-500 dark:text-slate-455" : "text-slate-600 dark:text-slate-350"} font-bold`}>
-          {isSelf ? "You" : selectedUser.fullName}
-        </span>
-        <span>•</span>
-        <time>{formatMessageTime(message.createdAt)}</time>
-        {message.isPinned && <span className="ml-1 text-amber-500">📌 Pinned</span>}
-      </div>
+      {/* Header: Sender name (only for first message in a group from sender) */}
+      {showNameHeader && !message.isDeleted && (
+        <div className="flex items-center gap-1.5 mb-0.5 px-1 text-[11px] text-blue-500 dark:text-blue-400 font-bold select-none">
+          {selectedUser.fullName}
+        </div>
+      )}
 
       {/* Quoted Message */}
       {message.replyTo && !message.isDeleted && (
-        <div className={`mb-1.5 msg-bubble-container ${isSelf ? "text-left" : "w-full text-left"}`}>
+        <div className="mb-1.5">
           <QuotedMessage replyTo={message.replyTo} />
         </div>
       )}
 
       {/* Bubble Row */}
-      <div className={`flex gap-2 items-end group/bubble w-full msg-bubble-container ${isSelf ? "justify-end" : ""}`}>
+      <div className={`flex gap-1.5 items-end ${isSelf ? "justify-end" : ""}`}>
         {isSelf && !message.isDeleted && (
-          <div className="opacity-0 group-hover/bubble:opacity-100 transition-opacity duration-200 flex-shrink-0 select-none">
+          <div className="opacity-0 group-hover/bubble:opacity-100 transition-opacity duration-200 flex-shrink-0 select-none self-end pb-1.5">
             <button
               className="size-6 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
               onClick={handleMenuClick}
@@ -169,12 +196,12 @@ const MessageContent = ({
         )}
 
         <div
-          className={commonBubbleClasses}
+          className={`${commonBubbleClasses} ${message.isDeleted ? "" : (isSelf ? "bubble-tail-self" : "bubble-tail-other")}`}
           onDoubleClick={handleDoubleClick}
           onTouchStart={message.isDeleted ? undefined : (e) => { e.stopPropagation(); handleLongPressStart(message._id); }}
           onTouchEnd={message.isDeleted ? undefined : handleLongPressEnd}
           onTouchMove={message.isDeleted ? undefined : handleLongPressEnd}
-          title={message.isDeleted ? undefined : "Double-click to ❤️ react"}
+          title={message.isDeleted ? undefined : "Double-tap to ❤️"}
         >
           {message.viewOnce && !message.viewedOnce ? (
             <ViewOnceMedia
@@ -187,24 +214,24 @@ const MessageContent = ({
                 <img
                   src={message.image}
                   alt="Attachment"
-                  className="max-w-full sm:max-w-[280px] rounded-lg mb-1.5 shadow-sm object-cover"
+                  className="max-w-full sm:max-w-[260px] rounded-lg mb-1 object-cover"
                 />
               )}
               {message.file && (
-                <div className="mb-1.5">
+                <div className="mb-1">
                   {message.file.type.startsWith("image/") ? (
                     <img
                       src={message.file.url}
                       alt={message.file.name}
-                      className="max-w-full sm:max-w-[280px] rounded-lg shadow-sm object-cover"
+                      className="max-w-full sm:max-w-[260px] rounded-lg object-cover"
                     />
                   ) : message.file.type.startsWith("video/") ? (
-                    <video controls className="max-w-full sm:max-w-[280px] rounded-lg shadow-sm">
+                    <video controls className="max-w-full sm:max-w-[260px] rounded-lg">
                       <source src={message.file.url} type={message.file.type} />
                     </video>
                   ) : message.file.type.startsWith("audio/") ? (
-                    <div className={`p-2 rounded-xl min-w-[200px] ${isSelf ? "bg-white/10" : "bg-slate-100 dark:bg-slate-700"}`}>
-                      <audio controls className="w-full h-8 brightness-95 contrast-125">
+                    <div className={`p-2 rounded-xl min-w-[180px] ${isSelf ? "bg-white/10" : "bg-slate-100 dark:bg-slate-700"}`}>
+                      <audio controls className="w-full h-8">
                         <source src={message.file.url} type={message.file.type} />
                       </audio>
                     </div>
@@ -213,15 +240,15 @@ const MessageContent = ({
                       href={message.file.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`flex items-center gap-2.5 p-2 rounded-xl transition-colors ${
+                      className={`flex items-center gap-2 p-2 rounded-xl transition-colors ${
                         isSelf 
                           ? "bg-white/10 hover:bg-white/15 text-white" 
                           : "bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-100"
                       }`}
                     >
-                      <Paperclip size={15} />
-                      <span className="text-xs font-medium truncate max-w-[120px]">{message.file.name}</span>
-                      <span className="text-[10px] opacity-75 whitespace-nowrap">
+                      <Paperclip size={14} />
+                      <span className="text-xs font-medium truncate max-w-[100px]">{message.file.name}</span>
+                      <span className="text-[10px] opacity-75">
                         ({(message.file.size / 1024 / 1024).toFixed(2)} MB)
                       </span>
                     </a>
@@ -233,7 +260,7 @@ const MessageContent = ({
                   <p className="text-[14px] leading-relaxed break-words font-medium">
                     {linkify(message.text)}
                     {message.isEdited && !message.isDeleted && (
-                      <span className="text-[10px] opacity-75 ml-2 font-normal">(edited)</span>
+                      <span className="text-[10px] opacity-70 ml-1.5 font-normal">edited</span>
                     )}
                   </p>
                   {!message.isDeleted && (() => {
@@ -253,10 +280,25 @@ const MessageContent = ({
               )}
             </>
           )}
+
+          {/* Footer: time and read status inside bubble */}
+          <div className={`flex items-center gap-1 mt-1 -mb-1 ${isSelf ? "justify-end" : "justify-start"}`}>
+            <span className={`text-[10px] font-medium ${isSelf ? "text-white/60" : "text-slate-400 dark:text-slate-500"}`}>
+              {formatMessageTime(message.createdAt)}
+            </span>
+            {message.isPinned && !message.isDeleted && (
+              <Pin size={10} className="text-amber-400" />
+            )}
+            {isSelf && !message.isDeleted && (
+              message.isRead
+                ? <CheckCheck size={12} className="text-blue-300" />
+                : <Check size={12} className="text-white/50" />
+            )}
+          </div>
         </div>
 
         {!isSelf && !message.isDeleted && (
-          <div className="opacity-0 group-hover/bubble:opacity-100 transition-opacity duration-200 flex-shrink-0 select-none">
+          <div className="opacity-0 group-hover/bubble:opacity-100 transition-opacity duration-200 flex-shrink-0 select-none self-end pb-1.5">
             <button
               className="size-6 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
               onClick={handleMenuClick}
@@ -267,27 +309,10 @@ const MessageContent = ({
         )}
       </div>
 
-      {/* Reactions list */}
+      {/* Reactions */}
       {!message.isDeleted && (
-        <div className={`mt-1.5 select-none ${isSelf ? "mr-1" : "ml-1"}`}>
+        <div className={`select-none ${isSelf ? "pl-1" : "pl-1"}`}>
           <MessageReactions message={message} />
-        </div>
-      )}
-
-      {/* Read Status checkmark indicators (Only for self) */}
-      {isSelf && !message.isDeleted && (
-        <div className="px-1.5 mt-1 text-[10px] text-slate-400 dark:text-slate-500 flex items-center gap-1 select-none font-semibold">
-          {message.isRead ? (
-            <>
-              <CheckCheck size={11} className="text-blue-500 dark:text-blue-400" />
-              <span>Read</span>
-            </>
-          ) : (
-            <>
-              <Check size={11} />
-              <span>Sent</span>
-            </>
-          )}
         </div>
       )}
     </>

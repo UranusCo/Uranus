@@ -12,6 +12,26 @@ import ReplyPreview from "./ReplyPreview";
 import EditingIndicator from "./EditingIndicator";
 import { Loader } from "lucide-react";
 
+const isSameDay = (d1, d2) => {
+  const a = new Date(d1);
+  const b = new Date(d2);
+  return a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate();
+};
+
+const formatDateLabel = (dateStr) => {
+  const date = new Date(dateStr);
+  const now = new Date();
+  const diff = now - date;
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  
+  if (days === 0) return "Today";
+  if (days === 1) return "Yesterday";
+  if (days < 7) return date.toLocaleDateString("en-US", { weekday: "long" });
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+};
+
 const ChatContainer = () => {
   const {
     messages,
@@ -218,41 +238,52 @@ const ChatContainer = () => {
 
       {/* Messages Viewport */}
       <div
-        className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 message-container select-text"
+        className="flex-1 overflow-y-auto px-3 sm:px-5 py-3 message-container select-text chat-bg-pattern"
         ref={scrollRef}
         onClick={() => {
           if (ignoreNextClickRef.current) { ignoreNextClickRef.current = false; return; }
           if (activeMessageMenu) setActiveMessageMenu(null);
         }}
       >
-        <div className="max-w-[800px] w-full mx-auto space-y-3">
+        <div className="max-w-[800px] w-full mx-auto">
           {/* Scroll Sentinel */}
           <div ref={topSentinelRef} className="h-1" />
           
           {isMoreMessagesAvailable && messages.length > 0 && (
-            <div className="flex justify-center py-2">
+            <div className="flex justify-center py-3">
               <Loader size={16} className="animate-spin text-blue-500" />
             </div>
           )}
 
-          {messages.map((message, index) => (
-            <MessageItem
-              key={message._id}
-              message={message}
-              index={index}
-              messagesLength={messages.length}
-              messageEndRef={messageEndRef}
-              selectedUser={selectedUser}
-              activeMessageMenu={activeMessageMenu}
-              openMessageMenu={openMessageMenu}
-              closeMessageMenu={closeMessageMenu}
-              handleLongPressStart={handleLongPressStart}
-              handleLongPressEnd={handleLongPressEnd}
-              addReaction={addReaction}
-              removeReaction={removeReaction}
-              markViewOnceOpened={markViewOnceOpened}
-            />
-          ))}
+          {messages.map((message, index) => {
+            const showDateSeparator = index === 0 || !isSameDay(message.createdAt, messages[index - 1].createdAt);
+            return (
+              <div key={message._id} className={showDateSeparator ? "mt-1" : ""}>
+                {showDateSeparator && (
+                  <div className="date-separator">
+                    <span>{formatDateLabel(message.createdAt)}</span>
+                  </div>
+                )}
+                <div className={index > 0 && !showDateSeparator ? "mt-1" : ""}>
+                  <MessageItem
+                    message={message}
+                    index={index}
+                    messagesLength={messages.length}
+                    messageEndRef={messageEndRef}
+                    selectedUser={selectedUser}
+                    activeMessageMenu={activeMessageMenu}
+                    openMessageMenu={openMessageMenu}
+                    closeMessageMenu={closeMessageMenu}
+                    handleLongPressStart={handleLongPressStart}
+                    handleLongPressEnd={handleLongPressEnd}
+                    addReaction={addReaction}
+                    removeReaction={removeReaction}
+                    markViewOnceOpened={markViewOnceOpened}
+                  />
+                </div>
+              </div>
+            );
+          })}
 
           {/* Typing Indicator */}
           {typingUsers.length > 0 && (

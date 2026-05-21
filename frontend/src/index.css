@@ -2,16 +2,54 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Typing Animation */
+/* ===== Chat Background Pattern ===== */
+.chat-bg-pattern {
+  background-color: #e5ded8;
+  background-image: 
+    radial-gradient(circle at 20% 50%, rgba(0,0,0,0.02) 1px, transparent 1px),
+    radial-gradient(circle at 80% 20%, rgba(0,0,0,0.015) 1px, transparent 1px);
+  background-size: 40px 40px, 60px 60px;
+}
+
+.dark .chat-bg-pattern {
+  background-color: #0b1520;
+  background-image: 
+    radial-gradient(circle at 20% 50%, rgba(255,255,255,0.025) 1px, transparent 1px),
+    radial-gradient(circle at 80% 20%, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: 40px 40px, 60px 60px;
+}
+
+/* ===== Bubble Tails ===== */
+.bubble-tail::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  width: 12px;
+  height: 12px;
+}
+
+.bubble-tail-self::after {
+  right: -6px;
+  background: radial-gradient(circle at bottom left, transparent 11px, #3b82f6 11px);
+}
+
+.dark .bubble-tail-self::after {
+  background: radial-gradient(circle at bottom left, transparent 11px, #2563eb 11px);
+}
+
+.bubble-tail-other::after {
+  left: -6px;
+  background: radial-gradient(circle at bottom right, transparent 11px, #ffffff 11px);
+}
+
+.dark .bubble-tail-other::after {
+  background: radial-gradient(circle at bottom right, transparent 11px, #1e293b 11px);
+}
+
+/* ===== Typing Animation ===== */
 @keyframes typing {
-  0%, 60%, 100% {
-    opacity: 0.5;
-    transform: translateY(0);
-  }
-  30% {
-    opacity: 1;
-    transform: translateY(-10px);
-  }
+  0%, 60%, 100% { opacity: 0.5; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-10px); }
 }
 
 .typing span {
@@ -24,77 +62,91 @@
   animation: typing 1.4s infinite;
 }
 
-.typing span:nth-child(2) {
-  animation-delay: 0.2s;
-}
+.typing span:nth-child(2) { animation-delay: 0.2s; }
+.typing span:nth-child(3) { animation-delay: 0.4s; }
 
-.typing span:nth-child(3) {
-  animation-delay: 0.4s;
-}
-
-/* Message slide in animation */
+/* ===== Message slide in animation ===== */
 @keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .message-item {
   animation: slideIn 0.3s ease-out;
 }
 
-/* Message container smooth scroll */
-.message-container {
-  scroll-behavior: smooth;
+/* ===== Date Separator ===== */
+.date-separator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 16px 0;
+  position: relative;
 }
 
-/* Fade in animation */
+.date-separator::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: rgba(148, 163, 184, 0.2);
+}
+
+.date-separator span {
+  position: relative;
+  z-index: 1;
+  padding: 4px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  background: rgba(229, 222, 216, 0.85);
+  backdrop-filter: blur(4px);
+  border-radius: 9999px;
+  color: #64748b;
+}
+
+.dark .date-separator span {
+  background: rgba(15, 23, 42, 0.85);
+  color: #94a3b8;
+}
+
+/* ===== Message container ===== */
+.message-container {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+/* ===== Fade in animation ===== */
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 .animate-fadeIn {
   animation: fadeIn 0.2s ease-out;
 }
 
-/* Pulse animation for typing indicator */
+/* ===== Pulse animation ===== */
 @keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 
 .animate-pulse {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-/* Chat bubble styling improvements */
+/* ===== Chat bubble base ===== */
 .chat-bubble {
   word-break: break-word;
   max-width: 100%;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
-/* Shadow for chat messages */
-.chat-bubble {
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-/* Read status styling */
+/* ===== Read status ===== */
 .chat-footer {
   display: flex;
   align-items: center;
@@ -103,53 +155,35 @@
 }
 
 /* ===== Mobile / iOS improvements ===== */
-
-/* Remove flash on tap for all elements */
 * {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Prevent iOS font-size adjustment on orientation change */
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
 
-/* iOS momentum scrolling + prevent overscroll bounce in message list */
-.message-container {
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: contain;
-}
-
-/* On touch-only devices, always show the message action button */
 @media (hover: none) and (pointer: coarse) {
   .msg-action-btn {
     opacity: 1 !important;
   }
 }
 
-/* Prevent iOS callout / text selection on long-pressable elements */
 .no-callout {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   user-select: none;
 }
 
-/* Safe-area bottom padding (iPhone home bar) */
 .pb-safe {
   padding-bottom: max(1rem, env(safe-area-inset-bottom, 1rem));
 }
 
-/* Animations */
+/* ===== Animations ===== */
 @keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .message-item {
@@ -157,13 +191,8 @@ html {
 }
 
 @keyframes bounceTyping {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-4px);
-    opacity: 0.9;
-  }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); opacity: 0.9; }
 }
 
 .typing span {
@@ -177,13 +206,8 @@ html {
   animation: bounceTyping 1.3s infinite ease-in-out;
 }
 
-.typing span:nth-child(2) {
-  animation-delay: 0.2s;
-}
-
-.typing span:nth-child(3) {
-  animation-delay: 0.4s;
-}
+.typing span:nth-child(2) { animation-delay: 0.2s; }
+.typing span:nth-child(3) { animation-delay: 0.4s; }
 
 @keyframes slideUpMenu {
   from { transform: translateY(100%); }
@@ -204,7 +228,6 @@ html {
     padding-bottom: env(safe-area-inset-bottom, 16px);
   }
   
-  /* Make message bubbles wider on mobile */
   .msg-bubble-container {
     max-width: 88% !important;
   }
@@ -212,31 +235,50 @@ html {
 
 @media (min-width: 640px) {
   .msg-bubble-container {
-    max-width: 65% !important;
+    max-width: 60% !important;
   }
 }
 
-/* Custom modern scrollbar styles */
+/* ===== Custom modern scrollbar ===== */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 4px;
+  height: 4px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(156, 163, 175, 0.2);
+  background: rgba(148, 163, 184, 0.25);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(156, 163, 175, 0.4);
+  background: rgba(148, 163, 184, 0.45);
 }
 
-/* Hide scrollbar utility */
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }
 .scrollbar-none {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* ===== Message entry staggered animation ===== */
+@keyframes messageEntry {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.message-entry {
+  animation: messageEntry 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ===== Typing glow ===== */
+@keyframes typingGlow {
+  0%, 100% { box-shadow: 0 0 4px rgba(59, 130, 246, 0.1); }
+  50% { box-shadow: 0 0 12px rgba(59, 130, 246, 0.25); }
+}
+
+.typing-glow {
+  animation: typingGlow 2s ease-in-out infinite;
 }
