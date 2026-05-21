@@ -19,7 +19,7 @@ import { Toaster } from "react-hot-toast";
 import ErrorModal from "./components/ErrorModal";
 
 const App = () => {
-  const { authUser, checkAuth, isCheckingAuth, onlineUsers, socket } = useAuthStore();
+  const { authUser, checkAuth, isCheckingAuth, socket } = useAuthStore();
   const { theme } = useThemeStore();
   const { currentError, clearError, retryCurrentError } = useErrorStore();
   const { selectedUser } = useChatStore();

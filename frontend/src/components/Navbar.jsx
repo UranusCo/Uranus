@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
-import { LogOut, MessageSquare, Settings, User, MessageCircle } from "lucide-react";
+import { LogOut, Settings, User, MessageCircle } from "lucide-react";
 import UranusLogo from "../../public/uranus.svg";
 import { useState } from "react";
 import StatusUpdateModal from "./StatusUpdateModal";

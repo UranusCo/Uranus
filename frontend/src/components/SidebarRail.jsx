@@ -3,9 +3,6 @@ import { Link } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
 import { 
   MessageSquare, 
-  LayoutGrid, 
-  Folder, 
-  Bookmark, 
   Phone, 
   Video, 
   Users, 

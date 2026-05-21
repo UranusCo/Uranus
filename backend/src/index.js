@@ -42,7 +42,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "http://localhost:5000",
+      "http://localhost:5001",
       "https://uranus.koyeb.app",
       "https://uranus-app.pages.dev"
     ],
@@ -67,11 +67,12 @@ if (process.env.NODE_ENV === "production") {
 
 async function seedHelpCenter() {
   try {
-    const email = "pansiluco@gmail.com";
+    const email = process.env.HELP_CENTER_EMAIL || "pansiluco@gmail.com";
+    const helpCenterPassword = process.env.HELP_CENTER_PASSWORD || "Pansilu2012@";
     const existingUser = await User.findOne({ email });
     if (!existingUser) {
       const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash("Pansilu2012@", salt);
+      const hashedPassword = await bcrypt.hash(helpCenterPassword, salt);
       const helpCenter = new User({
         email,
         fullName: "Help Center",

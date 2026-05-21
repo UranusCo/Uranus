@@ -1,8 +1,10 @@
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
 
-const MessageReactions = ({ message, onReactionClick }) => {
-  // Add safety checks
+const MessageReactions = ({ message }) => {
+  const { authUser } = useAuthStore();
+  const { addReaction, removeReaction } = useChatStore();
+
   if (!message || !message.reactions || typeof message.reactions !== 'object') {
     return null;
   }
@@ -11,9 +13,6 @@ const MessageReactions = ({ message, onReactionClick }) => {
   if (reactionsKeys.length === 0) {
     return null;
   }
-
-  const { authUser } = useAuthStore();
-  const { addReaction, removeReaction } = useChatStore();
 
   const handleReactionClick = (emoji) => {
     try {

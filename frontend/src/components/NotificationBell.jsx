@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Bell } from "lucide-react";
 import { useNotificationStore } from "../store/useNotificationStore";
 import { useAuthStore } from "../store/useAuthStore";
@@ -18,7 +18,7 @@ const NotificationBell = ({ hideText = false, dropdownClass = "right-0 mt-2 orig
     return () => {
       if (socket) unsubscribeFromNotifications();
     };
-  }, [authUser, socket]);
+  }, [authUser, socket, getUnreadCount, subscribeToNotifications, unsubscribeFromNotifications]);
 
   // Close on click outside
   useEffect(() => {

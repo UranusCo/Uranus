@@ -1,7 +1,7 @@
 import { useThemeStore } from "../store/useThemeStore";
 import { useAuthStore } from "../store/useAuthStore";
 import { useNotificationStore } from "../store/useNotificationStore";
-import { Send, Bell, MessageSquare, Users, AtSign, Shield, Sun, Moon, Laptop } from "lucide-react";
+import { Send, MessageSquare, Users, AtSign, Shield, Sun, Moon, Laptop } from "lucide-react";
 
 const PREVIEW_MESSAGES = [
   { id: 1, content: "Hey! How's it going?", isSent: false },

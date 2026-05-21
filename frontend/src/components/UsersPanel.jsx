@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useChatStore } from "../store/useChatStore";
 import { useFriendStore } from "../store/useFriendStore";
 import { useAuthStore } from "../store/useAuthStore";
+import { HELP_CENTER_EMAIL } from "../constants";
 import {
   Search,
   UserPlus,
@@ -175,7 +176,7 @@ const UsersPanel = ({ setActiveTab }) => {
           filterBySearch(displayUsers).length > 0 ? (
             filterBySearch(displayUsers).map((user) => {
               const isOnline = onlineUsers.includes(user._id);
-              const isHelpCenter = user.email === "pansiluco@gmail.com";
+              const isHelpCenter = user.email === HELP_CENTER_EMAIL;
               const relState = isHelpCenter ? "friends" : getRelationshipState(user._id);
 
               return (

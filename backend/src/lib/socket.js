@@ -9,7 +9,7 @@ const io = new Server(server, {
   cors: {
     origin: [
       "http://localhost:5173",
-      "http://localhost:5000",
+      "http://localhost:5001",
       "https://uranus.koyeb.app",
       "https://uranus-app.pages.dev"
     ],

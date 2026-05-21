@@ -230,11 +230,12 @@ export const sendMessage = [
 
       // Check if users are friends (unless they are messaging themselves or one is the Help Center)
       if (senderId.toString() !== receiverId.toString()) {
-        const isHelpCenterSender = req.user.email === "pansiluco@gmail.com";
+        const helpCenterEmail = process.env.HELP_CENTER_EMAIL || "pansiluco@gmail.com";
+        const isHelpCenterSender = req.user.email === helpCenterEmail;
         let isHelpCenterReceiver = false;
 
         const receiverUser = await User.findById(receiverId);
-        if (receiverUser && receiverUser.email === "pansiluco@gmail.com") {
+        if (receiverUser && receiverUser.email === helpCenterEmail) {
           isHelpCenterReceiver = true;
         }
 
@@ -789,11 +790,12 @@ export const forwardMessage = async (req, res) => {
     }
 
     // Check if users are friends (unless one is the Help Center)
-    const isHelpCenterSender = req.user.email === "pansiluco@gmail.com";
+    const helpCenterEmail = process.env.HELP_CENTER_EMAIL || "pansiluco@gmail.com";
+    const isHelpCenterSender = req.user.email === helpCenterEmail;
     let isHelpCenterReceiver = false;
 
     const receiverUser = await User.findById(receiverId);
-    if (receiverUser && receiverUser.email === "pansiluco@gmail.com") {
+    if (receiverUser && receiverUser.email === helpCenterEmail) {
       isHelpCenterReceiver = true;
     }
 

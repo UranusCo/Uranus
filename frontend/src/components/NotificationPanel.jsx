@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNotificationStore } from "../store/useNotificationStore";
 import NotificationItem from "./NotificationItem";
-import { Bell, CheckCircle, Trash2, X } from "lucide-react";
+import { Bell, CheckCircle, X } from "lucide-react";
 
 const NotificationPanel = ({ onClose }) => {
   const {
@@ -17,7 +17,7 @@ const NotificationPanel = ({ onClose }) => {
 
   useEffect(() => {
     getNotifications(unreadOnly);
-  }, [unreadOnly]);
+  }, [unreadOnly, getNotifications]);
 
   return (
     <div className="flex flex-col h-full max-h-[500px] w-[calc(100vw-2rem)] sm:w-[350px] bg-white dark:bg-slate-800 shadow-lg border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden transition-colors duration-200">

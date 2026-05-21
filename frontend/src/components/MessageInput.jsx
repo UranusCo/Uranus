@@ -4,7 +4,9 @@ import { Image, Send, X, Paperclip, Loader, Mic, Square, Smile } from "lucide-re
 import toast from "react-hot-toast";
 import { useAuthStore } from "../store/useAuthStore";
 import { useFriendStore } from "../store/useFriendStore";
-import EmojiPicker, { EMOJIS } from "./EmojiPicker";
+import EmojiPicker from "./EmojiPicker";
+import { EMOJIS } from "../constants";
+import { HELP_CENTER_EMAIL } from "../constants";
 
 const MessageInput = () => {
   const [text, setText] = useState("");
@@ -33,11 +35,11 @@ const MessageInput = () => {
       const draft = drafts[selectedUser._id] || "";
       setText(draft);
     }
-  }, [selectedUser?._id, drafts, setDraft]);
+  }, [selectedUser, drafts, setDraft]);
 
   const isSelf = selectedUser?._id === authUser?._id;
   const isFriend = friends.some((f) => f._id === selectedUser?._id);
-  const isHelpCenter = selectedUser?.email === "pansiluco@gmail.com" || authUser?.email === "pansiluco@gmail.com";
+  const isHelpCenter = selectedUser?.email === HELP_CENTER_EMAIL || authUser?.email === HELP_CENTER_EMAIL;
   const canChat = isSelf || isFriend || isHelpCenter;
   const typingTimeoutRef = useRef(null);
   const sendingDelayRef = useRef(null);

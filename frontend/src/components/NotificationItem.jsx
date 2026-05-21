@@ -1,4 +1,3 @@
-import React from "react";
 import { formatDistanceToNow } from "../lib/utils";
 import { MessageSquare, AtSign, Reply, UserPlus, Heart, Bell, Shield, Info } from "lucide-react";
 import { useNotificationStore } from "../store/useNotificationStore";
