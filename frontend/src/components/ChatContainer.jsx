@@ -1,5 +1,6 @@
 import { useChatStore } from "../store/useChatStore";
 import { useEffect, useRef, useState } from "react";
+import { useThemeStore } from "../store/useThemeStore";
 
 import ChatHeader from "./ChatHeader";
 import MessageInput from "./MessageInput";
@@ -33,6 +34,7 @@ const formatDateLabel = (dateStr) => {
 };
 
 const ChatContainer = () => {
+  const { wallpaper } = useThemeStore();
   const {
     messages,
     getMessages,
@@ -194,7 +196,10 @@ const ChatContainer = () => {
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full overflow-hidden bg-slate-100 dark:bg-slate-900 transition-colors duration-200">
+    <div 
+      className="flex-1 flex flex-col h-full overflow-hidden bg-slate-100 dark:bg-slate-900 transition-colors duration-200"
+      style={{ '--wallpaper-image': wallpaper === 'default' ? 'none' : `url('/wallpapers/${wallpaper}.jpg')` }}
+    >
       <ChatHeader
         onSearchClick={() => setShowSearch(!showSearch)}
         onPinnedClick={() => setShowPinned(!showPinned)}
