@@ -155,7 +155,7 @@ const MessageContent = ({
             target="_blank"
             rel="noopener noreferrer"
             className={`underline decoration-2 underline-offset-2 transition-opacity hover:opacity-80 ${
-              isSelf ? "text-white font-bold" : "text-blue-500 dark:text-blue-400 font-bold"
+              isSelf ? "text-white font-bold" : "text-primary dark:text-primary font-bold"
             }`}
             onClick={(e) => e.stopPropagation()}
           >
@@ -171,7 +171,7 @@ const MessageContent = ({
     <>
       {/* Header: Sender name (only for first message in a group from sender) */}
       {showNameHeader && !message.isDeleted && (
-        <div className="flex items-center gap-1.5 mb-0.5 px-1 text-[11px] text-blue-500 dark:text-blue-400 font-bold select-none">
+        <div className="flex items-center gap-1.5 mb-0.5 px-1 text-[11px] text-primary font-bold select-none">
           {selectedUser.fullName}
         </div>
       )}
@@ -184,9 +184,9 @@ const MessageContent = ({
       )}
 
       {/* Bubble Row */}
-      <div className={`flex gap-1.5 items-end ${isSelf ? "justify-end" : ""}`}>
+      <div className={`flex gap-1.5 items-end group/bubble ${isSelf ? "justify-end" : ""}`}>
         {isSelf && !message.isDeleted && (
-          <div className="opacity-0 group-hover/bubble:opacity-100 transition-opacity duration-200 flex-shrink-0 select-none self-end pb-1.5">
+          <div className="opacity-0 group-hover/bubble:opacity-100 transition-opacity duration-200 flex-shrink-0 select-none self-end pb-1.5 order-first">
             <button
               className="size-6 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
               onClick={handleMenuClick}
@@ -215,7 +215,7 @@ const MessageContent = ({
                 <img
                   src={message.image}
                   alt="Attachment"
-                  className="max-w-full sm:max-w-[260px] rounded-lg mb-1 object-cover"
+                  className="max-w-full sm:max-w-[260px] rounded-xl mb-1 object-cover"
                 />
               )}
               {message.file && (
@@ -224,14 +224,14 @@ const MessageContent = ({
                     <img
                       src={message.file.url}
                       alt={message.file.name}
-                      className="max-w-full sm:max-w-[260px] rounded-lg object-cover"
+                      className="max-w-full sm:max-w-[260px] rounded-xl object-cover"
                     />
                   ) : message.file.type.startsWith("video/") ? (
-                    <video controls className="max-w-full sm:max-w-[260px] rounded-lg">
+                    <video controls className="max-w-full sm:max-w-[260px] rounded-xl">
                       <source src={message.file.url} type={message.file.type} />
                     </video>
                   ) : message.file.type.startsWith("audio/") ? (
-                    <div className={`p-2 rounded-xl min-w-[180px] ${isSelf ? "bg-white/10" : "bg-slate-100 dark:bg-slate-700"}`}>
+                    <div className={`p-2 rounded-xl min-w-[180px] ${isSelf ? "bg-white/10" : "bg-slate-100 dark:bg-slate-800"}`}>
                       <audio controls className="w-full h-8">
                         <source src={message.file.url} type={message.file.type} />
                       </audio>
@@ -244,7 +244,7 @@ const MessageContent = ({
                       className={`flex items-center gap-2 p-2 rounded-xl transition-colors ${
                         isSelf 
                           ? "bg-white/10 hover:bg-white/15 text-white" 
-                          : "bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-100"
+                          : "bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-slate-100"
                       }`}
                     >
                       <Paperclip size={14} />
@@ -282,9 +282,8 @@ const MessageContent = ({
             </>
           )}
 
-          {/* Footer: time and read status inside bubble */}
           <div className={`flex items-center gap-1 mt-1 -mb-1 ${isSelf ? "justify-end" : "justify-start"}`}>
-            <span className={`text-[10px] font-medium ${isSelf ? "text-white/60" : "text-slate-400 dark:text-slate-500"}`}>
+            <span className={`text-[10px] font-medium ${isSelf ? "text-white/60" : "text-slate-500 dark:text-slate-400"}`}>
               {formatMessageTime(message.createdAt)}
             </span>
             {message.isPinned && !message.isDeleted && (
@@ -292,7 +291,7 @@ const MessageContent = ({
             )}
             {isSelf && !message.isDeleted && (
               message.isRead
-                ? <CheckCheck size={12} className="text-blue-300" />
+                ? <CheckCheck size={12} className="text-blue-200" />
                 : <Check size={12} className="text-white/50" />
             )}
           </div>
@@ -310,7 +309,6 @@ const MessageContent = ({
         )}
       </div>
 
-      {/* Reactions */}
       {!message.isDeleted && (
         <div className={`select-none ${isSelf ? "pl-1" : "pl-1"}`}>
           <MessageReactions message={message} />
