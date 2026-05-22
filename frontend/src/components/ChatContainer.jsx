@@ -7,9 +7,11 @@ import { useAuthStore } from "../store/useAuthStore";
 import MessageItem from "./MessageItem";
 import MessageSearch from "./MessageSearch";
 import MessageVirtualizer from "./MessageVirtualizer";
+import UserProfilePanel from "./UserProfilePanel";
 
 const ChatContainer = () => {
   const { messages, getMessages, isMessagesLoading, selectedUser, isMoreMessagesAvailable } = useChatStore();
+  const [showProfile, setShowProfile] = useState(false);
   const messageEndRef = useRef(null);
 
   const renderItem = useCallback((message, index) => {
@@ -32,7 +34,7 @@ const ChatContainer = () => {
 
   return (
     <div className="flex-1 flex flex-col h-full bg-background dark:bg-background-dark overflow-hidden relative">
-      <ChatHeader />
+      <ChatHeader onAvatarClick={() => setShowProfile(true)} />
 
       <div className="flex-1 overflow-y-auto chat-bg-pattern p-4 space-y-4">
         <MessageVirtualizer
@@ -46,6 +48,12 @@ const ChatContainer = () => {
       <div className="p-4 bg-surface dark:bg-surface-dark border-t border-border dark:border-border-dark">
         <MessageInput />
       </div>
+
+      <UserProfilePanel 
+        user={selectedUser} 
+        isOpen={showProfile} 
+        onClose={() => setShowProfile(false)} 
+      />
     </div>
   );
 };

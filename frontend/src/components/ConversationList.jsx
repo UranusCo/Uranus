@@ -1,19 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
 import SidebarSkeleton from "./skeletons/SidebarSkeleton";
-import LockedChatsPanel from "./LockedChatsPanel";
+import FrequentContacts from "./FrequentContacts";
 import { Avatar, Badge } from "./ui/BlinkComponents";
-import { 
-  Search, 
-  X, 
-  Archive, 
-  Volume2, 
-  Pin, 
-  Edit3, 
-  Plus,
-  Menu
-} from "lucide-react";
+import { Search, Edit3 } from "lucide-react";
 
 const ConversationList = ({ onBurgerClick }) => {
   const {
@@ -24,17 +15,11 @@ const ConversationList = ({ onBurgerClick }) => {
     isUsersLoading,
     searchUsers,
     searchResults,
-    clearSearch,
-    toggleArchiveChat,
-    togglePinChat,
-    toggleMuteChat,
-    typingUsers,
   } = useChatStore();
 
   const { onlineUsers, authUser } = useAuthStore();
   const [activeFilter, setActiveFilter] = useState("all"); 
   const [searchInput, setSearchInput] = useState("");
-  const [contextMenuOpen, setContextMenuOpen] = useState(null);
   
   useEffect(() => {
     getUsers();
@@ -53,6 +38,7 @@ const ConversationList = ({ onBurgerClick }) => {
     baseList = baseList.filter((u) => u.unreadCount > 0);
   }
 
+  const frequentUsers = users.slice(0, 5);
   const pinnedUsers = baseList.filter((user) => authUser?.pinnedChats?.includes(user._id));
   const unpinnedUsers = baseList.filter((user) => !authUser?.pinnedChats?.includes(user._id));
 
@@ -98,7 +84,7 @@ const ConversationList = ({ onBurgerClick }) => {
         <button className="p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"><Edit3 size={18} /></button>
       </div>
 
-      <div className="px-5 mb-4">
+      <div className="px-5 mb-2">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
           <input 
@@ -111,19 +97,9 @@ const ConversationList = ({ onBurgerClick }) => {
         </div>
       </div>
 
-      <div className="flex gap-2 px-5 mb-4">
-        {["all", "unread", "groups"].map((f) => (
-          <button 
-            key={f} 
-            onClick={() => setActiveFilter(f)}
-            className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase ${activeFilter === f ? 'bg-primary text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}
-          >
-            {f}
-          </button>
-        ))}
-      </div>
+      {!searchInput && <FrequentContacts users={frequentUsers} onSelectUser={setSelectedUser} />}
 
-      <div className="flex-1 overflow-y-auto space-y-1 pb-6">
+      <div className="flex-1 overflow-y-auto space-y-1 pt-2 pb-6">
         {pinnedUsers.map(renderUserItem)}
         {unpinnedUsers.map(renderUserItem)}
       </div>

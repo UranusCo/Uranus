@@ -8,13 +8,12 @@ import ChatPrivacyMenu from "./ChatPrivacyMenu";
 import UserProfileModal from "./UserProfileModal";
 import ChatInfoModal from "./ChatInfoModal";
 
-const ChatHeader = ({ onSearchClick, onPinnedClick, onBurgerClick }) => {
+const ChatHeader = ({ onSearchClick, onPinnedClick, onBurgerClick, onAvatarClick }) => {
   const { selectedUser, setSelectedUser, userStatus, chatSettings, lockedChats, setChatExpiry, lockChat, unlockChat } = useChatStore();
   const { onlineUsers } = useAuthStore();
   const [showMenu, setShowMenu] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
-  const [showProfileModal, setShowProfileModal] = useState(false);
   const [showChatInfoModal, setShowChatInfoModal] = useState(false);
   const menuRef = useRef(null);
 
@@ -61,7 +60,7 @@ const ChatHeader = ({ onSearchClick, onPinnedClick, onBurgerClick }) => {
           </button>
           
           {/* Avatar with Ring */}
-          <div className="relative flex-shrink-0" onClick={() => setShowProfileModal(true)}>
+          <div className="relative flex-shrink-0" onClick={onAvatarClick}>
             <div className="size-10 sm:size-11 rounded-full relative shadow-sm border border-border dark:border-border-dark overflow-hidden cursor-pointer">
               <img src={selectedUser.profilePic || "/avatar.png"} alt={selectedUser.fullName} className="object-cover w-full h-full" />
               {isOnline && (
@@ -71,7 +70,7 @@ const ChatHeader = ({ onSearchClick, onPinnedClick, onBurgerClick }) => {
           </div>
 
           {/* User info */}
-          <div className="flex-1 min-w-0 text-left cursor-pointer" onClick={() => setShowProfileModal(true)}>
+          <div className="flex-1 min-w-0 text-left cursor-pointer" onClick={onAvatarClick}>
             <h3 className="font-bold text-[15px] sm:text-[16px] text-slate-900 dark:text-slate-100 leading-tight hover:text-primary transition-colors truncate">
               {selectedUser.fullName}
             </h3>
