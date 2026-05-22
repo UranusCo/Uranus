@@ -1,26 +1,44 @@
+import { useState } from "react";
 import SidebarRail from "./components/SidebarRail";
 import ConversationList from "./components/ConversationList";
 import ChatContainer from "./components/ChatContainer";
 import NoChatSelected from "./components/NoChatSelected";
+import MobileBottomNav from "./components/MobileBottomNav";
+import UsersPanel from "./components/UsersPanel";
+import NotificationPanel from "./components/NotificationPanel";
+import SettingsPage from "./pages/SettingsPage";
 import { useChatStore } from "./store/useChatStore";
 
 const AppLayout = () => {
   const { selectedUser } = useChatStore();
+  const [activeTab, setActiveTab] = useState("chats");
+
+  const renderSideContent = () => {
+    switch (activeTab) {
+      case "users": return <UsersPanel />;
+      case "notifications": return <NotificationPanel />;
+      case "settings": return <div className="h-full overflow-y-auto"><SettingsPage isEmbedded /></div>;
+      default: return <ConversationList />;
+    }
+  };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-background dark:bg-background-dark text-slate-900 dark:text-slate-100">
-      {/* 1. Sidebar Rail */}
-      <SidebarRail />
+    <div className="flex h-screen w-screen overflow-hidden bg-background dark:bg-background-dark text-slate-900 dark:text-slate-100 relative">
+      {/* 1. Sidebar Rail (Desktop Only) */}
+      <SidebarRail activeTab={activeTab} setActiveTab={setActiveTab} />
       
-      {/* 2. Conversation List */}
-      <div className={`w-full md:w-80 flex-shrink-0 border-r border-border dark:border-border-dark flex flex-col h-full bg-surface dark:bg-surface-dark ${selectedUser ? "hidden md:flex" : "flex"}`}>
-        <ConversationList />
+      {/* 2. Side Column (Conversations, Users, etc.) */}
+      <div className={`w-full md:w-80 flex-shrink-0 border-r border-border dark:border-border-dark flex flex-col h-full bg-surface dark:bg-surface-dark transition-all ${selectedUser ? "hidden md:flex" : "flex"} ${activeTab !== 'chats' ? 'pb-16 md:pb-0' : 'pb-16 md:pb-0'}`}>
+        {renderSideContent()}
       </div>
       
-      {/* 3. Chat Area */}
+      {/* 3. Main Content Area */}
       <main className={`flex-1 flex-col h-full relative overflow-hidden bg-background dark:bg-background-dark ${selectedUser ? "flex" : "hidden md:flex"}`}>
         {selectedUser ? <ChatContainer /> : <NoChatSelected />}
       </main>
+
+      {/* 4. Mobile Bottom Navigation */}
+      {!selectedUser && <MobileBottomNav activeTab={activeTab} setActiveTab={setActiveTab} />}
     </div>
   );
 };

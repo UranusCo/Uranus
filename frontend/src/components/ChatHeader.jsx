@@ -14,6 +14,7 @@ const ChatHeader = ({ onSearchClick, onPinnedClick, onBurgerClick, onAvatarClick
   const [showMenu, setShowMenu] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
   const [showChatInfoModal, setShowChatInfoModal] = useState(false);
   const menuRef = useRef(null);
 
