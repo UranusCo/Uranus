@@ -1,6 +1,6 @@
 import { useAuthStore } from "../store/useAuthStore";
 import { formatMessageTime } from "../lib/utils";
-import { Paperclip, Check, CheckCheck, MoreVertical, Pin } from "lucide-react";
+import { Paperclip, Check, CheckCheck, MoreVertical, Pin, ChevronDown } from "lucide-react";
 import MessageReactions from "./MessageReactions";
 import QuotedMessage from "./QuotedMessage";
 import ViewOnceMedia from "./ViewOnceMedia";
@@ -63,7 +63,7 @@ const MessageItem = ({
       : isNextSameSender ? "rounded-tl-2xl"
       : "rounded-bl-2xl rounded-tl-none");
 
-  const commonBubbleClasses = `relative flex flex-col select-text px-4 py-2.5 border shadow-soft transition-all no-callout ${bubbleRoundness} ${
+  const commonBubbleClasses = `relative flex flex-col select-text px-4 py-2.5 border shadow-soft transition-all no-callout group/bubble ${bubbleRoundness} ${
     message.isDeleted
       ? "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border-border dark:border-border-dark italic font-normal"
       : isSelf
@@ -183,18 +183,7 @@ const MessageContent = ({
       )}
 
       {/* Bubble Row */}
-      <div className={`flex gap-1.5 items-end group/bubble ${isSelf ? "justify-end" : ""}`}>
-        {isSelf && !message.isDeleted && (
-          <div className="opacity-0 group-hover/bubble:opacity-100 transition-opacity duration-200 flex-shrink-0 select-none self-end pb-1.5 order-first">
-            <button
-              className="size-6 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-              onClick={handleMenuClick}
-            >
-              <MoreVertical size={14} />
-            </button>
-          </div>
-        )}
-
+      <div className={`flex gap-1.5 items-end ${isSelf ? "justify-end" : ""}`}>
         <div
           className={`${commonBubbleClasses} ${message.isDeleted ? "" : (isSelf ? "bubble-tail-self" : "bubble-tail-other")}`}
           onDoubleClick={handleDoubleClick}
@@ -203,6 +192,22 @@ const MessageContent = ({
           onTouchMove={message.isDeleted ? undefined : handleLongPressEnd}
           title={message.isDeleted ? undefined : "Double-tap to ❤️"}
         >
+          {/* Menu Trigger Overlay (WhatsApp Style) */}
+          {!message.isDeleted && (
+            <div className={`absolute top-1 ${isSelf ? "right-1" : "right-1"} opacity-0 group-hover/bubble:opacity-100 transition-all duration-200 z-10`}>
+              <button
+                onClick={handleMenuClick}
+                className={`p-1 rounded-full backdrop-blur-sm transition-colors ${
+                  isSelf 
+                    ? "bg-black/10 hover:bg-black/20 text-white/90" 
+                    : "bg-slate-200/50 hover:bg-slate-300/50 text-slate-600 dark:text-slate-400"
+                }`}
+              >
+                <ChevronDown size={16} />
+              </button>
+            </div>
+          )}
+
           {message.viewOnce && !message.viewedOnce ? (
             <ViewOnceMedia
               message={message}
@@ -261,7 +266,7 @@ const MessageContent = ({
               )}
               {message.text && (
                 <div className="flex flex-col">
-                  <p className="text-[14px] leading-relaxed break-words font-medium">
+                  <p className="text-[14px] leading-relaxed break-words font-medium pr-4">
                     {linkify(message.text)}
                     {message.isEdited && !message.isDeleted && (
                       <span className="text-[10px] opacity-70 ml-1.5 font-normal">edited</span>
@@ -299,17 +304,6 @@ const MessageContent = ({
             )}
           </div>
         </div>
-
-        {!isSelf && !message.isDeleted && (
-          <div className="opacity-0 group-hover/bubble:opacity-100 transition-opacity duration-200 flex-shrink-0 select-none self-end pb-1.5">
-            <button
-              className="size-6 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-              onClick={handleMenuClick}
-            >
-              <MoreVertical size={14} />
-            </button>
-          </div>
-        )}
       </div>
 
       {!message.isDeleted && (
