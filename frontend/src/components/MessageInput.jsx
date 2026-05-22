@@ -108,7 +108,6 @@ const MessageInput = () => {
     const newText = e.target.value;
     setText(newText);
     
-    // Shortcode logic
     const lastWord = newText.split(" ").pop();
     if (lastWord.startsWith(":") && lastWord.length > 1) {
       const query = lastWord.substring(1).toLowerCase();
@@ -183,8 +182,8 @@ const MessageInput = () => {
 
   if (selectedUser && !canChat) {
     return (
-      <div className="w-full px-4 sm:px-6 py-4 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 flex-shrink-0 select-none text-center transition-colors duration-200">
-        <div className="max-w-[800px] w-full mx-auto py-3 px-4 bg-slate-50 dark:bg-slate-900/20 border border-dashed border-slate-300 dark:border-slate-700 rounded-2xl">
+      <div className="w-full px-4 sm:px-6 py-4 bg-surface dark:bg-surface-dark border-t border-border dark:border-border-dark flex-shrink-0 select-none text-center transition-colors duration-200">
+        <div className="max-w-[800px] w-full mx-auto py-3 px-4 bg-slate-100 dark:bg-slate-900/50 border border-dashed border-border dark:border-border-dark rounded-2xl">
           <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">You can only chat with users after becoming friends</p>
         </div>
       </div>
@@ -192,17 +191,16 @@ const MessageInput = () => {
   }
 
   return (
-    <div className="w-full px-3 sm:px-6 py-3 sm:py-4 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 flex-shrink-0 select-none transition-colors duration-200 relative">
+    <div className="w-full px-3 sm:px-6 py-3 sm:py-4 bg-surface dark:bg-surface-dark border-t border-border dark:border-border-dark flex-shrink-0 select-none transition-colors duration-200 relative">
       <div className="max-w-[850px] w-full mx-auto relative">
         
-        {/* Shortcode Suggestions */}
         {emojiSuggestions.length > 0 && (
-          <div className="absolute bottom-full mb-3 left-0 z-50 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl flex flex-col overflow-hidden animate-fadeIn w-48">
+          <div className="absolute bottom-full mb-3 left-0 z-50 bg-surface dark:bg-surface-dark border border-border dark:border-border-dark rounded-2xl shadow-soft flex flex-col overflow-hidden animate-fadeIn w-48">
             {emojiSuggestions.map((emoji) => (
               <button
                 key={emoji.name}
                 onClick={() => selectEmoji(emoji.char)}
-                className="px-3 py-2 flex items-center gap-2 hover:bg-slate-100 dark:hover:bg-slate-700 text-sm transition-colors"
+                className="px-3 py-2 flex items-center gap-2 hover:bg-slate-100 dark:hover:bg-slate-800 text-sm transition-colors"
               >
                 <span>{emoji.char}</span>
                 <span className="text-slate-400 dark:text-slate-500 text-xs">:{emoji.name}:</span>
@@ -215,9 +213,9 @@ const MessageInput = () => {
           <div className="mb-3 flex flex-col gap-2 animate-fadeIn">
             <div className="relative inline-block">
               {imagePreview ? (
-                <img src={imagePreview} alt="Preview" className="w-20 h-20 object-cover rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm" />
+                <img src={imagePreview} alt="Preview" className="w-20 h-20 object-cover rounded-xl border border-border dark:border-border-dark shadow-soft" />
               ) : (
-                <div className="w-20 h-20 flex items-center justify-center bg-slate-100 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-700">
+                <div className="w-20 h-20 flex items-center justify-center bg-slate-100 dark:bg-slate-900 rounded-xl border border-border dark:border-border-dark">
                   <Paperclip size={24} className="text-slate-400 dark:text-slate-500" />
                   <span className="ml-1 text-[10px] truncate max-w-[60px] text-slate-500 dark:text-slate-400">{filePreview?.name}</span>
                 </div>
@@ -227,13 +225,13 @@ const MessageInput = () => {
               </button>
             </div>
             <label className="inline-flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-bold cursor-pointer select-none">
-              <input type="checkbox" checked={isViewOnce} onChange={(e) => setIsViewOnce(e.target.checked)} className="w-4 h-4 text-blue-500 border-slate-300 dark:border-slate-600 rounded bg-transparent focus:ring-blue-500 focus:ring-1 cursor-pointer transition-all" />
+              <input type="checkbox" checked={isViewOnce} onChange={(e) => setIsViewOnce(e.target.checked)} className="w-4 h-4 text-primary border-border dark:border-border-dark rounded bg-transparent focus:ring-primary focus:ring-1 cursor-pointer transition-all" />
               View once media
             </label>
           </div>
         )}
 
-        <form onSubmit={handleSendMessage} className="flex items-center w-full bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/80 rounded-2xl pl-4 pr-1.5 py-1.5 gap-2 shadow-sm focus-within:border-blue-500/50 dark:focus-within:border-blue-400/50 transition-all duration-200">
+        <form onSubmit={handleSendMessage} className="flex items-center w-full bg-background dark:bg-background-dark border border-border dark:border-border-dark rounded-2xl pl-4 pr-1.5 py-1.5 gap-2 shadow-soft focus-within:border-primary/50 transition-all duration-200">
           {isRecording ? (
             <div className="flex-1 flex items-center gap-3 px-2 py-1 text-rose-500 font-bold animate-pulse">
               <div className="size-2 rounded-full bg-rose-500" />
@@ -243,7 +241,7 @@ const MessageInput = () => {
             <input
               ref={inputRef}
               type="text"
-              className="flex-1 bg-transparent border-none outline-none focus:outline-none focus:ring-0 text-[14px] text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500"
+              className="flex-1 bg-transparent border-none outline-none focus:outline-none focus:ring-0 text-[14px] text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500"
               placeholder={editingMessageId ? "Edit message..." : "Type a message..."}
               value={text}
               onChange={handleTextChange}
@@ -256,7 +254,7 @@ const MessageInput = () => {
             <input type="file" className="hidden" ref={fileInputRef} onChange={handleFileChange} disabled={isSending} />
 
             <div className="relative">
-              <button type="button" onClick={() => setShowEmojiPicker(!showEmojiPicker)} className={`size-9 flex items-center justify-center rounded-xl transition-all ${showEmojiPicker ? "text-blue-500 bg-blue-500/10" : "text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800"}`} disabled={isSending || isRecording}>
+              <button type="button" onClick={() => setShowEmojiPicker(!showEmojiPicker)} className={`size-9 flex items-center justify-center rounded-xl transition-all ${showEmojiPicker ? "text-primary bg-primary/10" : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"}`} disabled={isSending || isRecording}>
                 <Smile size={19} />
               </button>
               {showEmojiPicker && <EmojiPicker onSelect={(emoji) => {
@@ -266,19 +264,19 @@ const MessageInput = () => {
               }} onClose={() => setShowEmojiPicker(false)} />}
             </div>
 
-            <button type="button" className={`size-9 flex items-center justify-center rounded-xl transition-all ${imagePreview ? "text-emerald-500 bg-emerald-500/10" : "text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800"}`} onClick={() => imageInputRef.current?.click()} disabled={isSending || isRecording} title="Attach photo">
+            <button type="button" className={`size-9 flex items-center justify-center rounded-xl transition-all ${imagePreview ? "text-emerald-500 bg-emerald-500/10" : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"}`} onClick={() => imageInputRef.current?.click()} disabled={isSending || isRecording} title="Attach photo">
               <Image size={19} />
             </button>
 
-            <button type="button" className={`size-9 flex items-center justify-center rounded-xl transition-all ${filePreview ? "text-emerald-500 bg-emerald-500/10" : "text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800"}`} onClick={() => fileInputRef.current?.click()} disabled={isSending || isRecording} title="Attach file">
+            <button type="button" className={`size-9 flex items-center justify-center rounded-xl transition-all ${filePreview ? "text-emerald-500 bg-emerald-500/10" : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"}`} onClick={() => fileInputRef.current?.click()} disabled={isSending || isRecording} title="Attach file">
               <Paperclip size={19} />
             </button>
 
-            <button type="button" className={`size-9 flex items-center justify-center rounded-xl transition-all ${isRecording ? "text-rose-500 bg-rose-500/10" : "text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800"}`} onClick={isRecording ? stopRecording : startRecording} disabled={isSending || (text.trim() && !isRecording)} title={isRecording ? "Stop recording" : "Record voice message"}>
+            <button type="button" className={`size-9 flex items-center justify-center rounded-xl transition-all ${isRecording ? "text-rose-500 bg-rose-500/10" : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"}`} onClick={isRecording ? stopRecording : startRecording} disabled={isSending || (text.trim() && !isRecording)} title={isRecording ? "Stop recording" : "Record voice message"}>
               {isRecording ? <Square size={16} fill="currentColor" /> : <Mic size={19} />}
             </button>
 
-            <button type="submit" className="size-9 flex items-center justify-center rounded-xl bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white ml-1 transition-all duration-200 active:scale-90 disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-blue-500/20" disabled={(!text.trim() && !imagePreview && !filePreview && !isRecording) || isSending}>
+            <button type="submit" className="size-9 flex items-center justify-center rounded-xl bg-primary hover:bg-primary-dark text-white ml-1 transition-all duration-200 active:scale-90 disabled:opacity-50 disabled:cursor-not-allowed shadow-soft" disabled={(!text.trim() && !imagePreview && !filePreview && !isRecording) || isSending}>
               {isSending ? <Loader size={16} className="animate-spin" /> : <Send size={16} />}
             </button>
           </div>

@@ -18,16 +18,16 @@ const Navbar = () => {
       )}
       
       <header
-        className="bg-white/80 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 fixed w-full top-0 z-40 backdrop-blur-md transition-colors duration-200"
+        className="bg-surface/80 dark:bg-surface-dark/80 border-b border-border dark:border-border-dark fixed w-full top-0 z-40 backdrop-blur-md transition-colors duration-200"
       >
         <div className="container mx-auto px-4 h-16">
           <div className="flex items-center justify-between h-full">
             <div className="flex items-center gap-8">
               <Link to="/" className="flex items-center gap-2.5 hover:opacity-80 transition-all">
-                <div className="size-9 rounded-lg bg-blue-500/10 dark:bg-blue-400/10 flex items-center justify-center overflow-hidden">
+                <div className="size-9 rounded-xl bg-primary/10 dark:bg-primary/20 flex items-center justify-center overflow-hidden">
                   <img src={BlinkLogo} alt="Blink Logo" className="w-5 h-5 object-contain" />
                 </div>
-                <h1 className="text-lg font-bold text-slate-800 dark:text-slate-100">Blink</h1>
+                <h1 className="text-lg font-bold text-slate-900 dark:text-slate-100">Blink</h1>
               </Link>
             </div>
 
@@ -36,7 +36,7 @@ const Navbar = () => {
                 <>
                   <button
                     onClick={() => setShowStatusModal(true)}
-                    className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700/50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm rounded-xl font-medium flex items-center gap-2 transition-all active:scale-[0.98]"
+                    className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm rounded-xl font-medium flex items-center gap-2 shadow-soft transition-all active:scale-[0.98]"
                     title="Update status"
                   >
                     <MessageCircle className="w-4 h-4" />
@@ -49,7 +49,7 @@ const Navbar = () => {
               
               <Link
                 to={"/settings"}
-                className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700/50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm rounded-xl font-medium flex items-center gap-2 transition-all active:scale-[0.98]"
+                className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm rounded-xl font-medium flex items-center gap-2 shadow-soft transition-all active:scale-[0.98]"
               >
                 <Settings className="w-4 h-4" />
                 <span className="hidden sm:inline">Settings</span>
@@ -59,14 +59,14 @@ const Navbar = () => {
                 <>
                   <Link 
                     to={"/profile"} 
-                    className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700/50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm rounded-xl font-medium flex items-center gap-2 transition-all active:scale-[0.98]"
+                    className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm rounded-xl font-medium flex items-center gap-2 shadow-soft transition-all active:scale-[0.98]"
                   >
                     <User className="size-4" />
                     <span className="hidden sm:inline">Profile</span>
                   </Link>
 
                   <button 
-                    className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 text-sm rounded-xl font-medium flex items-center gap-2 transition-all active:scale-[0.98]" 
+                    className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 text-sm rounded-xl font-medium flex items-center gap-2 transition-all active:scale-[0.98]" 
                     onClick={logout}
                   >
                     <LogOut className="size-4" />

@@ -64,12 +64,12 @@ const MessageItem = ({
       : isNextSameSender ? "rounded-tl-2xl"
       : "rounded-bl-2xl rounded-tl-none");
 
-  const commonBubbleClasses = `relative flex flex-col select-text px-4 py-2.5 border shadow-sm transition-all no-callout ${bubbleRoundness} ${
+  const commonBubbleClasses = `relative flex flex-col select-text px-4 py-2.5 border shadow-soft transition-all no-callout ${bubbleRoundness} ${
     message.isDeleted
-      ? "bg-slate-100 dark:bg-slate-800/40 text-slate-400 dark:text-slate-500 border-slate-200/80 dark:border-slate-700/80 italic font-normal"
+      ? "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border-border dark:border-border-dark italic font-normal"
       : isSelf
-        ? "bg-blue-500 dark:bg-blue-600 text-white border-transparent hover:brightness-110"
-        : "bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border-slate-200/50 dark:border-slate-700/50 shadow-sm"
+        ? "bg-primary text-white border-transparent"
+        : "bg-surface dark:bg-surface-dark text-slate-900 dark:text-slate-100 border-border dark:border-border-dark"
   } hover:cursor-pointer`;
 
   const marginBottom = isNextSameSender ? "mb-0.5" : "mb-0";

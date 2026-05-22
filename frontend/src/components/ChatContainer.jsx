@@ -10,7 +10,6 @@ import MessageActions from "./MessageActions";
 import MessageSearch from "./MessageSearch";
 import ReplyPreview from "./ReplyPreview";
 import EditingIndicator from "./EditingIndicator";
-import { Loader } from "lucide-react";
 import MessageVirtualizer from "./MessageVirtualizer";
 
 const isSameDay = (d1, d2) => {
@@ -67,23 +66,18 @@ const ChatContainer = ({ onBurgerClick }) => {
     const menuWidth = 220;
     const offset = 8;
 
-    // Determine vertical placement
     let top = buttonRect.top;
     if (top + menuHeight > window.innerHeight) {
       top = Math.max(offset, window.innerHeight - menuHeight - offset);
     }
 
-    // Determine horizontal placement based on screen halves
     let left;
     if (buttonRect.left > window.innerWidth / 2) {
-      // Sent message (on the right half): place menu to the left of the button
       left = buttonRect.left - menuWidth - offset;
     } else {
-      // Received message (on the left half): place menu to the right of the button
       left = buttonRect.left + buttonRect.width + offset;
     }
 
-    // Out of bounds screen safeguards
     if (left < offset) left = offset;
     if (left + menuWidth > window.innerWidth - offset) {
       left = window.innerWidth - menuWidth - offset;
@@ -121,16 +115,16 @@ const ChatContainer = ({ onBurgerClick }) => {
               <img
                 src={selectedUser.profilePic || "/avatar.png"}
                 alt={selectedUser.fullName}
-                className="size-10 rounded-full object-cover shadow-sm border border-slate-200 dark:border-slate-700"
+                className="size-10 rounded-full object-cover shadow-soft border border-border dark:border-border-dark"
               />
             </div>
             <div className="flex flex-col items-start max-w-[85%] sm:max-w-[60%]">
-              <div className="flex items-center gap-1.5 mb-1 px-1.5 text-[11px] text-slate-455 dark:text-slate-500 font-semibold">
-                <span className="font-bold text-slate-600 dark:text-slate-350">{selectedUser.fullName}</span>
+              <div className="flex items-center gap-1.5 mb-1 px-1.5 text-[11px] text-slate-500 font-semibold">
+                <span className="font-bold text-slate-800 dark:text-slate-200">{selectedUser.fullName}</span>
                 <span>•</span>
-                <span className="text-emerald-500 font-bold animate-pulse">Typing</span>
+                <span className="text-primary font-bold animate-pulse">Typing</span>
               </div>
-              <div className="px-4.5 py-3 rounded-2xl rounded-tl-none bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-100 shadow-sm flex items-center justify-center border border-slate-200/40 dark:border-slate-600/40">
+              <div className="px-4 py-3 rounded-2xl rounded-tl-none bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-soft flex items-center justify-center border border-border dark:border-border-dark">
                 <div className="typing">
                   <span></span>
                   <span></span>
@@ -187,38 +181,22 @@ const ChatContainer = ({ onBurgerClick }) => {
   useEffect(() => {
     const handler = (e) => {
       if (!selectedUser?._id) return;
-
-      if (e.ctrlKey && e.key.toLowerCase() === "k") {
-        e.preventDefault();
-        setShowSearch((s) => !s);
-      }
-
-      if (e.ctrlKey && e.key.toLowerCase() === "m") {
-        e.preventDefault();
-        toggleMuteChat(selectedUser._id);
-      }
-
-      if (e.ctrlKey && e.key.toLowerCase() === "p") {
-        e.preventDefault();
-        togglePinChat(selectedUser._id);
-      }
-
+      if (e.ctrlKey && e.key.toLowerCase() === "k") { e.preventDefault(); setShowSearch((s) => !s); }
+      if (e.ctrlKey && e.key.toLowerCase() === "m") { e.preventDefault(); toggleMuteChat(selectedUser._id); }
+      if (e.ctrlKey && e.key.toLowerCase() === "p") { e.preventDefault(); togglePinChat(selectedUser._id); }
       if (e.ctrlKey && e.key.toLowerCase() === "e") {
         e.preventDefault();
         const lastOwn = [...messages].reverse().find((msg) => msg.senderId === authUser._id && !msg.isDeleted);
-        if (lastOwn) {
-          setEditingMessage(lastOwn._id);
-        }
+        if (lastOwn) setEditingMessage(lastOwn._id);
       }
     };
-
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [messages, selectedUser, authUser, toggleMuteChat, togglePinChat, setEditingMessage]);
 
   if (isMessagesLoading && messages.length === 0) {
     return (
-      <div className="flex-1 flex flex-col h-full bg-slate-100 dark:bg-slate-900 transition-colors duration-200">
+      <div className="flex-1 flex flex-col h-full bg-background dark:bg-background-dark transition-colors duration-200">
         <ChatHeader onBurgerClick={onBurgerClick} />
         <MessageSkeleton />
         <MessageInput />
@@ -232,28 +210,26 @@ const ChatContainer = ({ onBurgerClick }) => {
   ];
 
   return (
-    <div className="flex-1 flex flex-col h-full overflow-hidden bg-slate-100 dark:bg-slate-900 transition-colors duration-200">
+    <div className="flex-1 flex flex-col h-full overflow-hidden bg-background dark:bg-background-dark transition-colors duration-200">
       <ChatHeader
         onSearchClick={() => setShowSearch(!showSearch)}
         onPinnedClick={() => setShowPinned(!showPinned)}
         onBurgerClick={onBurgerClick}
       />
 
-      {/* Search Panel */}
       {showSearch && (
         <div className="flex-shrink-0">
           <MessageSearch userId={selectedUser._id} onClose={() => setShowSearch(false)} />
         </div>
       )}
 
-      {/* Pinned Messages Panel */}
       {showPinned && (
-        <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-4 max-h-48 overflow-y-auto flex-shrink-0 z-20 shadow-inner transition-colors duration-200">
+        <div className="bg-surface dark:bg-surface-dark border-b border-border dark:border-border-dark p-4 max-h-48 overflow-y-auto flex-shrink-0 z-20 shadow-soft transition-colors duration-200">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-bold text-sm text-slate-855 dark:text-slate-100">Pinned Messages ({pinnedMessages.length})</h3>
+            <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">Pinned Messages ({pinnedMessages.length})</h3>
             <button
               onClick={() => setShowPinned(false)}
-              className="size-5 flex items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 transition-colors text-xs font-semibold"
+              className="size-5 flex items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 transition-colors text-xs font-semibold"
             >
               ✕
             </button>
@@ -263,19 +239,18 @@ const ChatContainer = ({ onBurgerClick }) => {
               {pinnedMessages.map((msg) => (
                 <div
                   key={msg._id}
-                  className="p-2.5 bg-slate-50 dark:bg-slate-900/40 hover:bg-slate-100 dark:hover:bg-slate-700/60 rounded-xl text-sm truncate cursor-pointer transition-colors text-slate-700 dark:text-slate-200 border border-slate-200/50 dark:border-slate-700/50"
+                  className="p-3 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-sm truncate cursor-pointer transition-colors text-slate-700 dark:text-slate-300 border border-border dark:border-border-dark"
                 >
-                  <p className="truncate font-medium text-slate-750 dark:text-slate-200">{msg.text || "[Media]"}</p>
+                  <p className="truncate font-medium">{msg.text || "[Media]"}</p>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-center text-xs text-slate-400 dark:text-slate-500 py-4 font-semibold">No pinned messages</p>
+            <p className="text-center text-xs text-slate-500 py-4 font-semibold">No pinned messages</p>
           )}
         </div>
       )}
 
-      {/* Messages Viewport */}
       <div 
         className="flex-1 overflow-hidden select-text chat-bg-pattern relative"
         onClick={() => {
@@ -292,28 +267,23 @@ const ChatContainer = ({ onBurgerClick }) => {
         />
       </div>
 
-      {/* Reply Preview */}
       <ReplyPreview />
-
-      {/* Editing Indicator */}
       <EditingIndicator />
 
-      {/* Input container */}
       <div className="flex-shrink-0">
         <MessageInput />
       </div>
 
-      {/* Floating high-z-index Actions Context Menu Portal (escapes scrolling stack) */}
       {activeMessageMenu && (
         <div 
-          className="fixed inset-0 z-[9998] bg-black/40 dark:bg-black/60 backdrop-blur-[2px] sm:bg-black/[0.04] sm:dark:bg-black/[0.12] sm:backdrop-blur-[0.5px] transition-all" 
+          className="fixed inset-0 z-[9998] bg-black/20 backdrop-blur-[2px] transition-all" 
           onClick={closeMessageMenu} 
         />
       )}
 
       {activeMenuMessage && (
         <div
-          className="fixed z-[9999] select-none bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-150 dark:border-slate-700/80 overflow-hidden animate-fadeIn mobile-bottom-sheet"
+          className="fixed z-[9999] select-none bg-surface dark:bg-surface-dark rounded-2xl shadow-2xl border border-border dark:border-border-dark overflow-hidden animate-fadeIn mobile-bottom-sheet"
           style={{ top: `${messageMenuPos.top}px`, left: `${messageMenuPos.left}px`, minWidth: "220px" }}
           onClick={(e) => e.stopPropagation()}
         >

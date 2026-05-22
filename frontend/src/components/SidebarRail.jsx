@@ -3,12 +3,9 @@ import { Link } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
 import { 
-  MessageSquare, 
   Settings, 
   LogOut, 
-  Plus,
-  Compass,
-  LayoutGrid
+  Plus
 } from "lucide-react";
 import BlinkLogo from "../../public/Blink.svg";
 import NotificationBell from "./NotificationBell";
@@ -54,9 +51,7 @@ const SidebarRail = ({ activeTab = "chats", setActiveTab = () => {}, forceShow =
   return (
     <>
       <aside className={`${forceShow ? "flex" : "hidden lg:flex"} flex-col items-center py-5 w-16 h-full bg-slate-900 border-r border-slate-800 justify-between flex-shrink-0 z-30 select-none transition-colors duration-200`}>
-        {/* Top: Home & Server List */}
         <div className="flex flex-col items-center gap-4 w-full">
-          {/* Brand/Home Button (Toggles DM View) */}
           <button
             onClick={() => {
               setSelectedWorkspace(null);
@@ -64,7 +59,6 @@ const SidebarRail = ({ activeTab = "chats", setActiveTab = () => {}, forceShow =
             }}
             className="relative group flex items-center justify-center w-full focus:outline-none"
           >
-            {/* Discord-style Left Indicator */}
             <span
               className={`absolute left-0 w-1 bg-white rounded-r-md transition-all duration-300 ${
                 selectedWorkspace === null
@@ -72,26 +66,22 @@ const SidebarRail = ({ activeTab = "chats", setActiveTab = () => {}, forceShow =
                   : "h-0 group-hover:h-3"
               }`}
             />
-            {/* Button Outer Wrapper */}
             <div
               className={`size-12 flex items-center justify-center transition-all duration-300 cursor-pointer overflow-hidden ${
                 selectedWorkspace === null
-                  ? "rounded-[14px] bg-blue-600 text-white"
-                  : "rounded-[24px] bg-slate-800 text-slate-400 hover:rounded-[14px] hover:bg-blue-600 hover:text-white"
+                  ? "rounded-xl bg-primary text-white"
+                  : "rounded-2xl bg-slate-800 text-slate-400 hover:rounded-xl hover:bg-primary hover:text-white"
               }`}
             >
               <img src={BlinkLogo} alt="Blink" className="w-5 h-5 object-contain filter brightness-0 invert" />
             </div>
-            {/* Tooltip */}
-            <span className="absolute left-[70px] px-3 py-1.5 bg-slate-950 text-slate-100 text-xs font-semibold rounded-lg shadow-xl border border-slate-800 opacity-0 scale-95 origin-left pointer-events-none group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 whitespace-nowrap z-50">
+            <span className="absolute left-[70px] px-3 py-1.5 bg-slate-950 text-white text-xs font-semibold rounded-lg shadow-xl border border-slate-800 opacity-0 scale-95 origin-left pointer-events-none group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 whitespace-nowrap z-50">
               Direct Messages
             </span>
           </button>
 
-          {/* Separator line */}
           <div className="w-8 h-[2px] bg-slate-800 rounded-full" />
 
-          {/* Active Workspace / Server List */}
           <div className="flex flex-col gap-3 w-full items-center overflow-y-auto max-h-[calc(100vh-320px)] scrollbar-none">
             {workspaces.map((ws) => {
               const isActive = selectedWorkspace?._id === ws._id;
@@ -101,58 +91,51 @@ const SidebarRail = ({ activeTab = "chats", setActiveTab = () => {}, forceShow =
                   onClick={() => setSelectedWorkspace(ws)}
                   className="relative group flex items-center justify-center w-full focus:outline-none"
                 >
-                  {/* Active Indicator */}
                   <span
                     className={`absolute left-0 w-1 bg-white rounded-r-md transition-all duration-300 ${
                       isActive ? "h-8" : "h-0 group-hover:h-3"
                     }`}
                   />
-                  {/* Server Icon Grid/Initials */}
                   <div
                     style={{ background: ws.icon || "linear-gradient(135deg, #6366f1 0%, #a855f7 100%)" }}
                     className={`size-12 flex items-center justify-center font-bold text-white text-sm shadow-md transition-all duration-300 ${
                       isActive
-                        ? "rounded-[14px]"
-                        : "rounded-[24px] hover:rounded-[14px]"
+                        ? "rounded-xl"
+                        : "rounded-2xl hover:rounded-xl"
                     }`}
                   >
                     {getWorkspaceInitials(ws.name)}
                   </div>
-                  {/* Tooltip */}
-                  <span className="absolute left-[70px] px-3 py-1.5 bg-slate-950 text-slate-100 text-xs font-semibold rounded-lg shadow-xl border border-slate-800 opacity-0 scale-95 origin-left pointer-events-none group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 whitespace-nowrap z-50">
+                  <span className="absolute left-[70px] px-3 py-1.5 bg-slate-950 text-white text-xs font-semibold rounded-lg shadow-xl border border-slate-800 opacity-0 scale-95 origin-left pointer-events-none group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 whitespace-nowrap z-50">
                     {ws.name}
                   </span>
                 </button>
               );
             })}
 
-            {/* Add Workspace Button */}
             <button
               onClick={() => setShowCreateModal(true)}
               className="relative group flex items-center justify-center w-full focus:outline-none"
             >
-              <div className="size-12 border-2 border-dashed border-slate-700 hover:border-emerald-500 rounded-[24px] hover:rounded-[14px] flex items-center justify-center text-slate-500 hover:text-white hover:bg-emerald-600 transition-all duration-300 cursor-pointer">
+              <div className="size-12 border-2 border-dashed border-slate-700 hover:border-emerald-500 rounded-2xl hover:rounded-xl flex items-center justify-center text-slate-500 hover:text-white hover:bg-emerald-600 transition-all duration-300 cursor-pointer">
                 <Plus className="w-5 h-5" />
               </div>
-              <span className="absolute left-[70px] px-3 py-1.5 bg-slate-950 text-slate-100 text-xs font-semibold rounded-lg shadow-xl border border-slate-800 opacity-0 scale-95 origin-left pointer-events-none group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 whitespace-nowrap z-50">
+              <span className="absolute left-[70px] px-3 py-1.5 bg-slate-950 text-white text-xs font-semibold rounded-lg shadow-xl border border-slate-800 opacity-0 scale-95 origin-left pointer-events-none group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 whitespace-nowrap z-50">
                 Add a Server
               </span>
             </button>
           </div>
         </div>
 
-        {/* Bottom Actions */}
         <div className="flex flex-col items-center gap-4 w-full px-2 mt-auto">
-          {/* Notifications */}
           <div className="relative size-10 flex items-center justify-center rounded-xl transition-all duration-200 hover:bg-slate-800 text-slate-400 hover:text-white cursor-pointer">
             <NotificationBell hideText={true} dropdownClass="left-14 bottom-0 origin-bottom-left" />
           </div>
 
-          {/* User Profile Avatar Link */}
           {authUser && (
             <Link 
               to="/profile" 
-              className="relative rounded-full ring-2 ring-slate-800 hover:ring-blue-500 transition-all duration-200 overflow-hidden size-10 flex-shrink-0"
+              className="relative rounded-full ring-2 ring-slate-800 hover:ring-primary transition-all duration-200 overflow-hidden size-10 flex-shrink-0"
               title="View Profile"
             >
               <img 
@@ -163,7 +146,6 @@ const SidebarRail = ({ activeTab = "chats", setActiveTab = () => {}, forceShow =
             </Link>
           )}
 
-          {/* Settings Page Link */}
           <Link 
             to="/settings" 
             className="relative size-10 flex items-center justify-center rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-all duration-200 group" 
@@ -173,7 +155,6 @@ const SidebarRail = ({ activeTab = "chats", setActiveTab = () => {}, forceShow =
             <span className="absolute left-[70px] bg-slate-950 text-white text-xs rounded py-1 px-2 opacity-0 scale-95 origin-left pointer-events-none group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 whitespace-nowrap z-50">Settings</span>
           </Link>
 
-          {/* Logout Action */}
           <button 
             onClick={logout}
             className="relative size-10 flex items-center justify-center rounded-xl text-red-400/80 hover:text-red-400 hover:bg-red-950/20 transition-all duration-200 group" 
@@ -185,11 +166,10 @@ const SidebarRail = ({ activeTab = "chats", setActiveTab = () => {}, forceShow =
         </div>
       </aside>
 
-      {/* Modal for Creating Workspace/Server */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-[100] animate-in fade-in duration-200">
           <div 
-            className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-6 relative animate-in zoom-in-95 duration-200"
+            className="w-full max-w-md bg-surface-dark border border-border-dark rounded-2xl shadow-2xl p-6 relative animate-in zoom-in-95 duration-200"
             role="dialog"
             aria-modal="true"
           >
@@ -199,7 +179,6 @@ const SidebarRail = ({ activeTab = "chats", setActiveTab = () => {}, forceShow =
             </p>
 
             <form onSubmit={handleCreateServer} className="space-y-6">
-              {/* Server Name input */}
               <div className="space-y-2">
                 <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400">
                   Server Name
@@ -210,12 +189,11 @@ const SidebarRail = ({ activeTab = "chats", setActiveTab = () => {}, forceShow =
                   placeholder="e.g. Frontend Pioneers"
                   value={newServerName}
                   onChange={(e) => setNewServerName(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 hover:border-slate-600 focus:border-blue-500 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
+                  className="w-full bg-slate-800 border border-slate-700 hover:border-slate-600 focus:border-primary rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
                   autoFocus
                 />
               </div>
 
-              {/* Theme Gradients */}
               <div className="space-y-3">
                 <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400">
                   Server Theme Gradient
@@ -242,7 +220,6 @@ const SidebarRail = ({ activeTab = "chats", setActiveTab = () => {}, forceShow =
                 </div>
               </div>
 
-              {/* Action Buttons */}
               <div className="flex justify-end gap-3 pt-2">
                 <button
                   type="button"
@@ -253,7 +230,7 @@ const SidebarRail = ({ activeTab = "chats", setActiveTab = () => {}, forceShow =
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-sm font-semibold rounded-xl shadow-lg shadow-blue-600/20 transition"
+                  className="px-5 py-2.5 bg-primary hover:bg-primary-dark active:opacity-90 text-white text-sm font-semibold rounded-xl shadow-lg shadow-primary/20 transition"
                 >
                   Create Server
                 </button>

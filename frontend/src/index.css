@@ -2,23 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  body {
+    @apply bg-background dark:bg-background-dark text-slate-900 dark:text-slate-100 antialiased;
+  }
+}
+
 /* ===== Chat Background Pattern ===== */
 .chat-bg-pattern {
-  background-color: #e5ded8;
+  background-color: #f1f5f9;
   background-image: 
-    radial-gradient(circle at 20% 50%, rgba(0,0,0,0.02) 1px, transparent 1px),
-    radial-gradient(circle at 80% 20%, rgba(0,0,0,0.015) 1px, transparent 1px);
+    radial-gradient(circle at 20% 50%, rgba(0,0,0,0.03) 1px, transparent 1px),
+    radial-gradient(circle at 80% 20%, rgba(0,0,0,0.02) 1px, transparent 1px);
   background-size: 40px 40px, 60px 60px;
 }
 
 .dark .chat-bg-pattern {
-  background-color: #0b1520;
+  background-color: #020617;
   background-image: 
-    radial-gradient(circle at 20% 50%, rgba(255,255,255,0.025) 1px, transparent 1px),
-    radial-gradient(circle at 80% 20%, rgba(255,255,255,0.015) 1px, transparent 1px);
+    radial-gradient(circle at 20% 50%, rgba(255,255,255,0.03) 1px, transparent 1px),
+    radial-gradient(circle at 80% 20%, rgba(255,255,255,0.02) 1px, transparent 1px);
   background-size: 40px 40px, 60px 60px;
 }
 
+/* ... (the rest of the existing styles) ... */
 /* ===== Bubble Tails ===== */
 .bubble-tail::after {
   content: '';
