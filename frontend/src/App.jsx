@@ -1,6 +1,6 @@
 import Navbar from "./components/Navbar";
 
-import HomePage from "./pages/HomePage";
+import AppLayout from "./AppLayout";
 import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
 import SettingsPage from "./pages/SettingsPage";
@@ -71,24 +71,20 @@ const App = () => {
   if (isCheckingAuth && !authUser)
     return (
       <div className="flex items-center justify-center h-screen bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100">
-        <Loader className="size-10 animate-spin text-blue-500 dark:text-blue-400" />
+        <Loader className="size-10 animate-spin text-primary" />
       </div>
     );
 
   const isHomePage = location.pathname === "/";
 
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 transition-colors duration-200">
-      {!(authUser && isHomePage) ? (
+    <div className="min-h-screen bg-background dark:bg-background-dark text-slate-900 dark:text-slate-100 transition-colors duration-200">
+      {!(authUser && isHomePage) && (
         <Navbar />
-      ) : (
-        <div className={`lg:hidden ${(selectedUser || selectedWorkspace) ? "hidden" : ""}`}>
-          <Navbar />
-        </div>
       )}
 
       <Routes>
-        <Route path="/" element={authUser ? <HomePage /> : <Navigate to="/login" />} />
+        <Route path="/" element={authUser ? <AppLayout /> : <Navigate to="/login" />} />
         <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to="/" />} />
         <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
         <Route path="/settings" element={<SettingsPage />} />
