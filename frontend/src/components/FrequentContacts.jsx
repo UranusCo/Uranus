@@ -16,7 +16,7 @@ const FrequentContacts = ({ users, onSelectUser }) => {
           >
             <Avatar src={user.profilePic} size="lg" className="transition-transform group-hover:scale-105" />
             <span className="text-[11px] font-semibold text-slate-600 dark:text-slate-400 truncate w-12 text-center">
-              {user.fullName.split(' ')[0]}
+              {user.fullName ? user.fullName.split(' ')[0] : 'User'}
             </span>
           </button>
         ))}

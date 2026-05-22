@@ -5,8 +5,7 @@ import toast from "react-hot-toast";
 import { useAuthStore } from "../store/useAuthStore";
 import { useFriendStore } from "../store/useFriendStore";
 import EmojiPicker from "./EmojiPicker";
-import { EMOJIS } from "../constants";
-import { HELP_CENTER_EMAIL } from "../constants";
+import { EMOJIS, HELP_CENTER_EMAIL } from "../constants";
 
 const MessageInput = () => {
   const [text, setText] = useState("");
@@ -28,19 +27,23 @@ const MessageInput = () => {
   
   const { sendMessage, selectedUser, editingMessageId, editMessage, replyingToMessage, drafts, setDraft } = useChatStore();
   const { socket, authUser } = useAuthStore();
-  const { friends } = useFriendStore();
+  const { friends, requests, sentRequests } = useFriendStore();
 
   useEffect(() => {
     if (selectedUser) {
       const draft = drafts[selectedUser._id] || "";
       setText(draft);
     }
-  }, [selectedUser, drafts, setDraft]);
+  }, [selectedUser, drafts]);
 
   const isSelf = selectedUser?._id === authUser?._id;
-  const isFriend = friends.some((f) => f._id === selectedUser?._id);
+  const isFriend = friends.some((f) => String(f._id) === String(selectedUser?._id));
+  const hasIncoming = requests.some((r) => r.requesterId && String(r.requesterId._id) === String(selectedUser?._id));
+  const hasOutgoing = sentRequests.some((r) => r.receiverId && String(r.receiverId._id) === String(selectedUser?._id));
+  
   const isHelpCenter = selectedUser?.email === HELP_CENTER_EMAIL || authUser?.email === HELP_CENTER_EMAIL;
   const canChat = isSelf || isFriend || isHelpCenter;
+
   const typingTimeoutRef = useRef(null);
   const sendingDelayRef = useRef(null);
 
@@ -184,7 +187,11 @@ const MessageInput = () => {
     return (
       <div className="w-full px-4 sm:px-6 py-4 bg-surface dark:bg-surface-dark border-t border-border dark:border-border-dark flex-shrink-0 select-none text-center transition-colors duration-200">
         <div className="max-w-[800px] w-full mx-auto py-3 px-4 bg-slate-100 dark:bg-slate-900/50 border border-dashed border-border dark:border-border-dark rounded-2xl">
-          <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">You can only chat with users after becoming friends</p>
+          <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
+            {hasIncoming ? "Accept their friend request to start chatting!" : 
+             hasOutgoing ? "Waiting for them to accept your friend request..." : 
+             "You can only chat with users after becoming friends"}
+          </p>
         </div>
       </div>
     );

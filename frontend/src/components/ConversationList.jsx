@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
+import { useFriendStore } from "../store/useFriendStore";
 import SidebarSkeleton from "./skeletons/SidebarSkeleton";
 import FrequentContacts from "./FrequentContacts";
 import { Avatar, Badge } from "./ui/BlinkComponents";
@@ -17,13 +18,16 @@ const ConversationList = ({ onBurgerClick }) => {
     searchResults,
   } = useChatStore();
 
+  const { friends, requests, sentRequests, fetchFriends, fetchRequests } = useFriendStore();
   const { onlineUsers, authUser } = useAuthStore();
   const [activeFilter, setActiveFilter] = useState("all"); 
   const [searchInput, setSearchInput] = useState("");
   
   useEffect(() => {
     getUsers();
-  }, [getUsers]);
+    fetchFriends();
+    fetchRequests();
+  }, [getUsers, fetchFriends, fetchRequests]);
 
   const handleSearch = (e) => {
     const query = e.target.value;
@@ -31,14 +35,38 @@ const ConversationList = ({ onBurgerClick }) => {
     searchUsers(query);
   };
 
+  // Helper to determine if a user is related (friend or has request)
+  const isRelated = (userId) => {
+    if (!userId) return false;
+    const uid = String(userId);
+    
+    // Check if they are already friends
+    const isFriend = friends.some(f => String(f._id) === uid);
+    if (isFriend) return true;
+
+    // Check if there's an incoming pending request from them
+    const hasIncoming = requests.some(r => r.requesterId && String(r.requesterId._id) === uid);
+    if (hasIncoming) return true;
+
+    // Check if there's an outgoing pending request to them
+    const hasOutgoing = sentRequests.some(r => r.receiverId && String(r.receiverId._id) === uid);
+    if (hasOutgoing) return true;
+
+    return false;
+  };
+
   const displayUsers = searchInput ? searchResults : users;
-  let baseList = [...displayUsers];
+  
+  // Filter base list to only friends or people with active requests (incoming or outgoing)
+  let baseList = displayUsers.filter(u => isRelated(u._id));
 
   if (activeFilter === "unread") {
     baseList = baseList.filter((u) => u.unreadCount > 0);
   }
 
-  const frequentUsers = users.slice(0, 5);
+  // Frequent users are only actual friends
+  const frequentUsers = friends.slice(0, 5);
+  
   const pinnedUsers = baseList.filter((user) => authUser?.pinnedChats?.includes(user._id));
   const unpinnedUsers = baseList.filter((user) => !authUser?.pinnedChats?.includes(user._id));
 
@@ -100,8 +128,17 @@ const ConversationList = ({ onBurgerClick }) => {
       {!searchInput && <FrequentContacts users={frequentUsers} onSelectUser={setSelectedUser} />}
 
       <div className="flex-1 overflow-y-auto space-y-1 pt-2 pb-6">
-        {pinnedUsers.map(renderUserItem)}
-        {unpinnedUsers.map(renderUserItem)}
+        {pinnedUsers.length === 0 && unpinnedUsers.length === 0 ? (
+          <div className="text-center py-10 px-4">
+            <p className="text-slate-500 text-sm">No conversations yet.</p>
+            <p className="text-slate-400 text-xs mt-1">Start by adding friends from the Friends tab!</p>
+          </div>
+        ) : (
+          <>
+            {pinnedUsers.map(renderUserItem)}
+            {unpinnedUsers.map(renderUserItem)}
+          </>
+        )}
       </div>
     </aside>
   );

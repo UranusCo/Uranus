@@ -44,13 +44,13 @@ const MessageItem = ({
     }
   };
 
-  const isNextSameSender = index < messagesLength - 1 &&
-    messages[index + 1].senderId === message.senderId &&
-    !messages[index + 1].isDeleted;
+  const isNextSameSender = messages && index < messagesLength - 1 &&
+    messages[index + 1]?.senderId === message.senderId &&
+    !messages[index + 1]?.isDeleted;
 
-  const isPrevSameSender = index > 0 &&
-    messages[index - 1].senderId === message.senderId &&
-    !messages[index - 1].isDeleted;
+  const isPrevSameSender = messages && index > 0 &&
+    messages[index - 1]?.senderId === message.senderId &&
+    !messages[index - 1]?.isDeleted;
 
   const showAvatar = !isSelf && !isNextSameSender;
   const showNameHeader = !isSelf && (!isPrevSameSender || message.isDeleted);
@@ -87,8 +87,8 @@ const MessageItem = ({
           {showAvatar ? (
             <div className="flex-shrink-0 select-none mb-0">
               <img
-                src={selectedUser.profilePic || "/avatar.png"}
-                alt={selectedUser.fullName}
+                src={selectedUser?.profilePic || "/avatar.png"}
+                alt={selectedUser?.fullName || "User"}
                 className="size-9 rounded-full object-cover shadow-sm border border-slate-200 dark:border-slate-700"
               />
             </div>
@@ -145,6 +145,7 @@ const MessageContent = ({
   commonBubbleClasses
 }) => {
   const linkify = (text) => {
+    if (!text) return "";
     const urlRegex = /(https?:\/\/[^\s<]+[^.,:;"'!)\]\s])/g;
     return text.split(urlRegex).map((part, i) => {
       if (part.match(urlRegex)) {
@@ -172,7 +173,7 @@ const MessageContent = ({
       {/* Header: Sender name (only for first message in a group from sender) */}
       {showNameHeader && !message.isDeleted && (
         <div className="flex items-center gap-1.5 mb-0.5 px-1 text-[11px] text-primary font-bold select-none">
-          {selectedUser.fullName}
+          {selectedUser?.fullName}
         </div>
       )}
 
