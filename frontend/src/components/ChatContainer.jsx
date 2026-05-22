@@ -6,6 +6,7 @@ import MessageSkeleton from "./skeletons/MessageSkeleton";
 import MessageItem from "./MessageItem";
 import MessageVirtualizer from "./MessageVirtualizer";
 import UserProfilePanel from "./UserProfilePanel";
+import MessageActions from "./MessageActions";
 
 const isSameDay = (d1, d2) => {
   const a = new Date(d1);
@@ -42,6 +43,7 @@ const ChatContainer = () => {
   } = useChatStore();
   const [showProfile, setShowProfile] = useState(false);
   const [activeMessageMenu, setActiveMessageMenu] = useState(null);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
 
   const openMessageMenu = (messageId, buttonRect) => {
     const menuHeight = 270;
@@ -52,6 +54,8 @@ const ChatContainer = () => {
     let left = buttonRect.left > window.innerWidth / 2 ? buttonRect.left - menuWidth - offset : buttonRect.left + buttonRect.width + offset;
     if (left < offset) left = offset;
     if (left + menuWidth > window.innerWidth - offset) left = window.innerWidth - menuWidth - offset;
+    
+    setMenuPosition({ top, left });
     setActiveMessageMenu(messageId);
   };
 
@@ -145,7 +149,6 @@ const ChatContainer = () => {
           isMoreAvailable={isMoreMessagesAvailable}
           isLoadingMore={isLoadingMoreMessages}
         />
-        <div ref={messageEndRef} />
       </div>
 
       <div className="p-4 bg-surface dark:bg-surface-dark border-t border-border dark:border-border-dark shadow-soft z-10">
@@ -159,7 +162,21 @@ const ChatContainer = () => {
       />
 
       {activeMessageMenu && (
-        <div className="fixed inset-0 z-[9998] bg-black/5 backdrop-blur-[1px]" onClick={closeMessageMenu} />
+        <>
+          <div className="fixed inset-0 z-[9998] bg-black/5 backdrop-blur-[1px]" onClick={closeMessageMenu} />
+          <div 
+            className="fixed z-[9999] animate-in fade-in zoom-in-95 duration-100"
+            style={{ 
+              top: menuPosition.top, 
+              left: menuPosition.left,
+            }}
+          >
+            <MessageActions 
+              message={messages.find(m => m._id === activeMessageMenu)} 
+              onClose={closeMessageMenu} 
+            />
+          </div>
+        </>
       )}
     </div>
   );
