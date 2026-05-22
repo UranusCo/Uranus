@@ -90,7 +90,7 @@ const MessageActions = ({ message, onClose }) => {
   }
 
   return (
-    <div className="bg-base-100 rounded-lg shadow-lg p-0 min-w-[200px] z-50 text-base-content max-sm:pb-4">
+    <div className="bg-base-200 dark:bg-base-800/50 rounded-lg shadow-lg p-0 min-w-[200px] z-50 text-base-content max-sm:pb-4">
       {/* Visual indicator drag handle for mobile bottom sheet */}
       <div className="hidden max-sm:block w-12 h-1.5 bg-zinc-300 dark:bg-zinc-650 rounded-full mx-auto my-3" />
 
