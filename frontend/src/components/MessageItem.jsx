@@ -11,13 +11,12 @@ const MessageItem = ({
   index, 
   messagesLength, 
   messages,
-  messageEndRef, 
   selectedUser, 
   activeMessageMenu, 
   openMessageMenu, 
   closeMessageMenu,
-  handleLongPressStart,
-  handleLongPressEnd,
+  handleLongPressStart = () => {},
+  handleLongPressEnd = () => {},
   addReaction,
   removeReaction,
   markViewOnceOpened
@@ -76,7 +75,6 @@ const MessageItem = ({
 
   return (
     <div
-      ref={index === messagesLength - 1 ? messageEndRef : null}
       className={`flex flex-col ${isSelf ? "items-end" : "items-start"} w-full message-item group/msg ${marginBottom}`}
       style={{
         animation: `messageEntry 0.25s cubic-bezier(0.16, 1, 0.3, 1) ${Math.min(index * 0.015, 0.3)}s both`,
@@ -200,7 +198,7 @@ const MessageContent = ({
         <div
           className={`${commonBubbleClasses} ${message.isDeleted ? "" : (isSelf ? "bubble-tail-self" : "bubble-tail-other")}`}
           onDoubleClick={handleDoubleClick}
-          onTouchStart={message.isDeleted ? undefined : (e) => { e.stopPropagation(); handleLongPressStart(message._id); }}
+          onTouchStart={message.isDeleted ? undefined : (e) => { e.stopPropagation(); handleLongPressStart?.(message._id); }}
           onTouchEnd={message.isDeleted ? undefined : handleLongPressEnd}
           onTouchMove={message.isDeleted ? undefined : handleLongPressEnd}
           title={message.isDeleted ? undefined : "Double-tap to ❤️"}
@@ -216,6 +214,8 @@ const MessageContent = ({
                 <img
                   src={message.image}
                   alt="Attachment"
+                  loading="lazy"
+                  decoding="async"
                   className="max-w-full sm:max-w-[260px] rounded-xl mb-1 object-cover"
                 />
               )}
@@ -225,6 +225,8 @@ const MessageContent = ({
                     <img
                       src={message.file.url}
                       alt={message.file.name}
+                      loading="lazy"
+                      decoding="async"
                       className="max-w-full sm:max-w-[260px] rounded-xl object-cover"
                     />
                   ) : message.file.type.startsWith("video/") ? (

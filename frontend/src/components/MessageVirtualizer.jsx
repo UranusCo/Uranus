@@ -156,7 +156,10 @@ const MessageVirtualizer = ({
       ref={containerRef}
       onScroll={handleScroll}
       className="flex-1 overflow-y-auto relative w-full h-full scrollbar-thin select-text"
-      style={{ contentVisibility: "auto" }}
+      role="log"
+      aria-live="polite"
+      aria-relevant="additions text"
+      style={{ contentVisibility: "auto", contain: "layout style" }}
     >
       {/* Loading Indicator at the top */}
       {isLoadingMore && (

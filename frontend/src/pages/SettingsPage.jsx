@@ -2,6 +2,23 @@ import { useThemeStore } from "../store/useThemeStore";
 import { useAuthStore } from "../store/useAuthStore";
 import { useNotificationStore } from "../store/useNotificationStore";
 import { Send, MessageSquare, Users, AtSign, Shield, Sun, Moon, Laptop } from "lucide-react";
+import { useChatStore } from "../store/useChatStore";
+
+const ChatSendToggle = () => {
+  const sendOnEnter = useChatStore(state => state.chatSettings?.sendOnEnter ?? true);
+  const setChatSetting = useChatStore(state => state.setChatSetting);
+  return (
+    <button
+      type="button"
+      onClick={() => setChatSetting('sendOnEnter', !sendOnEnter)}
+      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-250 ease-in-out focus:outline-none ${sendOnEnter ? "bg-blue-500" : "bg-slate-200 dark:bg-slate-700"}`}
+    >
+      <span
+        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${sendOnEnter ? "translate-x-5" : "translate-x-0"}`}
+      />
+    </button>
+  );
+};
 
 const PREVIEW_MESSAGES = [
   { id: 1, content: "Hey! How's it going?", isSent: false },
@@ -245,6 +262,20 @@ const SettingsPage = () => {
                         }`}
                       />
                     </button>
+                  </div>
+
+                  {/* Chat preferences: Send on Enter */}
+                  <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-700/50 pt-4">
+                    <div className="flex items-center gap-3">
+                      <div className="size-10 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center">
+                        <Send className="size-5" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-sm text-slate-850 dark:text-slate-100">Send on Enter</p>
+                        <p className="text-xs text-slate-400 dark:text-slate-500 font-semibold">Press Enter to send messages (Shift+Enter for newline)</p>
+                      </div>
+                    </div>
+                    <ChatSendToggle />
                   </div>
 
                   <div className="border-t border-slate-150 dark:border-slate-700 pt-4 mt-6">

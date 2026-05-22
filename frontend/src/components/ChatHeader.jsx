@@ -3,38 +3,43 @@ import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
 import { useState, useEffect, useRef } from "react";
 import ThemeToggle from "./ThemeToggle";
-import ExportChatModal from "./ExportChatModal";
-import ChatPrivacyMenu from "./ChatPrivacyMenu";
-import UserProfileModal from "./UserProfileModal";
-import ChatInfoModal from "./ChatInfoModal";
+import ChatActionDrawer from "./ChatActionDrawer";
+import { IconButton } from "./ui";
 
 const ChatHeader = ({ onSearchClick, onPinnedClick, onBurgerClick, onAvatarClick }) => {
-  const { selectedUser, setSelectedUser, userStatus, chatSettings, lockedChats, setChatExpiry, lockChat, unlockChat } = useChatStore();
-  const { onlineUsers } = useAuthStore();
-  const [showMenu, setShowMenu] = useState(false);
-  const [showExportModal, setShowExportModal] = useState(false);
-  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
-  const [showProfileModal, setShowProfileModal] = useState(false);
-  const [showChatInfoModal, setShowChatInfoModal] = useState(false);
-  const menuRef = useRef(null);
+   const { selectedUser, setSelectedUser, userStatus, chatSettings, lockedChats, setChatExpiry, lockChat, unlockChat } = useChatStore();
+   const { onlineUsers } = useAuthStore();
+   const [showMenu, setShowMenu] = useState(false);
+   const [showActionDrawer, setShowActionDrawer] = useState(false);
+   const menuRef = useRef(null);
 
   const status = userStatus[selectedUser?._id];
   const isOnline = onlineUsers.includes(selectedUser?._id);
 
   // Close menu on click outside
+useEffect(() => {
+     const handleClickOutside = (e) => {
+       if (menuRef.current && !menuRef.current.contains(e.target)) {
+         setShowMenu(false);
+       }
+     };
+     if (showMenu) {
+       document.addEventListener("mousedown", handleClickOutside);
+     }
+     return () => {
+       document.removeEventListener("mousedown", handleClickOutside);
+     };
+   }, [showMenu]);
+
   useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
-        setShowMenu(false);
-      }
-    };
-    if (showMenu) {
-      document.addEventListener("mousedown", handleClickOutside);
+    if (showActionDrawer) {
+      const handleEscape = (e) => {
+        if (e.key === "Escape") setShowActionDrawer(false);
+      };
+      document.addEventListener("keydown", handleEscape);
+      return () => document.removeEventListener("keydown", handleEscape);
     }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [showMenu]);
+  }, [showActionDrawer]);
 
   if (!selectedUser) return <div className="h-16 flex-shrink-0" />;
 
@@ -94,100 +99,37 @@ const ChatHeader = ({ onSearchClick, onPinnedClick, onBurgerClick, onAvatarClick
         {/* Action icons */}
         <div className="flex items-center gap-0.5 sm:gap-1">
           {/* Call & Video Call Icons - Hidden on very small screens if needed, but keeping for now */}
-          <button className="size-9 flex items-center justify-center rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors" title="Voice Call">
+          <IconButton type="button" title="Voice Call" className="hidden sm:inline-flex" variant="ghost">
             <Phone size={18} />
-          </button>
-          <button className="size-9 flex items-center justify-center rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors hidden sm:flex" title="Video Call">
+          </IconButton>
+          <IconButton type="button" title="Video Call" className="hidden sm:inline-flex" variant="ghost">
             <Video size={18} />
-          </button>
+          </IconButton>
 
           <div className="hidden md:block">
             <ThemeToggle />
           </div>
 
-          <button
+          <IconButton
+            type="button"
             onClick={onSearchClick}
-            className="size-9 flex items-center justify-center rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors hidden sm:flex"
             title="Search messages"
+            className="hidden sm:inline-flex"
+            variant="ghost"
           >
             <Search size={18} />
-          </button>
+          </IconButton>
 
           <div className="relative" ref={menuRef}>
-            <button
-              className="size-9 flex items-center justify-center rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-              onClick={() => setShowMenu(!showMenu)}
+            <IconButton
+              type="button"
+              className=""
+              onClick={() => setShowActionDrawer(true)}
+              aria-label="Open chat actions"
+              variant="ghost"
             >
               <MoreVertical size={18} />
-            </button>
-            {showMenu && (
-              <div
-                className="absolute right-0 mt-2 z-[50] p-1.5 shadow-xl bg-white dark:bg-slate-800 rounded-2xl w-52 border border-slate-200 dark:border-slate-700 font-medium flex flex-col gap-0.5 animate-fadeIn"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <button
-                  type="button"
-                  className="w-full text-left px-3.5 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl text-sm text-slate-700 dark:text-slate-200 font-medium transition-all duration-150 active:scale-[0.98]"
-                  onClick={() => {
-                    onPinnedClick && onPinnedClick();
-                    setShowMenu(false);
-                  }}
-                >
-                  Pinned Messages
-                </button>
-                <button
-                  type="button"
-                  className="w-full text-left px-3.5 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl text-sm text-slate-700 dark:text-slate-200 font-medium transition-all duration-150 active:scale-[0.98]"
-                  onClick={() => {
-                    setShowPrivacyModal(true);
-                    setShowMenu(false);
-                  }}
-                >
-                  Privacy Settings
-                </button>
-                <button
-                  type="button"
-                  className="w-full text-left px-3.5 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl text-sm text-slate-700 dark:text-slate-200 font-medium transition-all duration-150 active:scale-[0.98]"
-                  onClick={() => {
-                    onSearchClick && onSearchClick();
-                    setShowMenu(false);
-                  }}
-                >
-                  Search
-                </button>
-                <button
-                  type="button"
-                  className="w-full text-left px-3.5 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl text-sm text-slate-700 dark:text-slate-200 font-medium transition-all duration-150 active:scale-[0.98] flex items-center gap-2"
-                  onClick={() => {
-                    setShowExportModal(true);
-                    setShowMenu(false);
-                  }}
-                >
-                  <Download size={15} />
-                  Export Chat
-                </button>
-                <button
-                  type="button"
-                  className="w-full text-left px-3.5 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl text-sm text-slate-700 dark:text-slate-200 font-medium transition-all duration-150 active:scale-[0.98]"
-                  onClick={() => {
-                    setShowProfileModal(true);
-                    setShowMenu(false);
-                  }}
-                >
-                  View Profile
-                </button>
-                <button
-                  type="button"
-                  className="w-full text-left px-3.5 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl text-sm text-slate-700 dark:text-slate-200 font-medium transition-all duration-150 active:scale-[0.98]"
-                  onClick={() => {
-                    setShowChatInfoModal(true);
-                    setShowMenu(false);
-                  }}
-                >
-                  Chat Info
-                </button>
-              </div>
-            )}
+            </IconButton>
           </div>
 
           {/* Close button — desktop only */}
@@ -197,24 +139,18 @@ const ChatHeader = ({ onSearchClick, onPinnedClick, onBurgerClick, onAvatarClick
         </div>
       </div>
 
-      {showExportModal && (
-        <ExportChatModal
-          user={selectedUser}
-          onClose={() => setShowExportModal(false)}
-        />
-      )}
-      <ChatPrivacyMenu
-        open={showPrivacyModal}
-        onClose={() => setShowPrivacyModal(false)}
+<ChatActionDrawer 
+        open={showActionDrawer}
+        onClose={() => setShowActionDrawer(false)}
         selectedUser={selectedUser}
         chatSettings={chatSettings}
-        isLocked={selectedUser ? lockedChats.some((chat) => chat._id === selectedUser._id) : false}
-        onSetChatExpiry={setChatExpiry}
-        onLockChat={lockChat}
-        onUnlockChat={unlockChat}
+        lockedChats={lockedChats}
+        setChatExpiry={setChatExpiry}
+        lockChat={lockChat}
+        unlockChat={unlockChat}
+        onPinnedMessages={onPinnedClick}
+        onSearch={onSearchClick}
       />
-      <UserProfileModal open={showProfileModal} onClose={() => setShowProfileModal(false)} user={selectedUser} />
-      <ChatInfoModal open={showChatInfoModal} onClose={() => setShowChatInfoModal(false)} user={selectedUser} chatSettings={chatSettings?.[selectedUser?._id]} />
     </div>
   );
 };

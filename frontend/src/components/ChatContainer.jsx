@@ -32,6 +32,7 @@ const ChatContainer = () => {
     messages,
     getMessages,
     isMessagesLoading,
+    isLoadingMoreMessages,
     selectedUser,
     typingUsers,
     addReaction,
@@ -40,7 +41,6 @@ const ChatContainer = () => {
     isMoreMessagesAvailable,
   } = useChatStore();
   const [showProfile, setShowProfile] = useState(false);
-  const messageEndRef = useRef(null);
   const [activeMessageMenu, setActiveMessageMenu] = useState(null);
 
   const openMessageMenu = (messageId, buttonRect) => {
@@ -62,12 +62,14 @@ const ChatContainer = () => {
       return (
         <div className="max-w-[800px] w-full mx-auto px-4 py-2">
           <div className="flex gap-3 items-start animate-in fade-in slide-in-from-bottom-2 duration-200">
-            <div className="size-9 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse" />
-            <div className="px-4 py-2 rounded-2xl bg-surface dark:bg-surface-dark border border-border dark:border-border-dark shadow-soft">
-               <div className="flex gap-1">
-                 <span className="size-1.5 rounded-full bg-slate-400 animate-bounce [animation-delay:-0.3s]" />
-                 <span className="size-1.5 rounded-full bg-slate-400 animate-bounce [animation-delay:-0.15s]" />
-                 <span className="size-1.5 rounded-full bg-slate-400 animate-bounce" />
+            <div className="size-9 rounded-full bg-slate-200 dark:bg-slate-800 flex-shrink-0 shadow-sm" aria-label="Typing...">
+              <div className="w-full h-full rounded-full bg-gradient-to-br from-primary/20 to-primary/10 animate-pulse" />
+            </div>
+            <div className="px-4 py-2.5 rounded-2xl bg-surface dark:bg-surface-dark border border-border dark:border-border-dark shadow-soft">
+               <div className="flex gap-1.5 items-center">
+                 <span className="size-2 rounded-full bg-slate-400 animate-bounce [animation-delay:-0.3s]" />
+                 <span className="size-2 rounded-full bg-slate-400 animate-bounce [animation-delay:-0.15s]" />
+                 <span className="size-2 rounded-full bg-slate-400 animate-bounce" />
                </div>
             </div>
           </div>
@@ -91,7 +93,6 @@ const ChatContainer = () => {
           index={index}
           messagesLength={messages.length}
           messages={messages}
-          messageEndRef={messageEndRef}
           selectedUser={selectedUser}
           activeMessageMenu={activeMessageMenu}
           openMessageMenu={openMessageMenu}
@@ -104,17 +105,18 @@ const ChatContainer = () => {
     );
   }, [messages, selectedUser, activeMessageMenu, addReaction, removeReaction, markViewOnceOpened]);
 
+  const loadMoreMessages = () => {
+    if (selectedUser?._id && isMoreMessagesAvailable && !isLoadingMoreMessages) {
+      getMessages(selectedUser._id, true);
+    }
+  };
+
   useEffect(() => {
     if (selectedUser?._id) {
       getMessages(selectedUser._id);
     }
   }, [selectedUser?._id, getMessages]);
 
-  useEffect(() => {
-    if (messageEndRef.current && messages.length > 0) {
-      messageEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [messages, typingUsers]);
 
   if (isMessagesLoading && messages.length === 0) {
     return (
@@ -139,7 +141,9 @@ const ChatContainer = () => {
         <MessageVirtualizer
           items={virtualItems}
           renderItem={renderItem}
+          onScrollToTop={loadMoreMessages}
           isMoreAvailable={isMoreMessagesAvailable}
+          isLoadingMore={isLoadingMoreMessages}
         />
         <div ref={messageEndRef} />
       </div>

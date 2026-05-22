@@ -8,7 +8,7 @@
   }
 }
 
-/* ===== Chat Background Pattern ===== */
+/* ===== Enhanced Chat Background Pattern ===== */
 .chat-bg-pattern {
   background-color: #f1f5f9;
   background-image: 
@@ -25,7 +25,39 @@
   background-size: 40px 40px, 60px 60px;
 }
 
-/* ... (the rest of the existing styles) ... */
+/* ===== Focus Visible Support ===== */
+.focus-visible {
+  @apply outline-none ring-2 ring-primary ring-offset-2;
+}
+
+/* ===== Colorblind-friendly Status Indicators ===== */
+.status-online {
+  @apply bg-green-500;
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #22c55e40;
+}
+
+.status-offline {
+  @apply bg-slate-400;
+}
+
+/* ===== Enhanced Touch Targets ===== */
+@media (hover: none) and (pointer: coarse) {
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* ===== Skip Link for Accessibility ===== */
+.skip-link {
+  @apply absolute -top-full left-2 bg-primary text-white px-4 py-2 rounded-lg z-50 transition-all;
+}
+
+.skip-link:focus {
+  @apply top-2;
+}
+
+/* ===== Message entry staggered animation ===== */
 /* ===== Bubble Tails ===== */
 .bubble-tail::after {
   content: '';

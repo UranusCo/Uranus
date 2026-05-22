@@ -11,6 +11,7 @@ export const useChatStore = create((set, get) => ({
   selectedUser: null,
   isUsersLoading: false,
   isMessagesLoading: false,
+  isLoadingMoreMessages: false,
   typingUsers: [],
   searchQuery: "",
   messagesRead: {},
@@ -20,7 +21,14 @@ export const useChatStore = create((set, get) => ({
   editingMessageId: null,
   replyingToMessage: null,
   selectedMessagesForBulk: [],
-  chatSettings: {},
+  chatSettings: (() => {
+    try {
+      const raw = localStorage.getItem('chatSettings');
+      return raw ? JSON.parse(raw) : {};
+    } catch (e) {
+      return {};
+    }
+  })(),
   lockedChats: [],
   lockedChatPinPrompt: false,
   lockedChatUser: null,
@@ -93,6 +101,12 @@ export const useChatStore = create((set, get) => ({
     });
   },
 
+  setChatSetting: (key, value) => {
+    const next = { ...(get().chatSettings || {}), [key]: value };
+    try { localStorage.setItem('chatSettings', JSON.stringify(next)); } catch (e) {}
+    set({ chatSettings: next });
+  },
+
   getUsers: async () => {
     set({ isUsersLoading: true });
     try {
@@ -120,7 +134,11 @@ export const useChatStore = create((set, get) => ({
   },
 
   getMessages: async (userId, isLoadMore = false) => {
-    if (!isLoadMore) set({ isMessagesLoading: true, isMoreMessagesAvailable: true });
+    if (!isLoadMore) {
+      set({ isMessagesLoading: true, isMoreMessagesAvailable: true });
+    } else {
+      set({ isLoadingMoreMessages: true });
+    }
     
     try {
       const { selectedUser } = get();
@@ -163,8 +181,12 @@ export const useChatStore = create((set, get) => ({
         useErrorStore.getState().handleApiError(error, "load messages");
       }
     } finally {
-      if (!isLoadMore && get().selectedUser?._id === userId) {
-        set({ isMessagesLoading: false });
+      if (get().selectedUser?._id === userId) {
+        if (isLoadMore) {
+          set({ isLoadingMoreMessages: false });
+        } else {
+          set({ isMessagesLoading: false });
+        }
       }
     }
   },

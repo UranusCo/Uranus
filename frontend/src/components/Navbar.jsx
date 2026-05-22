@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
-import { LogOut, Settings, User, MessageCircle } from "lucide-react";
+import { LogOut, Settings, User, MessageCircle, Search } from "lucide-react";
 import { useState } from "react";
 import StatusUpdateModal from "./StatusUpdateModal";
 import NotificationBell from "./NotificationBell";
@@ -54,6 +54,16 @@ const Navbar = () => {
                 <Settings className="w-4 h-4" />
                 <span className="hidden sm:inline">Settings</span>
               </Link>
+
+              {/* Mobile search button: dispatch event to focus sidebar search */}
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new Event('openChatSearch'))}
+                className="p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 sm:hidden"
+                title="Search chats"
+              >
+                <Search size={18} />
+              </button>
 
               {authUser && (
                 <>

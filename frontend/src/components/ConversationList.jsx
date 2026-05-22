@@ -1,10 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
 import { useFriendStore } from "../store/useFriendStore";
 import SidebarSkeleton from "./skeletons/SidebarSkeleton";
 import FrequentContacts from "./FrequentContacts";
-import { Avatar, Badge } from "./ui/BlinkComponents";
+import { Avatar } from "./ui/BlinkComponents";
+import { Button } from "./ui";
+import Input from "./ui/Input";
+import Badge from "./ui/Badge";
 import { Search, Edit3 } from "lucide-react";
 import { formatMessageTime } from "../lib/utils";
 
@@ -22,6 +25,7 @@ const ConversationList = () => {
   const { friends, requests, sentRequests, fetchFriends, fetchRequests } = useFriendStore();
   const { onlineUsers, authUser } = useAuthStore();
   const [searchInput, setSearchInput] = useState("");
+  const searchRef = useRef(null);
   
   useEffect(() => {
     getUsers();
@@ -34,6 +38,23 @@ const ConversationList = () => {
     setSearchInput(query);
     searchUsers(query);
   };
+
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      const key = (e.key || '').toLowerCase();
+      if ((e.ctrlKey || e.metaKey) && key === 'k') {
+        e.preventDefault();
+        searchRef.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    const onOpen = () => searchRef.current?.focus();
+    window.addEventListener('openChatSearch', onOpen);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('openChatSearch', onOpen);
+    };
+  }, []);
 
   // Helper to determine if a user is related (friend or has request)
   const isRelated = (userId) => {
@@ -112,18 +133,28 @@ const ConversationList = () => {
     <aside className="h-full w-full lg:w-[320px] bg-surface dark:bg-surface-dark flex flex-col transition-colors duration-200 border-r border-border dark:border-border-dark">
       <div className="flex items-center justify-between px-5 pt-6 pb-4">
         <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">Chats</h1>
-        <button className="p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"><Edit3 size={18} /></button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="p-2 rounded-xl"
+          onClick={() => setSearchInput('')}
+          title="New chat"
+        >
+          <Edit3 size={18} />
+        </Button>
       </div>
 
       <div className="px-5 mb-2">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
-          <input 
-            type="text" 
-            placeholder="Search..." 
+          <Input
+            type="text"
+            placeholder="Search..."
             value={searchInput}
             onChange={handleSearch}
-            className="w-full pl-9 pr-4 py-2 bg-background dark:bg-background-dark border border-border dark:border-border-dark rounded-2xl text-sm focus:outline-none focus:border-primary transition"
+            ref={searchRef}
+            aria-label="Search chats"
+            className="w-full pl-9 pr-4 py-2 rounded-2xl text-sm"
           />
         </div>
       </div>

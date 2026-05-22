@@ -1,14 +1,17 @@
 import { useRef, useState, useEffect } from "react";
 import { useChatStore } from "../store/useChatStore";
-import { Image, Send, X, Paperclip, Loader, Mic, Square, Smile } from "lucide-react";
+import { Image, Send, X, Paperclip, Loader, Mic, Square, Smile, Plus, MoreHorizontal, ChevronRight } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAuthStore } from "../store/useAuthStore";
 import { useFriendStore } from "../store/useFriendStore";
+import { Button, IconButton } from "./ui";
 import EmojiPicker from "./EmojiPicker";
 import { EMOJIS, HELP_CENTER_EMAIL } from "../constants";
 
 const MessageInput = () => {
   const [text, setText] = useState("");
+  const sendOnEnter = useChatStore(state => state.chatSettings?.sendOnEnter ?? true);
+  const setChatSetting = useChatStore(state => state.setChatSetting);
   const [imagePreview, setImagePreview] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
   const [isViewOnce, setIsViewOnce] = useState(false);
@@ -17,6 +20,7 @@ const MessageInput = () => {
   const [recordingTime, setRecordingTime] = useState(0);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [emojiSuggestions, setEmojiSuggestions] = useState([]);
+  const [isExpanded, setIsExpanded] = useState(false);
   
   const fileInputRef = useRef(null);
   const imageInputRef = useRef(null);
@@ -33,8 +37,21 @@ const MessageInput = () => {
     if (selectedUser) {
       const draft = drafts[selectedUser._id] || "";
       setText(draft);
+      adjustTextareaHeight();
     }
   }, [selectedUser, drafts]);
+
+  const adjustTextareaHeight = () => {
+    if (inputRef.current) {
+      inputRef.current.style.height = "auto";
+      const newHeight = Math.min(inputRef.current.scrollHeight, 120);
+      inputRef.current.style.height = `${newHeight}px`;
+    }
+  };
+
+  useEffect(() => {
+    adjustTextareaHeight();
+  }, [text]);
 
   const isSelf = selectedUser?._id === authUser?._id;
   const isFriend = friends.some((f) => String(f._id) === String(selectedUser?._id));
@@ -139,7 +156,7 @@ const MessageInput = () => {
   };
 
   const handleSendMessage = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     if (!text.trim() && !imagePreview && !filePreview && !isRecording) return;
     if (isSending) return;
     if (isRecording) { stopRecording(); return; }
@@ -183,6 +200,8 @@ const MessageInput = () => {
     };
   }, []);
 
+  const hasContent = text.trim() || imagePreview || filePreview;
+
   if (selectedUser && !canChat) {
     return (
       <div className="w-full px-4 sm:px-6 py-4 bg-surface dark:bg-surface-dark border-t border-border dark:border-border-dark flex-shrink-0 select-none text-center transition-colors duration-200">
@@ -198,7 +217,7 @@ const MessageInput = () => {
   }
 
   return (
-    <div className="w-full px-3 sm:px-6 py-3 sm:py-4 bg-surface dark:bg-surface-dark border-t border-border dark:border-border-dark flex-shrink-0 select-none transition-colors duration-200 relative">
+    <div className="w-full px-2 sm:px-6 py-2 sm:py-3 bg-surface dark:bg-surface-dark border-t border-border dark:border-border-dark flex-shrink-0 select-none transition-all duration-200 relative">
       <div className="max-w-[850px] w-full mx-auto relative">
         
         {emojiSuggestions.length > 0 && (
@@ -238,56 +257,118 @@ const MessageInput = () => {
           </div>
         )}
 
-        <form onSubmit={handleSendMessage} className="flex items-center w-full bg-background dark:bg-background-dark border border-border dark:border-border-dark rounded-2xl pl-4 pr-1.5 py-1.5 gap-2 shadow-soft focus-within:border-primary/50 transition-all duration-200">
-          {isRecording ? (
-            <div className="flex-1 flex items-center gap-3 px-2 py-1 text-rose-500 font-bold animate-pulse">
-              <div className="size-2 rounded-full bg-rose-500" />
-              <span className="text-sm">Recording {formatTime(recordingTime)}</span>
-            </div>
-          ) : (
-            <input
-              ref={inputRef}
-              type="text"
-              className="flex-1 bg-transparent border-none outline-none focus:outline-none focus:ring-0 text-[14px] text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500"
-              placeholder={editingMessageId ? "Edit message..." : "Type a message..."}
-              value={text}
-              onChange={handleTextChange}
-              disabled={isSending}
-            />
-          )}
-
-          <div className="flex items-center gap-0.5">
+        <div className="flex items-end w-full gap-1 sm:gap-2">
+          {/* Action Buttons Group */}
+          <div className={`flex items-center gap-0.5 transition-all duration-300 ${text.length > 0 ? 'w-10 overflow-hidden' : 'w-auto'}`}>
+            {text.length > 0 ? (
+              <IconButton 
+                size="lg" 
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="text-primary"
+              >
+                <Plus className={`transition-transform duration-300 ${isExpanded ? 'rotate-45' : ''}`} />
+              </IconButton>
+            ) : (
+              <div className="flex items-center gap-0.5 animate-fadeIn">
+                <IconButton 
+                  size="md" 
+                  onClick={() => setIsExpanded(!isExpanded)}
+                  className="sm:hidden"
+                >
+                  <Plus />
+                </IconButton>
+                <div className="hidden sm:flex items-center gap-0.5">
+                  <IconButton onClick={() => imageInputRef.current?.click()} title="Photos"><Image /></IconButton>
+                  <IconButton onClick={() => fileInputRef.current?.click()} title="Files"><Paperclip /></IconButton>
+                  <IconButton 
+                    onClick={() => setChatSetting('sendOnEnter', !sendOnEnter)}
+                    variant={sendOnEnter ? 'active' : 'ghost'}
+                    title="Settings"
+                  ><Square size={16} /></IconButton>
+                </div>
+              </div>
+            )}
+            
             <input type="file" accept="image/*" className="hidden" ref={imageInputRef} onChange={handleImageChange} disabled={isSending} />
             <input type="file" className="hidden" ref={fileInputRef} onChange={handleFileChange} disabled={isSending} />
+          </div>
 
-            <div className="relative">
-              <button type="button" onClick={() => setShowEmojiPicker(!showEmojiPicker)} className={`size-9 flex items-center justify-center rounded-xl transition-all ${showEmojiPicker ? "text-primary bg-primary/10" : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"}`} disabled={isSending || isRecording}>
-                <Smile size={19} />
-              </button>
+          {/* Expanded Actions */}
+          {isExpanded && text.length > 0 && (
+            <div className="flex items-center gap-1 animate-fadeIn">
+              <IconButton size="md" onClick={() => imageInputRef.current?.click()}><Image /></IconButton>
+              <IconButton size="md" onClick={() => fileInputRef.current?.click()}><Paperclip /></IconButton>
+            </div>
+          )}
+
+          {/* Input Area */}
+          <div className="flex-1 flex items-end bg-slate-100 dark:bg-slate-800/50 rounded-[24px] px-3 py-1.5 transition-all duration-200 focus-within:bg-slate-200/50 dark:focus-within:bg-slate-800 border border-transparent focus-within:border-primary/20">
+            {isRecording ? (
+              <div className="flex-1 flex items-center gap-3 px-2 py-1.5 text-rose-500 font-bold animate-pulse">
+                <div className="size-2.5 rounded-full bg-rose-500" />
+                <span className="text-sm">Recording {formatTime(recordingTime)}</span>
+              </div>
+            ) : (
+              <textarea
+                ref={inputRef}
+                rows={1}
+                className="flex-1 max-h-[120px] resize-none bg-transparent border-none outline-none focus:outline-none focus:ring-0 text-[15px] text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 leading-6 py-1 pr-2"
+                placeholder={editingMessageId ? "Edit message..." : "Type a message..."}
+                value={text}
+                onChange={handleTextChange}
+                onKeyDown={(e) => {
+                  if (isSending) return;
+                  if (sendOnEnter) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSendMessage();
+                    }
+                  }
+                }}
+                disabled={isSending}
+              />
+            )}
+            
+            <div className="flex items-center self-end mb-0.5">
+              <IconButton
+                size="sm"
+                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                variant={showEmojiPicker ? 'active' : 'ghost'}
+                disabled={isSending || isRecording}
+              >
+                <Smile />
+              </IconButton>
               {showEmojiPicker && <EmojiPicker onSelect={(emoji) => {
                 const newText = text + emoji;
                 setText(newText);
                 if (selectedUser) setDraft(selectedUser._id, newText);
               }} onClose={() => setShowEmojiPicker(false)} />}
             </div>
-
-            <button type="button" className={`size-9 flex items-center justify-center rounded-xl transition-all ${imagePreview ? "text-emerald-500 bg-emerald-500/10" : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"}`} onClick={() => imageInputRef.current?.click()} disabled={isSending || isRecording} title="Attach photo">
-              <Image size={19} />
-            </button>
-
-            <button type="button" className={`size-9 flex items-center justify-center rounded-xl transition-all ${filePreview ? "text-emerald-500 bg-emerald-500/10" : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"}`} onClick={() => fileInputRef.current?.click()} disabled={isSending || isRecording} title="Attach file">
-              <Paperclip size={19} />
-            </button>
-
-            <button type="button" className={`size-9 flex items-center justify-center rounded-xl transition-all ${isRecording ? "text-rose-500 bg-rose-500/10" : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"}`} onClick={isRecording ? stopRecording : startRecording} disabled={isSending || (text.trim() && !isRecording)} title={isRecording ? "Stop recording" : "Record voice message"}>
-              {isRecording ? <Square size={16} fill="currentColor" /> : <Mic size={19} />}
-            </button>
-
-            <button type="submit" className="size-9 flex items-center justify-center rounded-xl bg-primary hover:bg-primary-dark text-white ml-1 transition-all duration-200 active:scale-90 disabled:opacity-50 disabled:cursor-not-allowed shadow-soft" disabled={(!text.trim() && !imagePreview && !filePreview && !isRecording) || isSending}>
-              {isSending ? <Loader size={16} className="animate-spin" /> : <Send size={16} />}
-            </button>
           </div>
-        </form>
+
+          {/* Send / Mic Button */}
+          <div className="flex items-center">
+            {hasContent || isRecording ? (
+              <IconButton
+                variant="active"
+                size="lg"
+                onClick={handleSendMessage}
+                disabled={isSending}
+                className="bg-primary hover:bg-primary-dark text-white"
+              >
+                {isSending ? <Loader className="animate-spin" /> : <Send />}
+              </IconButton>
+            ) : (
+              <IconButton
+                size="lg"
+                onClick={isRecording ? stopRecording : startRecording}
+                className="text-primary"
+              >
+                <Mic />
+              </IconButton>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
