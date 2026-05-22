@@ -1,4 +1,3 @@
-import React from 'react';
 import { Avatar } from './ui/BlinkComponents';
 
 const FrequentContacts = ({ users, onSelectUser }) => {

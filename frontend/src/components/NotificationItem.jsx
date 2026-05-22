@@ -1,12 +1,12 @@
 import { formatDistanceToNow } from "../lib/utils";
-import { MessageSquare, AtSign, Reply, UserPlus, Heart, Bell, Shield, Info } from "lucide-react";
+import { MessageSquare, UserPlus, Heart, Bell } from "lucide-react";
 import { useNotificationStore } from "../store/useNotificationStore";
 import { useChatStore } from "../store/useChatStore";
 import { useNavigate } from "react-router-dom";
 import { Avatar } from "./ui/BlinkComponents";
 
 const NotificationItem = ({ notification }) => {
-  const { markAsRead, deleteNotification } = useNotificationStore();
+  const { markAsRead } = useNotificationStore();
   const { setSelectedUser, users } = useChatStore();
   const navigate = useNavigate();
 

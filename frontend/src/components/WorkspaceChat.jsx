@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
 import { 
@@ -11,21 +11,18 @@ import {
   Paperclip, 
   Plus, 
   Download, 
-  Users, 
-  Sparkles, 
-  Volume2, 
-  Mic, 
-  MicOff, 
-  PhoneOff, 
+  Users,
+  Sparkles,
+  Volume2,
+  Mic,
+  MicOff,
+  PhoneOff,
   Brain,
-  MessageSquare,
-  Smile,
   X,
   FileText,
   HelpCircle,
   TrendingUp,
-  CheckCircle2,
-  AlertCircle
+  Loader
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -65,7 +62,7 @@ const WorkspaceChat = ({ onBurgerClick }) => {
     channelTypingUsers
   } = useChatStore();
 
-  const { authUser, onlineUsers } = useAuthStore();
+  const { authUser } = useAuthStore();
 
   const [text, setText] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
@@ -101,9 +98,9 @@ const WorkspaceChat = ({ onBurgerClick }) => {
 
   // Find active channel
   const channel = selectedWorkspace?.channels?.find((c) => c._id === selectedChannelId);
-  const messages = workspaceMessages[selectedChannelId] || [];
-  const polls = workspacePolls[selectedChannelId] || [];
-  const resources = workspaceResources[selectedChannelId] || [];
+  const messages = useMemo(() => workspaceMessages[selectedChannelId] || [], [workspaceMessages, selectedChannelId]);
+  const polls = useMemo(() => workspacePolls[selectedChannelId] || [], [workspacePolls, selectedChannelId]);
+  const resources = useMemo(() => workspaceResources[selectedChannelId] || [], [workspaceResources, selectedChannelId]);
 
   // Scroll to bottom on message change
   useEffect(() => {

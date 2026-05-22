@@ -1,5 +1,3 @@
-import React from 'react';
-
 export const Avatar = ({ src, alt, size = 'md', className = '' }) => {
   const sizeClasses = {
     sm: 'size-8',

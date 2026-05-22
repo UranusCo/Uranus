@@ -22,7 +22,6 @@ const App = () => {
   const { authUser, checkAuth, isCheckingAuth, socket } = useAuthStore();
   const { theme } = useThemeStore();
   const { currentError, clearError, retryCurrentError } = useErrorStore();
-  const { selectedUser, selectedWorkspace } = useChatStore();
   const location = useLocation();
 
   useEffect(() => {

@@ -3,7 +3,6 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import ChatHeader from "./ChatHeader";
 import MessageInput from "./MessageInput";
 import MessageSkeleton from "./skeletons/MessageSkeleton";
-import { useAuthStore } from "../store/useAuthStore";
 import MessageItem from "./MessageItem";
 import MessageVirtualizer from "./MessageVirtualizer";
 import UserProfilePanel from "./UserProfilePanel";
@@ -40,12 +39,9 @@ const ChatContainer = () => {
     markViewOnceOpened,
     isMoreMessagesAvailable,
   } = useChatStore();
-  
-  const { authUser } = useAuthStore();
   const [showProfile, setShowProfile] = useState(false);
   const messageEndRef = useRef(null);
   const [activeMessageMenu, setActiveMessageMenu] = useState(null);
-  const [messageMenuPos, setMessageMenuPos] = useState({ top: 0, left: 0 });
 
   const openMessageMenu = (messageId, buttonRect) => {
     const menuHeight = 270;
@@ -56,7 +52,6 @@ const ChatContainer = () => {
     let left = buttonRect.left > window.innerWidth / 2 ? buttonRect.left - menuWidth - offset : buttonRect.left + buttonRect.width + offset;
     if (left < offset) left = offset;
     if (left + menuWidth > window.innerWidth - offset) left = window.innerWidth - menuWidth - offset;
-    setMessageMenuPos({ top, left });
     setActiveMessageMenu(messageId);
   };
 

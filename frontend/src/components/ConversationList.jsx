@@ -7,7 +7,7 @@ import FrequentContacts from "./FrequentContacts";
 import { Avatar, Badge } from "./ui/BlinkComponents";
 import { Search, Edit3 } from "lucide-react";
 
-const ConversationList = ({ onBurgerClick }) => {
+const ConversationList = () => {
   const {
     getUsers,
     users,
@@ -20,7 +20,6 @@ const ConversationList = ({ onBurgerClick }) => {
 
   const { friends, requests, sentRequests, fetchFriends, fetchRequests } = useFriendStore();
   const { onlineUsers, authUser } = useAuthStore();
-  const [activeFilter, setActiveFilter] = useState("all"); 
   const [searchInput, setSearchInput] = useState("");
   
   useEffect(() => {
@@ -58,11 +57,7 @@ const ConversationList = ({ onBurgerClick }) => {
   const displayUsers = searchInput ? searchResults : users;
   
   // Filter base list to only friends or people with active requests (incoming or outgoing)
-  let baseList = displayUsers.filter(u => isRelated(u._id));
-
-  if (activeFilter === "unread") {
-    baseList = baseList.filter((u) => u.unreadCount > 0);
-  }
+  const baseList = displayUsers.filter(u => isRelated(u._id));
 
   // Frequent users are only actual friends
   const frequentUsers = friends.slice(0, 5);

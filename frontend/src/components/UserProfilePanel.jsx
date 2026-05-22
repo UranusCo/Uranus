@@ -1,4 +1,4 @@
-import React from 'react';
+import { X } from 'lucide-react';
 
 const UserProfilePanel = ({ user, onClose, isOpen }) => {
   if (!user || !isOpen) return null;

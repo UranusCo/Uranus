@@ -1,4 +1,3 @@
-import React from 'react';
 import { MessageSquare, Users, Bell, Settings } from 'lucide-react';
 
 const MobileBottomNav = ({ activeTab, setActiveTab }) => {

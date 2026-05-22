@@ -9,8 +9,7 @@ import {
   Plus, 
   Users, 
   ChevronDown,
-  Volume2,
-  Lock
+  Volume2
 } from "lucide-react";
 
 const WorkspaceSidebar = () => {

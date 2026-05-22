@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useLayoutEffect, useCallback } from "react";
+import { useRef, useState, useEffect, useLayoutEffect, useCallback } from "react";
 import { Loader } from "lucide-react";
 
 const MessageVirtualizer = ({
@@ -17,7 +17,6 @@ const MessageVirtualizer = ({
   const [, forceUpdate] = useState(0);
 
   // Keep track of scroll offset restoration for prepend anchoring
-  const firstVisibleItemRef = useRef(null);
   const prevItemsLength = useRef(0);
   const prevScrollHeight = useRef(0);
   const prevScrollTop = useRef(0);
@@ -48,7 +47,6 @@ const MessageVirtualizer = ({
     if (!container) return;
 
     if (items.length > prevItemsLength.current) {
-      const addedCount = items.length - prevItemsLength.current;
       
       // If we added items and the scroll was not near the bottom, it's likely a prepend (lazy load)
       if (prevScrollTop.current < 200 && prevItemsLength.current > 0) {
@@ -173,7 +171,7 @@ const MessageVirtualizer = ({
           paddingTop: `${paddingTop}px`, 
           paddingBottom: `${paddingBottom}px`,
           position: "relative",
-          width: "full"
+          width: "100%"
         }}
       >
         {visibleItems.map(({ id, index }) => {
