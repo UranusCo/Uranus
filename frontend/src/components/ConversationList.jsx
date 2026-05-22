@@ -56,10 +56,14 @@ const ConversationList = () => {
 
   const displayUsers = searchInput ? searchResults : users;
   
-  // Show all search results during search.
-  const baseList = searchInput
-    ? displayUsers
-    : displayUsers.filter((user) => user.lastMessage || isRelated(user._id));
+  // Show all past chats plus related users in the sidebar.
+  const baseList = displayUsers
+    .filter((user) => searchInput || user.lastMessage || isRelated(user._id))
+    .sort((a, b) => {
+      const aTime = a.lastMessage ? new Date(a.lastMessage.createdAt).getTime() : 0;
+      const bTime = b.lastMessage ? new Date(b.lastMessage.createdAt).getTime() : 0;
+      return bTime - aTime;
+    });
 
   // Frequent users are only actual friends
   const frequentUsers = friends.slice(0, 5);
