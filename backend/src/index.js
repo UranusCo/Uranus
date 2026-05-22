@@ -44,8 +44,8 @@ app.use(
     origin: [
       "http://localhost:5173",
       "http://localhost:5001",
-      "https://uranus.koyeb.app",
-      "https://uranus-app.pages.dev"
+      "https://Blink.koyeb.app",
+      "https://Blink-app.pages.dev"
     ],
     credentials: true,
   })

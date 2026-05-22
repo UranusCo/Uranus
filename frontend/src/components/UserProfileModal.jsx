@@ -111,11 +111,11 @@ const UserProfileModal = ({ open, onClose, user }) => {
               <div className="p-3.5 bg-slate-50/50 dark:bg-slate-800/30 border border-slate-150 dark:border-slate-850 rounded-2xl">
                 <p className="text-[9px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-wider">About</p>
                 <p className="text-xs font-bold text-slate-750 dark:text-slate-200 mt-1 leading-relaxed">
-                  {user.about || 'Hey there! I am using Uranus.'}
+                  {user.about || 'Hey there! I am using Blink.'}
                 </p>
               </div>
               <div className="p-3.5 bg-slate-50/50 dark:bg-slate-800/30 border border-slate-150 dark:border-slate-850 rounded-2xl">
-                <p className="text-[9px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-wider">Joined Uranus</p>
+                <p className="text-[9px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-wider">Joined Blink</p>
                 <p className="text-xs font-bold text-slate-750 dark:text-slate-200 mt-1">
                   {user.createdAt ? new Date(user.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : 'Recently'}
                 </p>
@@ -131,3 +131,4 @@ const UserProfileModal = ({ open, onClose, user }) => {
 };
 
 export default UserProfileModal;
+

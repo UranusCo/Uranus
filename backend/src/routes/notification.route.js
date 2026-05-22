@@ -16,7 +16,7 @@ const PRIVATE_VAPID_KEY = process.env.VAPID_PRIVATE_KEY;
 
 if (PUBLIC_VAPID_KEY && PRIVATE_VAPID_KEY) {
   webpush.setVapidDetails(
-    "mailto:support@uranus-chat.com",
+    "mailto:support@Blink-chat.com",
     PUBLIC_VAPID_KEY,
     PRIVATE_VAPID_KEY
   );

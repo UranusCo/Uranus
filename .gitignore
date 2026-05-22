@@ -27,6 +27,10 @@ dist-ssr
 tasks.md
 agent.md
 
+
+walkthrough
+walkthrough.md
+
 .env
 *.enc
 
@@ -34,3 +38,4 @@ agent.md
 # Iframe embed files (not to be tracked)
 iframe-embed.html
 *-embed.html
+

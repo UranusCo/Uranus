@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
 import { LogOut, Settings, User, MessageCircle } from "lucide-react";
-import UranusLogo from "../../public/uranus.svg";
+import BlinkLogo from "../../public/Blink.svg";
 import { useState } from "react";
 import StatusUpdateModal from "./StatusUpdateModal";
 import NotificationBell from "./NotificationBell";
@@ -25,9 +25,9 @@ const Navbar = () => {
             <div className="flex items-center gap-8">
               <Link to="/" className="flex items-center gap-2.5 hover:opacity-80 transition-all">
                 <div className="size-9 rounded-lg bg-blue-500/10 dark:bg-blue-400/10 flex items-center justify-center overflow-hidden">
-                  <img src={UranusLogo} alt="Uranus Logo" className="w-5 h-5 object-contain" />
+                  <img src={BlinkLogo} alt="Blink Logo" className="w-5 h-5 object-contain" />
                 </div>
-                <h1 className="text-lg font-bold text-slate-800 dark:text-slate-100">Uranus</h1>
+                <h1 className="text-lg font-bold text-slate-800 dark:text-slate-100">Blink</h1>
               </Link>
             </div>
 
@@ -82,3 +82,4 @@ const Navbar = () => {
   );
 };
 export default Navbar;
+

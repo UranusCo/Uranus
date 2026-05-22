@@ -1,4 +1,4 @@
-Uranus Workspace Folder Structure
+Blink Workspace Folder Structure
 ==================================
 
 .
@@ -25,7 +25,7 @@ Uranus Workspace Folder Structure
 │   │   │   ├── index-BiElmxjj.js
 │   │   │   ├── index-C8u3avHL.js
 │   │   │   ├── index-DGmtcvhO.css
-│   │   │   └── uranus-jOLa_z36.svg
+│   │   │   └── Blink-jOLa_z36.svg
 │   │   ├── avatar.png
 │   │   ├── file.enc
 │   │   ├── file.png
@@ -35,7 +35,7 @@ Uranus Workspace Folder Structure
 │   │   ├── robots.txt
 │   │   ├── screenshot-for-readme.png
 │   │   ├── sw.js
-│   │   ├── uranus.svg
+│   │   ├── Blink.svg
 │   │   ├── vite.svg
 │   │   └── workbox-8c29f6e4.js
 │   └── src/
@@ -88,7 +88,7 @@ Uranus Workspace Folder Structure
     │   ├── registerSW.js
     │   ├── robots.txt
     │   ├── service-worker.js
-    │   ├── uranus.svg
+    │   ├── Blink.svg
     │   └── vite.svg
     ├── public/
     │   ├── avatar.png
@@ -96,7 +96,7 @@ Uranus Workspace Folder Structure
     │   ├── file.png
     │   ├── manifest.webmanifest
     │   ├── robots.txt
-    │   ├── uranus.svg
+    │   ├── Blink.svg
     │   └── vite.svg
     └── src/
         ├── App.jsx
@@ -154,3 +154,4 @@ Uranus Workspace Folder Structure
             ├── useErrorStore.js
             ├── useNotificationStore.js
             └── useThemeStore.js
+

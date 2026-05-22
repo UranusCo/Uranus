@@ -82,7 +82,7 @@ const WorkspaceChat = ({ onBurgerClick }) => {
   const [aiConversation, setAiConversation] = useState([
     {
       sender: "ai",
-      text: "Hello! I am your Uranus Workspace AI. I can summarize this channel, list action items, or answer questions about your team's discussion. What would you like to know?"
+      text: "Hello! I am your Blink Workspace AI. I can summarize this channel, list action items, or answer questions about your team's discussion. What would you like to know?"
     }
   ]);
 
@@ -1051,7 +1051,7 @@ const WorkspaceChat = ({ onBurgerClick }) => {
               {aiConversation.map((msg, idx) => (
                 <div key={idx} className={`flex flex-col ${msg.sender === "user" ? "items-end" : "items-start"}`}>
                   <span className="text-[8px] font-bold text-slate-500 uppercase tracking-wide mb-1">
-                    {msg.sender === "user" ? "You" : "Uranus AI"}
+                    {msg.sender === "user" ? "You" : "Blink AI"}
                   </span>
                   <div className={`p-3 rounded-2xl text-xs font-semibold leading-relaxed border ${
                     msg.sender === "user" 
@@ -1088,3 +1088,4 @@ const WorkspaceChat = ({ onBurgerClick }) => {
 };
 
 export default WorkspaceChat;
+

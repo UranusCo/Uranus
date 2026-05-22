@@ -5,7 +5,7 @@ import { io } from "socket.io-client";
 
 const BASE_URL = import.meta.env.MODE === "development" 
   ? "http://localhost:5001" 
-  : (typeof window !== "undefined" && window.location.origin.includes("pages.dev") ? "https://uranus.koyeb.app" : window.location.origin);
+  : (typeof window !== "undefined" && window.location.origin.includes("pages.dev") ? "https://Blink.koyeb.app" : window.location.origin);
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,
@@ -117,3 +117,4 @@ export const useAuthStore = create((set, get) => ({
     if (get().socket?.connected) get().socket.disconnect();
   },
 }));
+

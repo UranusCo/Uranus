@@ -162,7 +162,7 @@ const WorkspaceSidebar = () => {
           <div className="flex flex-col min-w-0">
             <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wide">Invite Link</span>
             <span className="text-[11px] text-blue-500 dark:text-blue-400 font-semibold truncate select-all cursor-pointer">
-              uranus.chat/{selectedWorkspace.name.toLowerCase().replace(/\s+/g, "-")}
+              Blink.chat/{selectedWorkspace.name.toLowerCase().replace(/\s+/g, "-")}
             </span>
           </div>
         </div>
@@ -255,3 +255,4 @@ const WorkspaceSidebar = () => {
 };
 
 export default WorkspaceSidebar;
+

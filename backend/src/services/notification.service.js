@@ -65,7 +65,7 @@ class NotificationService {
       recipient: userId,
       actor: userId, // Self as actor for system notifications
       type: "welcome",
-      title: "Welcome to Uranus!",
+      title: "Welcome to Blink!",
       body: "We're glad you're here. Start chatting with your friends!",
     });
   }

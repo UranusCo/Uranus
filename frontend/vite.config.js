@@ -10,8 +10,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'favicon.ico', 'robots.txt'],
       manifest: {
-        name: 'Uranus Chat',
-        short_name: 'Uranus',
+        name: 'Blink Chat',
+        short_name: 'Blink',
         description: 'Modern next-gen chat app with advanced features.',
         theme_color: '#070724',
         background_color: '#0b0f19',
@@ -48,3 +48,4 @@ export default defineConfig({
     sourcemap: true,
   },
 })
+

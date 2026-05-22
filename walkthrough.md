@@ -1,6 +1,6 @@
-# Walkthrough - Uranus Chat Server & Workspace Revamp
+# Walkthrough - Blink Chat Server & Workspace Revamp
 
-We have completed the comprehensive revamp of the Uranus Chat application! This upgrade converts a basic React message board into a high-performance, real-time communication platform inspired by Discord and Slack. All database models, routes, stores, UI rails, virtual lists, and responsive drawers are fully operational and verified.
+We have completed the comprehensive revamp of the Blink Chat application! This upgrade converts a basic React message board into a high-performance, real-time communication platform inspired by Discord and Slack. All database models, routes, stores, UI rails, virtual lists, and responsive drawers are fully operational and verified.
 
 ---
 
@@ -39,17 +39,18 @@ We have completed the comprehensive revamp of the Uranus Chat application! This 
 ## 📂 Modified & Added Files
 
 ### Frontend Components & Pages
-- [MODIFY] [ChatHeader.jsx](file:///d:/Uranus/Uranus/frontend/src/components/ChatHeader.jsx): Fully wired with mobile burger menus and negative margin alignment transitions.
-- [MODIFY] [ChatContainer.jsx](file:///d:/Uranus/Uranus/frontend/src/components/ChatContainer.jsx): Accepts and propagates mobile drawers throughout active DMs.
-- [MODIFY] [HomePage.jsx](file:///d:/Uranus/Uranus/frontend/src/pages/HomePage.jsx): Multi-panel master assembler equipped with backdrop blur drawer triggers.
-- [NEW] [MessageVirtualizer.jsx](file:///d:/Uranus/Uranus/frontend/src/components/MessageVirtualizer.jsx): Dynamic height row window list manager.
-- [NEW] [WorkspaceSidebar.jsx](file:///d:/Uranus/Uranus/frontend/src/components/WorkspaceSidebar.jsx): Segmented channel list and member sidebar.
-- [NEW] [WorkspaceChat.jsx](file:///d:/Uranus/Uranus/frontend/src/components/WorkspaceChat.jsx): Feature-rich interactive workspace container.
+- [MODIFY] [ChatHeader.jsx](file:///d:/Blink/Blink/frontend/src/components/ChatHeader.jsx): Fully wired with mobile burger menus and negative margin alignment transitions.
+- [MODIFY] [ChatContainer.jsx](file:///d:/Blink/Blink/frontend/src/components/ChatContainer.jsx): Accepts and propagates mobile drawers throughout active DMs.
+- [MODIFY] [HomePage.jsx](file:///d:/Blink/Blink/frontend/src/pages/HomePage.jsx): Multi-panel master assembler equipped with backdrop blur drawer triggers.
+- [NEW] [MessageVirtualizer.jsx](file:///d:/Blink/Blink/frontend/src/components/MessageVirtualizer.jsx): Dynamic height row window list manager.
+- [NEW] [WorkspaceSidebar.jsx](file:///d:/Blink/Blink/frontend/src/components/WorkspaceSidebar.jsx): Segmented channel list and member sidebar.
+- [NEW] [WorkspaceChat.jsx](file:///d:/Blink/Blink/frontend/src/components/WorkspaceChat.jsx): Feature-rich interactive workspace container.
 
 ### Backend Data Layers
-- [NEW] [workspace.model.js](file:///d:/Uranus/Uranus/backend/src/models/workspace.model.js)
-- [NEW] [workspaceMessage.model.js](file:///d:/Uranus/Uranus/backend/src/models/workspaceMessage.model.js)
-- [NEW] [workspacePoll.model.js](file:///d:/Uranus/Uranus/backend/src/models/workspacePoll.model.js)
-- [NEW] [workspaceResource.model.js](file:///d:/Uranus/Uranus/backend/src/models/workspaceResource.model.js)
-- [NEW] [workspace.controller.js](file:///d:/Uranus/Uranus/backend/src/controllers/workspace.controller.js)
-- [NEW] [workspace.route.js](file:///d:/Uranus/Uranus/backend/src/routes/workspace.route.js)
+- [NEW] [workspace.model.js](file:///d:/Blink/Blink/backend/src/models/workspace.model.js)
+- [NEW] [workspaceMessage.model.js](file:///d:/Blink/Blink/backend/src/models/workspaceMessage.model.js)
+- [NEW] [workspacePoll.model.js](file:///d:/Blink/Blink/backend/src/models/workspacePoll.model.js)
+- [NEW] [workspaceResource.model.js](file:///d:/Blink/Blink/backend/src/models/workspaceResource.model.js)
+- [NEW] [workspace.controller.js](file:///d:/Blink/Blink/backend/src/controllers/workspace.controller.js)
+- [NEW] [workspace.route.js](file:///d:/Blink/Blink/backend/src/routes/workspace.route.js)
+

@@ -1,5 +1,5 @@
-# Uranus Chat App Test Script
-# This script sets up and starts the Uranus chat application for testing
+# Blink Chat App Test Script
+# This script sets up and starts the Blink chat application for testing
 #
 # Usage:
 # .\test.ps1                    # Run on default port 5000
@@ -8,7 +8,7 @@
 # To run this script:
 # 1. Open PowerShell as Administrator
 # 2. Set execution policy if needed: Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-# 3. Navigate to the project root: cd E:\Uranus\Uranus
+# 3. Navigate to the project root: cd E:\Blink\Blink
 # 4. Run: .\test.ps1 [-Port <port_number>]
 
 param(
@@ -16,7 +16,7 @@ param(
     [int]$Port = 5000
 )
 
-Write-Host "Setting up Uranus Chat App..." -ForegroundColor Cyan
+Write-Host "Setting up Blink Chat App..." -ForegroundColor Cyan
 
 # Install backend dependencies
 Write-Host "Installing backend dependencies..." -ForegroundColor Yellow
@@ -42,7 +42,7 @@ New-Item -ItemType Directory -Path "backend/public" -Force | Out-Null
 Copy-Item -Path "frontend/dist/*" -Destination "backend/public/" -Recurse -Force
 
 # Start the application
-Write-Host "Starting Uranus Chat App..." -ForegroundColor Green
+Write-Host "Starting Blink Chat App..." -ForegroundColor Green
 Write-Host "The app will be available at http://localhost:$Port" -ForegroundColor Green
 $env:NODE_ENV = "production"
 $env:PORT = $Port

@@ -10,7 +10,7 @@ import {
   Compass,
   LayoutGrid
 } from "lucide-react";
-import UranusLogo from "../../public/uranus.svg";
+import BlinkLogo from "../../public/Blink.svg";
 import NotificationBell from "./NotificationBell";
 
 const SidebarRail = ({ activeTab = "chats", setActiveTab = () => {}, forceShow = false }) => {
@@ -80,7 +80,7 @@ const SidebarRail = ({ activeTab = "chats", setActiveTab = () => {}, forceShow =
                   : "rounded-[24px] bg-slate-800 text-slate-400 hover:rounded-[14px] hover:bg-blue-600 hover:text-white"
               }`}
             >
-              <img src={UranusLogo} alt="Uranus" className="w-5 h-5 object-contain filter brightness-0 invert" />
+              <img src={BlinkLogo} alt="Blink" className="w-5 h-5 object-contain filter brightness-0 invert" />
             </div>
             {/* Tooltip */}
             <span className="absolute left-[70px] px-3 py-1.5 bg-slate-950 text-slate-100 text-xs font-semibold rounded-lg shadow-xl border border-slate-800 opacity-0 scale-95 origin-left pointer-events-none group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 whitespace-nowrap z-50">
@@ -267,3 +267,4 @@ const SidebarRail = ({ activeTab = "chats", setActiveTab = () => {}, forceShow =
 };
 
 export default SidebarRail;
+

@@ -11,11 +11,11 @@ precacheAndRoute(self.__WB_MANIFEST || []);
 self.addEventListener('push', (event) => {
   const data = event.data ? event.data.json() : {};
   
-  const title = data.title || 'Uranus';
+  const title = data.title || 'Blink';
   const options = {
-    body: data.body || 'New message in Uranus',
-    icon: '/uranus.svg',
-    badge: '/uranus.svg',
+    body: data.body || 'New message in Blink',
+    icon: '/Blink.svg',
+    badge: '/Blink.svg',
     data: {
       url: data.url || '/',
     },
@@ -32,3 +32,4 @@ self.addEventListener('notificationclick', (event) => {
     self.clients.openWindow(event.notification.data.url)
   );
 });
+

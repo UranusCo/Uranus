@@ -92,7 +92,7 @@ const UsersPanel = ({ setActiveTab }) => {
           People
         </h2>
         <p className="text-xs text-slate-400 dark:text-slate-500 font-semibold mt-0.5">
-          Find and connect with people on Uranus
+          Find and connect with people on Blink
         </p>
 
         {/* Search */}
@@ -414,3 +414,4 @@ const UsersPanel = ({ setActiveTab }) => {
 };
 
 export default UsersPanel;
+
