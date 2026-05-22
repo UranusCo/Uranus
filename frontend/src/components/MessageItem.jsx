@@ -10,6 +10,7 @@ const MessageItem = ({
   message, 
   index, 
   messagesLength, 
+  messages,
   messageEndRef, 
   selectedUser, 
   activeMessageMenu, 

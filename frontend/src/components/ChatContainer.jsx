@@ -156,6 +156,7 @@ const ChatContainer = ({ onBurgerClick }) => {
           message={message}
           index={index}
           messagesLength={messages.length}
+          messages={messages}
           messageEndRef={messageEndRef}
           selectedUser={selectedUser}
           activeMessageMenu={activeMessageMenu}
