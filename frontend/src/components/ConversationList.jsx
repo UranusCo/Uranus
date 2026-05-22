@@ -25,7 +25,29 @@ const ConversationList = () => {
   const { friends, requests, sentRequests, fetchFriends, fetchRequests } = useFriendStore();
   const { onlineUsers, authUser } = useAuthStore();
   const [searchInput, setSearchInput] = useState("");
+  const [activeContextMenu, setActiveContextMenu] = useState(null);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const searchRef = useRef(null);
+  
+  const handleContextMenu = (e, userId) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const menuWidth = 180;
+    const menuHeight = 200;
+    const offset = 8;
+    
+    let top = e.clientY;
+    let left = e.clientX;
+    
+    if (top + menuHeight > window.innerHeight) top = window.innerHeight - menuHeight - offset;
+    if (left + menuWidth > window.innerWidth) left = window.innerWidth - menuWidth - offset;
+    
+    setMenuPosition({ top, left });
+    setActiveContextMenu(userId);
+  };
+
+  const closeContextMenu = () => setActiveContextMenu(null);
   
   useEffect(() => {
     getUsers();
@@ -105,6 +127,7 @@ const ConversationList = () => {
       <button
         key={user._id}
         onClick={() => setSelectedUser(user)}
+        onContextMenu={(e) => handleContextMenu(e, user._id)}
         className={`w-full flex items-center gap-3.5 p-3.5 mx-2 rounded-2xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50 ${
           isSelected 
             ? "bg-primary/10 shadow-soft" 
@@ -174,6 +197,21 @@ const ConversationList = () => {
           </>
         )}
       </div>
+
+      {activeContextMenu && (
+        <>
+          <div className="fixed inset-0 z-[9998]" onClick={closeContextMenu} />
+          <div 
+            className="fixed z-[9999] bg-surface dark:bg-surface-dark border border-border dark:border-border-dark rounded-xl shadow-elevated py-1.5 min-w-[180px] animate-in fade-in zoom-in-95 duration-100"
+            style={{ top: menuPosition.top, left: menuPosition.left }}
+          >
+            <button className="w-full px-4 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Archive chat</button>
+            <button className="w-full px-4 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Mute notifications</button>
+            <button className="w-full px-4 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border-t border-border dark:border-border-dark mt-1">Exit group</button>
+            <button className="w-full px-4 py-2 text-left text-sm text-danger hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Delete chat</button>
+          </div>
+        </>
+      )}
     </aside>
   );
 };

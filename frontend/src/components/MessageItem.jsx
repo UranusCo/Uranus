@@ -105,6 +105,7 @@ const MessageItem = ({
                handleMenuClick={handleMenuClick}
                markViewOnceOpened={markViewOnceOpened}
                commonBubbleClasses={commonBubbleClasses}
+               openMessageMenu={openMessageMenu}
              />
           </div>
         </div>
@@ -123,6 +124,7 @@ const MessageItem = ({
             handleMenuClick={handleMenuClick}
             markViewOnceOpened={markViewOnceOpened}
             commonBubbleClasses={commonBubbleClasses}
+            openMessageMenu={openMessageMenu}
           />
         </div>
       )}
@@ -140,8 +142,15 @@ const MessageContent = ({
   handleLongPressEnd, 
   handleMenuClick,
   markViewOnceOpened,
-  commonBubbleClasses
+  commonBubbleClasses,
+  openMessageMenu
 }) => {
+  const handleContextMenu = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    openMessageMenu(message._id, { top: e.clientY, left: e.clientX });
+  };
+
   const linkify = (text) => {
     if (!text) return "";
     const urlRegex = /(https?:\/\/[^\s<]+[^.,:;"'!)\]\s])/g;
@@ -187,6 +196,7 @@ const MessageContent = ({
         <div
           className={`${commonBubbleClasses} ${message.isDeleted ? "" : (isSelf ? "bubble-tail-self" : "bubble-tail-other")}`}
           onDoubleClick={handleDoubleClick}
+          onContextMenu={handleContextMenu}
           onTouchStart={message.isDeleted ? undefined : (e) => { e.stopPropagation(); handleLongPressStart?.(message._id); }}
           onTouchEnd={message.isDeleted ? undefined : handleLongPressEnd}
           onTouchMove={message.isDeleted ? undefined : handleLongPressEnd}

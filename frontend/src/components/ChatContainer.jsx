@@ -52,13 +52,25 @@ const ChatContainer = () => {
   const [activeMessageMenu, setActiveMessageMenu] = useState(null);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
 
-  const openMessageMenu = useCallback((messageId, buttonRect) => {
+  const openMessageMenu = useCallback((messageId, position) => {
     const menuHeight = 270;
     const menuWidth = 220;
     const offset = 8;
-    let top = buttonRect.top;
+    
+    let top, left;
+
+    if (position.top !== undefined && position.left !== undefined && position.width === undefined) {
+      // Point-based positioning (from right click)
+      top = position.top;
+      left = position.left;
+    } else {
+      // Rect-based positioning (from chevron button)
+      top = position.top;
+      left = position.left > window.innerWidth / 2 ? position.left - menuWidth - offset : position.left + position.width + offset;
+    }
+
+    // Viewport containment
     if (top + menuHeight > window.innerHeight) top = Math.max(offset, window.innerHeight - menuHeight - offset);
-    let left = buttonRect.left > window.innerWidth / 2 ? buttonRect.left - menuWidth - offset : buttonRect.left + buttonRect.width + offset;
     if (left < offset) left = offset;
     if (left + menuWidth > window.innerWidth - offset) left = window.innerWidth - menuWidth - offset;
     
