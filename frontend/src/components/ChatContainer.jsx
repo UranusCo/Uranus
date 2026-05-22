@@ -45,7 +45,7 @@ const ChatContainer = () => {
   const [activeMessageMenu, setActiveMessageMenu] = useState(null);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
 
-  const openMessageMenu = (messageId, buttonRect) => {
+  const openMessageMenu = useCallback((messageId, buttonRect) => {
     const menuHeight = 270;
     const menuWidth = 220;
     const offset = 8;
@@ -57,7 +57,7 @@ const ChatContainer = () => {
     
     setMenuPosition({ top, left });
     setActiveMessageMenu(messageId);
-  };
+  }, []);
 
   const closeMessageMenu = () => setActiveMessageMenu(null);
 
@@ -107,7 +107,7 @@ const ChatContainer = () => {
         />
       </div>
     );
-  }, [messages, selectedUser, activeMessageMenu, addReaction, removeReaction, markViewOnceOpened]);
+  }, [messages, selectedUser, activeMessageMenu, openMessageMenu, addReaction, removeReaction, markViewOnceOpened]);
 
   const loadMoreMessages = () => {
     if (selectedUser?._id && isMoreMessagesAvailable && !isLoadingMoreMessages) {
