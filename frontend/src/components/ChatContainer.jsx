@@ -1,5 +1,5 @@
 import { useChatStore } from "../store/useChatStore";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 
 import ChatHeader from "./ChatHeader";
 import MessageInput from "./MessageInput";
@@ -11,6 +11,7 @@ import MessageSearch from "./MessageSearch";
 import ReplyPreview from "./ReplyPreview";
 import EditingIndicator from "./EditingIndicator";
 import { Loader } from "lucide-react";
+import MessageVirtualizer from "./MessageVirtualizer";
 
 const isSameDay = (d1, d2) => {
   const a = new Date(d1);
@@ -32,7 +33,7 @@ const formatDateLabel = (dateStr) => {
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 };
 
-const ChatContainer = () => {
+const ChatContainer = ({ onBurgerClick }) => {
   const {
     messages,
     getMessages,
@@ -52,9 +53,6 @@ const ChatContainer = () => {
   
   const { authUser } = useAuthStore();
   const messageEndRef = useRef(null);
-  const scrollRef = useRef(null);
-  const loadingMoreRef = useRef(false);
-  const topSentinelRef = useRef(null);
   const longPressRef = useRef(null);
   const ignoreNextClickRef = useRef(false);
 
@@ -62,6 +60,7 @@ const ChatContainer = () => {
   const [showPinned, setShowPinned] = useState(false);
   const [activeMessageMenu, setActiveMessageMenu] = useState(null);
   const [messageMenuPos, setMessageMenuPos] = useState({ top: 0, left: 0 });
+  const [loadingMore, setLoadingMore] = useState(false);
 
   const openMessageMenu = (messageId, buttonRect) => {
     const menuHeight = 270;
@@ -118,38 +117,12 @@ const ChatContainer = () => {
     getPinnedMessages(selectedUser._id);
   }, [selectedUser._id, getMessages, getPinnedMessages]);
 
-  useEffect(() => {
-    if (messageEndRef.current && messages && !loadingMoreRef.current) {
-      messageEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [messages]);
-
-  // Infinite scroll observer
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      async (entries) => {
-        if (entries[0].isIntersecting && isMoreMessagesAvailable && !loadingMoreRef.current && messages.length > 0) {
-          loadingMoreRef.current = true;
-          const scrollContainer = scrollRef.current;
-          const oldScrollHeight = scrollContainer.scrollHeight;
-          const oldScrollTop = scrollContainer.scrollTop;
-
-          await getMessages(selectedUser._id, true);
-          
-          // Restore scroll position after prepending messages
-          if (scrollContainer) {
-            scrollContainer.scrollTop = scrollContainer.scrollHeight - oldScrollHeight + oldScrollTop;
-          }
-          loadingMoreRef.current = false;
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (topSentinelRef.current) observer.observe(topSentinelRef.current);
-
-    return () => observer.disconnect();
-  }, [selectedUser._id, isMoreMessagesAvailable, messages.length, getMessages]);
+  const handleScrollToTop = async () => {
+    if (loadingMore || !isMoreMessagesAvailable) return;
+    setLoadingMore(true);
+    await getMessages(selectedUser._id, true);
+    setLoadingMore(false);
+  };
 
   useEffect(() => {
     const handler = (e) => {
@@ -186,18 +159,87 @@ const ChatContainer = () => {
   if (isMessagesLoading && messages.length === 0) {
     return (
       <div className="flex-1 flex flex-col h-full bg-slate-100 dark:bg-slate-900 transition-colors duration-200">
-        <ChatHeader />
+        <ChatHeader onBurgerClick={onBurgerClick} />
         <MessageSkeleton />
         <MessageInput />
       </div>
     );
   }
 
+
+
+
+
+  const renderItem = useCallback((message, index) => {
+    if (message.isTyping) {
+      return (
+        <div className="max-w-[800px] w-full mx-auto px-3 sm:px-5 py-3">
+          <div className="flex gap-3 items-start w-full message-item">
+            <div className="flex-shrink-0 mt-0.5">
+              <img
+                src={selectedUser.profilePic || "/avatar.png"}
+                alt={selectedUser.fullName}
+                className="size-10 rounded-full object-cover shadow-sm border border-slate-200 dark:border-slate-700"
+              />
+            </div>
+            <div className="flex flex-col items-start max-w-[85%] sm:max-w-[60%]">
+              <div className="flex items-center gap-1.5 mb-1 px-1.5 text-[11px] text-slate-455 dark:text-slate-500 font-semibold">
+                <span className="font-bold text-slate-600 dark:text-slate-350">{selectedUser.fullName}</span>
+                <span>•</span>
+                <span className="text-emerald-500 font-bold animate-pulse">Typing</span>
+              </div>
+              <div className="px-4.5 py-3 rounded-2xl rounded-tl-none bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-100 shadow-sm flex items-center justify-center border border-slate-200/40 dark:border-slate-600/40">
+                <div className="typing">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    const showDateSeparator = index === 0 || !isSameDay(message.createdAt, messages[index - 1].createdAt);
+
+    return (
+      <div className="max-w-[800px] w-full mx-auto px-3 sm:px-5 py-0.5">
+        {showDateSeparator && (
+          <div className="date-separator">
+            <span>{formatDateLabel(message.createdAt)}</span>
+          </div>
+        )}
+        <MessageItem
+          message={message}
+          index={index}
+          messagesLength={messages.length}
+          messageEndRef={messageEndRef}
+          selectedUser={selectedUser}
+          activeMessageMenu={activeMessageMenu}
+          openMessageMenu={openMessageMenu}
+          closeMessageMenu={closeMessageMenu}
+          handleLongPressStart={handleLongPressStart}
+          handleLongPressEnd={handleLongPressEnd}
+          addReaction={addReaction}
+          removeReaction={removeReaction}
+          markViewOnceOpened={markViewOnceOpened}
+        />
+      </div>
+    );
+  }, [messages, selectedUser, activeMessageMenu, openMessageMenu, closeMessageMenu, handleLongPressStart, handleLongPressEnd, addReaction, removeReaction, markViewOnceOpened]);
+
+  const virtualItems = [
+    ...messages,
+    ...(typingUsers.length > 0 ? [{ _id: "typing-indicator", isTyping: true }] : [])
+  ];
+
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden bg-slate-100 dark:bg-slate-900 transition-colors duration-200">
       <ChatHeader
         onSearchClick={() => setShowSearch(!showSearch)}
         onPinnedClick={() => setShowPinned(!showPinned)}
+        onBurgerClick={onBurgerClick}
       />
 
       {/* Search Panel */}
@@ -237,83 +279,20 @@ const ChatContainer = () => {
       )}
 
       {/* Messages Viewport */}
-      <div
-        className="flex-1 overflow-y-auto px-3 sm:px-5 py-3 message-container select-text chat-bg-pattern"
-        ref={scrollRef}
+      <div 
+        className="flex-1 overflow-hidden select-text chat-bg-pattern relative"
         onClick={() => {
           if (ignoreNextClickRef.current) { ignoreNextClickRef.current = false; return; }
           if (activeMessageMenu) setActiveMessageMenu(null);
         }}
       >
-        <div className="max-w-[800px] w-full mx-auto">
-          {/* Scroll Sentinel */}
-          <div ref={topSentinelRef} className="h-1" />
-          
-          {isMoreMessagesAvailable && messages.length > 0 && (
-            <div className="flex justify-center py-3">
-              <Loader size={16} className="animate-spin text-blue-500" />
-            </div>
-          )}
-
-          {messages.map((message, index) => {
-            const showDateSeparator = index === 0 || !isSameDay(message.createdAt, messages[index - 1].createdAt);
-            return (
-              <div key={message._id} className={showDateSeparator ? "mt-1" : ""}>
-                {showDateSeparator && (
-                  <div className="date-separator">
-                    <span>{formatDateLabel(message.createdAt)}</span>
-                  </div>
-                )}
-                <div className={index > 0 && !showDateSeparator ? "mt-1" : ""}>
-                  <MessageItem
-                    message={message}
-                    index={index}
-                    messagesLength={messages.length}
-                    messageEndRef={messageEndRef}
-                    selectedUser={selectedUser}
-                    activeMessageMenu={activeMessageMenu}
-                    openMessageMenu={openMessageMenu}
-                    closeMessageMenu={closeMessageMenu}
-                    handleLongPressStart={handleLongPressStart}
-                    handleLongPressEnd={handleLongPressEnd}
-                    addReaction={addReaction}
-                    removeReaction={removeReaction}
-                    markViewOnceOpened={markViewOnceOpened}
-                  />
-                </div>
-              </div>
-            );
-          })}
-
-          {/* Typing Indicator */}
-          {typingUsers.length > 0 && (
-            <div className="flex gap-3 items-start w-full message-item">
-              <div className="flex-shrink-0 mt-0.5">
-                <img
-                  src={selectedUser.profilePic || "/avatar.png"}
-                  alt={selectedUser.fullName}
-                  className="size-10 rounded-full object-cover shadow-sm border border-slate-200 dark:border-slate-700"
-                />
-              </div>
-              <div className="flex flex-col items-start max-w-[85%] sm:max-w-[60%]">
-                <div className="flex items-center gap-1.5 mb-1 px-1.5 text-[11px] text-slate-455 dark:text-slate-500 font-semibold">
-                  <span className="font-bold text-slate-600 dark:text-slate-350">{selectedUser.fullName}</span>
-                  <span>•</span>
-                  <span className="text-emerald-500 font-bold animate-pulse">Typing</span>
-                </div>
-                <div className="px-4.5 py-3 rounded-2xl rounded-tl-none bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-100 shadow-sm flex items-center justify-center border border-slate-200/40 dark:border-slate-600/40">
-                  <div className="typing">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div ref={messageEndRef} />
-        </div>
+        <MessageVirtualizer
+          items={virtualItems}
+          renderItem={renderItem}
+          onScrollToTop={handleScrollToTop}
+          isMoreAvailable={isMoreMessagesAvailable}
+          isLoadingMore={loadingMore}
+        />
       </div>
 
       {/* Reply Preview */}

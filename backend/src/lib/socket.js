@@ -52,6 +52,27 @@ io.on("connection", (socket) => {
     }
   });
 
+  // Workspace and Channel Socket Actions
+  socket.on("joinWorkspace", (workspaceId) => {
+    socket.join(workspaceId);
+    console.log(`User ${userId} joined workspace room: ${workspaceId}`);
+  });
+
+  socket.on("leaveWorkspace", (workspaceId) => {
+    socket.leave(workspaceId);
+    console.log(`User ${userId} left workspace room: ${workspaceId}`);
+  });
+
+  socket.on("channelTyping", (data) => {
+    const { workspaceId, channelId } = data;
+    socket.to(workspaceId).emit("userChannelTyping", { userId, channelId });
+  });
+
+  socket.on("channelStopTyping", (data) => {
+    const { workspaceId, channelId } = data;
+    socket.to(workspaceId).emit("userChannelStopTyping", { userId, channelId });
+  });
+
   // Read receipt
   socket.on("messageRead", (data) => {
     const { senderId, receiverId } = data;

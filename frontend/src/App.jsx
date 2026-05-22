@@ -22,7 +22,7 @@ const App = () => {
   const { authUser, checkAuth, isCheckingAuth, socket } = useAuthStore();
   const { theme } = useThemeStore();
   const { currentError, clearError, retryCurrentError } = useErrorStore();
-  const { selectedUser } = useChatStore();
+  const { selectedUser, selectedWorkspace } = useChatStore();
   const location = useLocation();
 
   useEffect(() => {
@@ -82,7 +82,7 @@ const App = () => {
       {!(authUser && isHomePage) ? (
         <Navbar />
       ) : (
-        <div className={`lg:hidden ${selectedUser ? "hidden" : ""}`}>
+        <div className={`lg:hidden ${(selectedUser || selectedWorkspace) ? "hidden" : ""}`}>
           <Navbar />
         </div>
       )}

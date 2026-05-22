@@ -27,6 +27,7 @@ import authRoutes from "./routes/auth.route.js";
 import messageRoutes from "./routes/message.route.js";
 import notificationRoutes from "./routes/notification.route.js";
 import friendshipRoutes from "./routes/friendship.route.js";
+import workspaceRoutes from "./routes/workspace.route.js";
 import { app, server } from "./lib/socket.js";
 import { deleteExpiredMessages } from "./controllers/message.controller.js";
 
@@ -54,6 +55,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/friends", friendshipRoutes);
+app.use("/api/workspaces", workspaceRoutes);
 
 if (process.env.NODE_ENV === "production") {
   // Serve static frontend files from backend/public

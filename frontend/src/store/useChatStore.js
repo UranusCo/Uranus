@@ -27,6 +27,15 @@ export const useChatStore = create((set, get) => ({
   drafts: {},
   isMoreMessagesAvailable: true,
 
+  // Real Workspace/Server structure
+  workspaces: [],
+  selectedWorkspace: null,
+  selectedChannelId: null,
+  workspaceMessages: {},
+  workspacePolls: {},
+  workspaceResources: {},
+  channelTypingUsers: [],
+
   groups: [
     {
       _id: "group-1",
@@ -566,6 +575,125 @@ export const useChatStore = create((set, get) => ({
       set({ messages: [] });
       toast.info("Chat history was cleared");
     });
+
+    // --- REAL BACKEND WORKSPACE SOCKET EVENTS ---
+    socket.on("newWorkspaceMessage", (newMessage) => {
+      const { workspaceMessages } = get();
+      const channelId = newMessage.channelId;
+      const list = workspaceMessages[channelId] || [];
+      
+      // Avoid duplicate rendering
+      if (list.some(msg => msg._id === newMessage._id)) return;
+
+      set({
+        workspaceMessages: {
+          ...workspaceMessages,
+          [channelId]: [...list, newMessage]
+        }
+      });
+    });
+
+    socket.on("workspaceReactionAdded", (data) => {
+      const { messageId, reactions, channelId } = data;
+      const { workspaceMessages } = get();
+      const list = workspaceMessages[channelId] || [];
+      set({
+        workspaceMessages: {
+          ...workspaceMessages,
+          [channelId]: list.map(msg => msg._id === messageId ? { ...msg, reactions } : msg)
+        }
+      });
+    });
+
+    socket.on("workspaceReactionRemoved", (data) => {
+      const { messageId, reactions, channelId } = data;
+      const { workspaceMessages } = get();
+      const list = workspaceMessages[channelId] || [];
+      set({
+        workspaceMessages: {
+          ...workspaceMessages,
+          [channelId]: list.map(msg => msg._id === messageId ? { ...msg, reactions } : msg)
+        }
+      });
+    });
+
+    socket.on("pollCreated", (newPoll) => {
+      const { workspacePolls } = get();
+      const channelId = newPoll.channelId;
+      const list = workspacePolls[channelId] || [];
+      if (list.some(p => p._id === newPoll._id)) return;
+
+      set({
+        workspacePolls: {
+          ...workspacePolls,
+          [channelId]: [newPoll, ...list]
+        }
+      });
+    });
+
+    socket.on("pollVoted", (updatedPoll) => {
+      const { workspacePolls } = get();
+      const channelId = updatedPoll.channelId;
+      const list = workspacePolls[channelId] || [];
+      set({
+        workspacePolls: {
+          ...workspacePolls,
+          [channelId]: list.map(p => p._id === updatedPoll._id ? updatedPoll : p)
+        }
+      });
+    });
+
+    socket.on("resourceUploaded", (newRes) => {
+      const { workspaceResources } = get();
+      const channelId = newRes.channelId;
+      const list = workspaceResources[channelId] || [];
+      if (list.some(r => r._id === newRes._id)) return;
+
+      set({
+        workspaceResources: {
+          ...workspaceResources,
+          [channelId]: [newRes, ...list]
+        }
+      });
+    });
+
+    socket.on("channelCreated", (data) => {
+      const { workspaceId, workspace } = data;
+      const { workspaces, selectedWorkspace } = get();
+      const updated = workspaces.map(w => w._id === workspaceId ? workspace : w);
+      set({
+        workspaces: updated,
+        selectedWorkspace: selectedWorkspace && selectedWorkspace._id === workspaceId ? workspace : selectedWorkspace
+      });
+    });
+
+    socket.on("userJoinedWorkspace", (data) => {
+      const { workspaceId, workspace } = data;
+      const { workspaces, selectedWorkspace } = get();
+      const updated = workspaces.map(w => w._id === workspaceId ? workspace : w);
+      set({
+        workspaces: updated,
+        selectedWorkspace: selectedWorkspace && selectedWorkspace._id === workspaceId ? workspace : selectedWorkspace
+      });
+    });
+
+    socket.on("userChannelTyping", (data) => {
+      const { userId, channelId } = data;
+      const { selectedChannelId, channelTypingUsers } = get();
+      if (selectedChannelId === channelId) {
+        if (!channelTypingUsers.includes(userId)) {
+          set({ channelTypingUsers: [...channelTypingUsers, userId] });
+        }
+      }
+    });
+
+    socket.on("userChannelStopTyping", (data) => {
+      const { userId, channelId } = data;
+      const { selectedChannelId, channelTypingUsers } = get();
+      if (selectedChannelId === channelId) {
+        set({ channelTypingUsers: channelTypingUsers.filter(id => id !== userId) });
+      }
+    });
   },
 
   unsubscribeFromMessages: () => {
@@ -582,6 +710,18 @@ export const useChatStore = create((set, get) => ({
     socket.off("messagePinToggled");
     socket.off("userStatusChanged");
     socket.off("chatCleared");
+    
+    // Clean workspace events
+    socket.off("newWorkspaceMessage");
+    socket.off("workspaceReactionAdded");
+    socket.off("workspaceReactionRemoved");
+    socket.off("pollCreated");
+    socket.off("pollVoted");
+    socket.off("resourceUploaded");
+    socket.off("channelCreated");
+    socket.off("userJoinedWorkspace");
+    socket.off("userChannelTyping");
+    socket.off("userChannelStopTyping");
   },
 
   setSelectedUser: (selectedUser) => {
@@ -649,6 +789,271 @@ export const useChatStore = create((set, get) => ({
     } catch (error) {
       useErrorStore.getState().handleApiError(error, "export chat");
       return false;
+    }
+  },
+
+  initWorkspaces: async () => {
+    try {
+      const res = await axiosInstance.get("/workspaces");
+      const workspaces = res.data;
+
+      // Automatically join the workspace socket room for all workspaces!
+      const socket = useAuthStore.getState().socket;
+      if (socket) {
+        workspaces.forEach(w => {
+          socket.emit("joinWorkspace", w._id);
+        });
+      }
+
+      set({ workspaces });
+      
+      if (workspaces.length > 0) {
+        const defaultWorkspace = workspaces[0];
+        get().setSelectedWorkspace(defaultWorkspace);
+      }
+    } catch (e) {
+      console.error("Failed to load workspaces:", e);
+      toast.error("Failed to sync workspaces.");
+    }
+  },
+
+  setSelectedWorkspace: async (workspace) => {
+    const defaultChannel = workspace && workspace.channels.length > 0 ? workspace.channels[0]._id : null;
+    
+    // Join the workspace socket room if not joined already
+    const socket = useAuthStore.getState().socket;
+    if (socket && workspace) {
+      socket.emit("joinWorkspace", workspace._id);
+    }
+
+    set({
+      selectedWorkspace: workspace,
+      selectedChannelId: defaultChannel,
+      selectedUser: null,
+    });
+
+    if (workspace && defaultChannel) {
+      get().fetchChannelData(workspace._id, defaultChannel);
+    }
+  },
+
+  setSelectedChannelId: async (channelId) => {
+    const workspace = get().selectedWorkspace;
+    set({ selectedChannelId: channelId });
+    if (workspace && channelId) {
+      get().fetchChannelData(workspace._id, channelId);
+    }
+  },
+
+  fetchChannelData: async (workspaceId, channelId) => {
+    const workspace = get().selectedWorkspace;
+    if (!workspace) return;
+    const channel = workspace.channels.find(c => c._id === channelId);
+    if (!channel) return;
+
+    try {
+      if (channel.type === "chat" || channel.type === "announcements") {
+        const res = await axiosInstance.get(`/workspaces/${workspaceId}/messages/${channelId}`);
+        set({
+          workspaceMessages: {
+            ...get().workspaceMessages,
+            [channelId]: res.data
+          }
+        });
+      } else if (channel.type === "polls") {
+        const res = await axiosInstance.get(`/workspaces/${workspaceId}/polls/${channelId}`);
+        set({
+          workspacePolls: {
+            ...get().workspacePolls,
+            [channelId]: res.data
+          }
+        });
+      } else if (channel.type === "resources") {
+        const res = await axiosInstance.get(`/workspaces/${workspaceId}/resources/${channelId}`);
+        set({
+          workspaceResources: {
+            ...get().workspaceResources,
+            [channelId]: res.data
+          }
+        });
+      }
+    } catch (error) {
+      console.error("Failed to fetch channel data:", error);
+    }
+  },
+
+  createWorkspace: async (name, icon) => {
+    try {
+      const res = await axiosInstance.post("/workspaces", { name, icon });
+      const newWorkspace = res.data;
+      const { workspaces } = get();
+
+      // Join socket room
+      const socket = useAuthStore.getState().socket;
+      if (socket) {
+        socket.emit("joinWorkspace", newWorkspace._id);
+      }
+
+      set({
+        workspaces: [...workspaces, newWorkspace],
+      });
+      get().setSelectedWorkspace(newWorkspace);
+      toast.success(`Server "${name}" created!`);
+    } catch (error) {
+      console.error("Failed to create workspace:", error);
+      toast.error("Failed to create workspace.");
+    }
+  },
+
+  createChannel: async (workspaceId, name, type = "chat") => {
+    try {
+      const res = await axiosInstance.post(`/workspaces/${workspaceId}/channels`, { name, type });
+      const { workspace, channel } = res.data;
+      const { workspaces } = get();
+
+      const updated = workspaces.map(w => w._id === workspaceId ? workspace : w);
+      set({ workspaces: updated });
+
+      const currentActive = get().selectedWorkspace;
+      if (currentActive && currentActive._id === workspaceId) {
+        set({
+          selectedWorkspace: workspace,
+          selectedChannelId: channel._id
+        });
+        get().fetchChannelData(workspaceId, channel._id);
+      }
+
+      toast.success(`Channel #${channel.name} created!`);
+    } catch (error) {
+      console.error("Failed to create channel:", error);
+      toast.error("Failed to create channel.");
+    }
+  },
+
+  sendChannelMessage: async (workspaceId, channelId, text, file = null) => {
+    try {
+      const formData = new FormData();
+      formData.append("text", text || "");
+      if (file) {
+        formData.append("file", file);
+      }
+
+      const res = await axiosInstance.post(`/workspaces/${workspaceId}/messages/${channelId}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      });
+      const newMsg = res.data;
+      const { workspaceMessages } = get();
+      const list = workspaceMessages[channelId] || [];
+
+      // Avoid double rendering if socket already pushed it
+      if (list.some(msg => msg._id === newMsg._id)) return;
+
+      set({
+        workspaceMessages: {
+          ...workspaceMessages,
+          [channelId]: [...list, newMsg]
+        }
+      });
+    } catch (error) {
+      console.error("Failed to send channel message:", error);
+      toast.error("Failed to send message.");
+    }
+  },
+
+  addChannelReaction: async (channelId, messageId, emoji) => {
+    try {
+      const { workspaceMessages } = get();
+      const list = workspaceMessages[channelId] || [];
+      const msg = list.find(m => m._id === messageId);
+      if (!msg) return;
+
+      const user = useAuthStore.getState().authUser;
+      if (!user) return;
+
+      const userReactions = msg.reactions?.[emoji] || [];
+      const hasReacted = userReactions.includes(user._id);
+
+      const path = hasReacted ? "remove" : "add";
+      const res = await axiosInstance.post(`/workspaces/messages/${messageId}/reaction/${path}`, { emoji });
+      const updatedMsg = res.data;
+
+      set({
+        workspaceMessages: {
+          ...workspaceMessages,
+          [channelId]: list.map(m => m._id === messageId ? updatedMsg : m)
+        }
+      });
+    } catch (error) {
+      console.error("Failed to toggle reaction:", error);
+    }
+  },
+
+  createPoll: async (workspaceId, channelId, question, optionLabels) => {
+    try {
+      const filteredOptions = optionLabels.filter(lbl => lbl.trim() !== "");
+      const res = await axiosInstance.post(`/workspaces/${workspaceId}/polls/${channelId}`, { question, options: filteredOptions });
+      const newPoll = res.data;
+      const { workspacePolls } = get();
+      const list = workspacePolls[channelId] || [];
+
+      set({
+        workspacePolls: {
+          ...workspacePolls,
+          [channelId]: [newPoll, ...list]
+        }
+      });
+      toast.success("Poll launched successfully!");
+    } catch (error) {
+      console.error("Failed to create poll:", error);
+      toast.error("Failed to create poll.");
+    }
+  },
+
+  voteInPoll: async (workspaceId, channelId, pollId, optionId) => {
+    try {
+      const res = await axiosInstance.post(`/workspaces/polls/${pollId}/vote`, { optionId });
+      const updatedPoll = res.data;
+      const { workspacePolls } = get();
+      const list = workspacePolls[channelId] || [];
+
+      set({
+        workspacePolls: {
+          ...workspacePolls,
+          [channelId]: list.map(p => p._id === pollId ? updatedPoll : p)
+        }
+      });
+    } catch (error) {
+      console.error("Failed to cast vote:", error);
+    }
+  },
+
+  uploadResource: async (workspaceId, channelId, file) => {
+    try {
+      if (!file) return;
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await axiosInstance.post(`/workspaces/${workspaceId}/resources/${channelId}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      });
+      const newRes = res.data;
+      const { workspaceResources } = get();
+      const list = workspaceResources[channelId] || [];
+
+      set({
+        workspaceResources: {
+          ...workspaceResources,
+          [channelId]: [newRes, ...list]
+        }
+      });
+      toast.success(`Uploaded ${file.name} successfully!`);
+    } catch (error) {
+      console.error("Failed to upload resource file:", error);
+      toast.error("Failed to upload resource.");
     }
   },
 }));

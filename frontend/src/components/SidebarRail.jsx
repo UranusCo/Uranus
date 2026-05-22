@@ -1,109 +1,150 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
+import { useChatStore } from "../store/useChatStore";
 import { 
   MessageSquare, 
-  Phone, 
-  Video, 
-  Users, 
   Settings, 
   LogOut, 
-  MessageCircle 
+  Plus,
+  Compass,
+  LayoutGrid
 } from "lucide-react";
 import UranusLogo from "../../public/uranus.svg";
-import StatusUpdateModal from "./StatusUpdateModal";
 import NotificationBell from "./NotificationBell";
 
-const SidebarRail = ({ activeTab = "chats", setActiveTab = () => {} }) => {
+const SidebarRail = ({ activeTab = "chats", setActiveTab = () => {}, forceShow = false }) => {
   const { logout, authUser } = useAuthStore();
-  const [showStatusModal, setShowStatusModal] = useState(false);
+  const { 
+    workspaces, 
+    selectedWorkspace, 
+    setSelectedWorkspace, 
+    createWorkspace 
+  } = useChatStore();
+
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [newServerName, setNewServerName] = useState("");
+  const [selectedGradient, setSelectedGradient] = useState("linear-gradient(135deg, #a855f7 0%, #ec4899 100%)");
+
+  const gradients = [
+    { label: "Indigo Mist", value: "linear-gradient(135deg, #6366f1 0%, #a855f7 100%)" },
+    { label: "Sunset Glow", value: "linear-gradient(135deg, #f43f5e 0%, #fb923c 100%)" },
+    { label: "Ocean Breeze", value: "linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)" },
+    { label: "Emerald Spark", value: "linear-gradient(135deg, #10b981 0%, #3b82f6 100%)" },
+    { label: "Purple Nebula", value: "linear-gradient(135deg, #a855f7 0%, #ec4899 100%)" }
+  ];
+
+  const handleCreateServer = (e) => {
+    e.preventDefault();
+    if (!newServerName.trim()) return;
+    createWorkspace(newServerName.trim(), selectedGradient);
+    setNewServerName("");
+    setShowCreateModal(false);
+  };
+
+  const getWorkspaceInitials = (name) => {
+    return name
+      .split(" ")
+      .map((word) => word[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase();
+  };
 
   return (
     <>
-      {showStatusModal && (
-        <StatusUpdateModal onClose={() => setShowStatusModal(false)} />
-      )}
-
-      <aside className="hidden lg:flex flex-col items-center py-6 w-16 h-full bg-white dark:bg-slate-800 border-r border-slate-200/80 dark:border-slate-700/80 justify-between flex-shrink-0 z-30 select-none transition-colors duration-200">
-        {/* Top: Brand Logo */}
-        <div className="flex flex-col items-center gap-6 w-full">
-          <Link to="/" className="hover:scale-105 transition-transform duration-200" onClick={() => setActiveTab("chats")}>
-            <div className="size-11 rounded-2xl bg-blue-500/10 dark:bg-blue-400/10 flex items-center justify-center overflow-hidden">
-              <img src={UranusLogo} alt="Uranus Logo" className="w-6 h-6 object-contain" />
+      <aside className={`${forceShow ? "flex" : "hidden lg:flex"} flex-col items-center py-5 w-16 h-full bg-slate-900 border-r border-slate-800 justify-between flex-shrink-0 z-30 select-none transition-colors duration-200`}>
+        {/* Top: Home & Server List */}
+        <div className="flex flex-col items-center gap-4 w-full">
+          {/* Brand/Home Button (Toggles DM View) */}
+          <button
+            onClick={() => {
+              setSelectedWorkspace(null);
+              setActiveTab("chats");
+            }}
+            className="relative group flex items-center justify-center w-full focus:outline-none"
+          >
+            {/* Discord-style Left Indicator */}
+            <span
+              className={`absolute left-0 w-1 bg-white rounded-r-md transition-all duration-300 ${
+                selectedWorkspace === null
+                  ? "h-8"
+                  : "h-0 group-hover:h-3"
+              }`}
+            />
+            {/* Button Outer Wrapper */}
+            <div
+              className={`size-12 flex items-center justify-center transition-all duration-300 cursor-pointer overflow-hidden ${
+                selectedWorkspace === null
+                  ? "rounded-[14px] bg-blue-600 text-white"
+                  : "rounded-[24px] bg-slate-800 text-slate-400 hover:rounded-[14px] hover:bg-blue-600 hover:text-white"
+              }`}
+            >
+              <img src={UranusLogo} alt="Uranus" className="w-5 h-5 object-contain filter brightness-0 invert" />
             </div>
-          </Link>
+            {/* Tooltip */}
+            <span className="absolute left-[70px] px-3 py-1.5 bg-slate-950 text-slate-100 text-xs font-semibold rounded-lg shadow-xl border border-slate-800 opacity-0 scale-95 origin-left pointer-events-none group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 whitespace-nowrap z-50">
+              Direct Messages
+            </span>
+          </button>
 
-          {/* Middle Navigation Group */}
-          <div className="flex flex-col items-center gap-3 w-full px-2 mt-4">
-            {/* Active Message Icon */}
-            <button
-              onClick={() => setActiveTab("chats")}
-              className={`relative size-12 flex items-center justify-center rounded-2xl transition-all duration-200 group ${
-                activeTab === "chats"
-                  ? "bg-blue-500 text-white shadow-sm shadow-blue-500/20"
-                  : "bg-slate-100 dark:bg-slate-700/50 hover:bg-slate-200 dark:hover:bg-slate-750 text-slate-500 dark:text-slate-400"
-              }`}
-              title="Messages"
-            >
-              <MessageSquare className="w-5 h-5" />
-              <span className="absolute left-[70px] bg-slate-800 text-white text-xs rounded py-1 px-2 opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">Messages</span>
-            </button>
+          {/* Separator line */}
+          <div className="w-8 h-[2px] bg-slate-800 rounded-full" />
 
-            <button
-              onClick={() => setActiveTab("calls")}
-              className={`relative size-12 flex items-center justify-center rounded-2xl transition-all duration-200 group ${
-                activeTab === "calls"
-                  ? "bg-blue-500 text-white shadow-sm shadow-blue-500/20"
-                  : "bg-slate-100 dark:bg-slate-700/50 hover:bg-slate-200 dark:hover:bg-slate-750 text-slate-500 dark:text-slate-400"
-              }`}
-              title="Calls"
-            >
-              <Phone className="w-5 h-5" />
-              <span className="absolute left-[70px] bg-slate-800 text-white text-xs rounded py-1 px-2 opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">Calls</span>
-            </button>
+          {/* Active Workspace / Server List */}
+          <div className="flex flex-col gap-3 w-full items-center overflow-y-auto max-h-[calc(100vh-320px)] scrollbar-none">
+            {workspaces.map((ws) => {
+              const isActive = selectedWorkspace?._id === ws._id;
+              return (
+                <button
+                  key={ws._id}
+                  onClick={() => setSelectedWorkspace(ws)}
+                  className="relative group flex items-center justify-center w-full focus:outline-none"
+                >
+                  {/* Active Indicator */}
+                  <span
+                    className={`absolute left-0 w-1 bg-white rounded-r-md transition-all duration-300 ${
+                      isActive ? "h-8" : "h-0 group-hover:h-3"
+                    }`}
+                  />
+                  {/* Server Icon Grid/Initials */}
+                  <div
+                    style={{ background: ws.icon || "linear-gradient(135deg, #6366f1 0%, #a855f7 100%)" }}
+                    className={`size-12 flex items-center justify-center font-bold text-white text-sm shadow-md transition-all duration-300 ${
+                      isActive
+                        ? "rounded-[14px]"
+                        : "rounded-[24px] hover:rounded-[14px]"
+                    }`}
+                  >
+                    {getWorkspaceInitials(ws.name)}
+                  </div>
+                  {/* Tooltip */}
+                  <span className="absolute left-[70px] px-3 py-1.5 bg-slate-950 text-slate-100 text-xs font-semibold rounded-lg shadow-xl border border-slate-800 opacity-0 scale-95 origin-left pointer-events-none group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 whitespace-nowrap z-50">
+                    {ws.name}
+                  </span>
+                </button>
+              );
+            })}
 
+            {/* Add Workspace Button */}
             <button
-              onClick={() => setActiveTab("status")}
-              className={`relative size-12 flex items-center justify-center rounded-2xl transition-all duration-200 group ${
-                activeTab === "status"
-                  ? "bg-blue-500 text-white shadow-sm shadow-blue-500/20"
-                  : "bg-slate-100 dark:bg-slate-700/50 hover:bg-slate-200 dark:hover:bg-slate-750 text-slate-500 dark:text-slate-400"
-              }`}
-              title="Status Updates"
+              onClick={() => setShowCreateModal(true)}
+              className="relative group flex items-center justify-center w-full focus:outline-none"
             >
-              <Video className="w-5 h-5" />
-              <span className="absolute left-[70px] bg-slate-800 text-white text-xs rounded py-1 px-2 opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">Status Updates</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab("users")}
-              className={`relative size-12 flex items-center justify-center rounded-2xl transition-all duration-200 group ${
-                activeTab === "users"
-                  ? "bg-blue-500 text-white shadow-sm shadow-blue-500/20"
-                  : "bg-slate-100 dark:bg-slate-700/50 hover:bg-slate-200 dark:hover:bg-slate-750 text-slate-500 dark:text-slate-400"
-              }`}
-              title="Users"
-            >
-              <Users className="w-5 h-5" />
-              <span className="absolute left-[70px] bg-slate-800 text-white text-xs rounded py-1 px-2 opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">Users</span>
+              <div className="size-12 border-2 border-dashed border-slate-700 hover:border-emerald-500 rounded-[24px] hover:rounded-[14px] flex items-center justify-center text-slate-500 hover:text-white hover:bg-emerald-600 transition-all duration-300 cursor-pointer">
+                <Plus className="w-5 h-5" />
+              </div>
+              <span className="absolute left-[70px] px-3 py-1.5 bg-slate-950 text-slate-100 text-xs font-semibold rounded-lg shadow-xl border border-slate-800 opacity-0 scale-95 origin-left pointer-events-none group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 whitespace-nowrap z-50">
+                Add a Server
+              </span>
             </button>
           </div>
         </div>
 
         {/* Bottom Actions */}
         <div className="flex flex-col items-center gap-4 w-full px-2 mt-auto">
-          {/* Status Modal Trigger */}
-          <button 
-            onClick={() => setShowStatusModal(true)}
-            className="relative size-10 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-700/50 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition-all duration-200 group" 
-            title="Update Status"
-          >
-            <MessageCircle className="w-4 h-4" />
-            <span className="absolute left-[70px] bg-slate-800 text-white text-xs rounded py-1 px-2 opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">Update Status</span>
-          </button>
-
           {/* Notifications */}
-          <div className="relative size-10 flex items-center justify-center rounded-xl transition-all duration-200">
+          <div className="relative size-10 flex items-center justify-center rounded-xl transition-all duration-200 hover:bg-slate-800 text-slate-400 hover:text-white cursor-pointer">
             <NotificationBell hideText={true} dropdownClass="left-14 bottom-0 origin-bottom-left" />
           </div>
 
@@ -111,7 +152,7 @@ const SidebarRail = ({ activeTab = "chats", setActiveTab = () => {} }) => {
           {authUser && (
             <Link 
               to="/profile" 
-              className="relative rounded-full ring-2 ring-blue-500/20 hover:ring-blue-500 dark:ring-blue-400/20 dark:hover:ring-blue-400 transition-all duration-200 overflow-hidden size-10 flex-shrink-0"
+              className="relative rounded-full ring-2 ring-slate-800 hover:ring-blue-500 transition-all duration-200 overflow-hidden size-10 flex-shrink-0"
               title="View Profile"
             >
               <img 
@@ -125,24 +166,102 @@ const SidebarRail = ({ activeTab = "chats", setActiveTab = () => {} }) => {
           {/* Settings Page Link */}
           <Link 
             to="/settings" 
-            className="relative size-10 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-700/50 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition-all duration-200 group" 
+            className="relative size-10 flex items-center justify-center rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-all duration-200 group" 
             title="Settings"
           >
-            <Settings className="w-4.5 h-4.5" />
-            <span className="absolute left-[70px] bg-slate-800 text-white text-xs rounded py-1 px-2 opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">Settings</span>
+            <Settings className="w-5 h-5" />
+            <span className="absolute left-[70px] bg-slate-950 text-white text-xs rounded py-1 px-2 opacity-0 scale-95 origin-left pointer-events-none group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 whitespace-nowrap z-50">Settings</span>
           </Link>
 
           {/* Logout Action */}
           <button 
             onClick={logout}
-            className="relative size-10 flex items-center justify-center rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-500 transition-all duration-200 group" 
+            className="relative size-10 flex items-center justify-center rounded-xl text-red-400/80 hover:text-red-400 hover:bg-red-950/20 transition-all duration-200 group" 
             title="Logout"
           >
-            <LogOut className="w-4.5 h-4.5" />
-            <span className="absolute left-[70px] bg-slate-800 text-white text-xs rounded py-1 px-2 opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">Logout</span>
+            <LogOut className="w-5 h-5" />
+            <span className="absolute left-[70px] bg-slate-950 text-white text-xs rounded py-1 px-2 opacity-0 scale-95 origin-left pointer-events-none group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 whitespace-nowrap z-50">Logout</span>
           </button>
         </div>
       </aside>
+
+      {/* Modal for Creating Workspace/Server */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-[100] animate-in fade-in duration-200">
+          <div 
+            className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-6 relative animate-in zoom-in-95 duration-200"
+            role="dialog"
+            aria-modal="true"
+          >
+            <h2 className="text-xl font-bold text-slate-100 mb-2">Create Your Server</h2>
+            <p className="text-slate-400 text-sm mb-6">
+              Your server is where you and your team communicate. Customize it with a name and a vibrant theme.
+            </p>
+
+            <form onSubmit={handleCreateServer} className="space-y-6">
+              {/* Server Name input */}
+              <div className="space-y-2">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400">
+                  Server Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Frontend Pioneers"
+                  value={newServerName}
+                  onChange={(e) => setNewServerName(e.target.value)}
+                  className="w-full bg-slate-800 border border-slate-700 hover:border-slate-600 focus:border-blue-500 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
+                  autoFocus
+                />
+              </div>
+
+              {/* Theme Gradients */}
+              <div className="space-y-3">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400">
+                  Server Theme Gradient
+                </label>
+                <div className="flex gap-3 flex-wrap">
+                  {gradients.map((grad) => (
+                    <button
+                      key={grad.label}
+                      type="button"
+                      onClick={() => setSelectedGradient(grad.value)}
+                      className={`size-10 rounded-full border-2 transition-all flex items-center justify-center ${
+                        selectedGradient === grad.value
+                          ? "border-white scale-110 shadow-lg shadow-white/10"
+                          : "border-transparent hover:scale-105"
+                      }`}
+                      style={{ background: grad.value }}
+                      title={grad.label}
+                    >
+                      {selectedGradient === grad.value && (
+                        <div className="size-2 bg-white rounded-full" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowCreateModal(false)}
+                  className="px-4 py-2 text-slate-400 hover:text-slate-200 text-sm font-semibold rounded-lg hover:bg-slate-800 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-sm font-semibold rounded-xl shadow-lg shadow-blue-600/20 transition"
+                >
+                  Create Server
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </>
   );
 };

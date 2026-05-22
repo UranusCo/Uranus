@@ -10,10 +10,11 @@ import {
   Volume2, 
   Pin, 
   Edit3, 
-  Plus
+  Plus,
+  Menu
 } from "lucide-react";
 
-const ConversationList = () => {
+const ConversationList = ({ onBurgerClick }) => {
   const {
     getUsers,
     users,
@@ -276,7 +277,18 @@ const ConversationList = () => {
     <aside className="h-full w-full lg:w-[300px] bg-white dark:bg-slate-800 flex flex-col transition-all duration-200 border-r border-slate-200 dark:border-slate-700 select-none">
       {/* Top Header */}
       <div className="flex items-center justify-between px-5 pt-6 pb-4 flex-shrink-0">
-        <h1 className="text-2xl font-bold text-slate-850 dark:text-slate-100 tracking-tight">Chats</h1>
+        <div className="flex items-center gap-2">
+          {onBurgerClick && (
+            <button
+              onClick={onBurgerClick}
+              className="lg:hidden p-1.5 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+              title="Workspace Menu"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+          )}
+          <h1 className="text-2xl font-bold text-slate-850 dark:text-slate-100 tracking-tight">Chats</h1>
+        </div>
         <button className="size-8 flex items-center justify-center rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors" title="New Message">
           <Edit3 className="w-4.5 h-4.5" />
         </button>

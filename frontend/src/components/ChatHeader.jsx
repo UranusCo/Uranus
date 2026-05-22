@@ -1,4 +1,4 @@
-import { X, Search, MoreVertical, Download, ChevronLeft, Phone, Video } from "lucide-react";
+import { X, Search, MoreVertical, Download, ChevronLeft, Phone, Video, Menu } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
 import { useState, useEffect, useRef } from "react";
@@ -8,7 +8,7 @@ import ChatPrivacyMenu from "./ChatPrivacyMenu";
 import UserProfileModal from "./UserProfileModal";
 import ChatInfoModal from "./ChatInfoModal";
 
-const ChatHeader = ({ onSearchClick, onPinnedClick }) => {
+const ChatHeader = ({ onSearchClick, onPinnedClick, onBurgerClick }) => {
   const { selectedUser, setSelectedUser, userStatus, chatSettings, lockedChats, setChatExpiry, lockChat, unlockChat } = useChatStore();
   const { onlineUsers } = useAuthStore();
   const [showMenu, setShowMenu] = useState(false);
@@ -40,10 +40,19 @@ const ChatHeader = ({ onSearchClick, onPinnedClick }) => {
     <div className="px-3 sm:px-4 py-2 sm:py-3 border-b border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md flex-shrink-0 z-20 select-none transition-colors duration-200">
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+          {onBurgerClick && (
+            <button
+              onClick={onBurgerClick}
+              className="size-9 flex items-center justify-center rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 lg:hidden -ml-1 transition-colors focus:ring-2 focus:ring-blue-500 outline-none"
+              aria-label="Open Workspace Menu"
+            >
+              <Menu size={20} />
+            </button>
+          )}
           {/* Back button — mobile only */}
           <button
             onClick={() => setSelectedUser(null)}
-            className="size-9 flex items-center justify-center rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 lg:hidden -ml-1 transition-colors"
+            className={`size-9 flex items-center justify-center rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 lg:hidden transition-colors focus:ring-2 focus:ring-blue-500 outline-none ${onBurgerClick ? "" : "-ml-1"}`}
             aria-label="Back"
           >
             <ChevronLeft size={24} />
