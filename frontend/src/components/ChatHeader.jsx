@@ -6,40 +6,12 @@ import ThemeToggle from "./ThemeToggle";
 import ChatActionDrawer from "./ChatActionDrawer";
 import { IconButton } from "./ui";
 
-const ChatHeader = ({ onSearchClick, onPinnedClick, onBurgerClick, onAvatarClick }) => {
-   const { selectedUser, setSelectedUser, userStatus, chatSettings, lockedChats, setChatExpiry, lockChat, unlockChat } = useChatStore();
-   const { onlineUsers } = useAuthStore();
-   const [showMenu, setShowMenu] = useState(false);
-   const [showActionDrawer, setShowActionDrawer] = useState(false);
-   const menuRef = useRef(null);
+const ChatHeader = ({ onSearchClick, onPinnedClick, onBurgerClick, onAvatarClick, onMoreClick }) => {
+   const { selectedUser, setSelectedUser, userStatus } = useChatStore();
+   const { onlineUsers: authOnlineUsers } = useAuthStore();
 
   const status = userStatus[selectedUser?._id];
-  const isOnline = onlineUsers.includes(selectedUser?._id);
-
-  // Close menu on click outside
-useEffect(() => {
-     const handleClickOutside = (e) => {
-       if (menuRef.current && !menuRef.current.contains(e.target)) {
-         setShowMenu(false);
-       }
-     };
-     if (showMenu) {
-       document.addEventListener("mousedown", handleClickOutside);
-     }
-     return () => {
-       document.removeEventListener("mousedown", handleClickOutside);
-     };
-   }, [showMenu]);
-
-  useEffect(() => {
-    if (showActionDrawer) {
-      const handleEscape = (e) => {
-        if (e.key === "Escape") setShowActionDrawer(false);
-      };
-      document.addEventListener("keydown", handleEscape);
-      return () => document.removeEventListener("keydown", handleEscape);
-    }
-  }, [showActionDrawer]);
+  const isOnline = authOnlineUsers.includes(selectedUser?._id);
 
   if (!selectedUser) return <div className="h-16 flex-shrink-0" />;
 
@@ -120,17 +92,14 @@ useEffect(() => {
             <Search size={18} />
           </IconButton>
 
-          <div className="relative" ref={menuRef}>
-            <IconButton
-              type="button"
-              className=""
-              onClick={() => setShowActionDrawer(true)}
-              aria-label="Open chat actions"
-              variant="ghost"
-            >
-              <MoreVertical size={18} />
-            </IconButton>
-          </div>
+          <IconButton
+            type="button"
+            onClick={onMoreClick}
+            aria-label="Open chat actions"
+            variant="ghost"
+          >
+            <MoreVertical size={18} />
+          </IconButton>
 
           {/* Close button — desktop only */}
           <button onClick={() => setSelectedUser(null)} className="size-8 flex items-center justify-center rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors hidden lg:inline-flex" title="Close Chat">
@@ -138,19 +107,6 @@ useEffect(() => {
           </button>
         </div>
       </div>
-
-<ChatActionDrawer 
-        open={showActionDrawer}
-        onClose={() => setShowActionDrawer(false)}
-        selectedUser={selectedUser}
-        chatSettings={chatSettings}
-        lockedChats={lockedChats}
-        setChatExpiry={setChatExpiry}
-        lockChat={lockChat}
-        unlockChat={unlockChat}
-        onPinnedMessages={onPinnedClick}
-        onSearch={onSearchClick}
-      />
     </div>
   );
 };

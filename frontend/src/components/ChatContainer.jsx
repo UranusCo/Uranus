@@ -7,6 +7,7 @@ import MessageItem from "./MessageItem";
 import MessageVirtualizer from "./MessageVirtualizer";
 import UserProfilePanel from "./UserProfilePanel";
 import MessageActions from "./MessageActions";
+import ChatActionDrawer from "./ChatActionDrawer";
 
 const isSameDay = (d1, d2) => {
   const a = new Date(d1);
@@ -40,8 +41,14 @@ const ChatContainer = () => {
     removeReaction,
     markViewOnceOpened,
     isMoreMessagesAvailable,
+    chatSettings,
+    lockedChats,
+    setChatExpiry,
+    lockChat,
+    unlockChat,
   } = useChatStore();
   const [showProfile, setShowProfile] = useState(false);
+  const [showActionDrawer, setShowActionDrawer] = useState(false);
   const [activeMessageMenu, setActiveMessageMenu] = useState(null);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
 
@@ -125,7 +132,10 @@ const ChatContainer = () => {
   if (isMessagesLoading && messages.length === 0) {
     return (
       <div className="flex-1 flex flex-col h-full bg-background dark:bg-background-dark">
-        <ChatHeader onAvatarClick={() => setShowProfile(true)} />
+        <ChatHeader 
+          onAvatarClick={() => setShowProfile(true)} 
+          onMoreClick={() => setShowActionDrawer(true)}
+        />
         <MessageSkeleton />
         <MessageInput />
       </div>
@@ -139,7 +149,10 @@ const ChatContainer = () => {
 
   return (
     <div className="flex-1 flex flex-col h-full bg-background dark:bg-background-dark overflow-hidden relative transition-colors duration-200">
-      <ChatHeader onAvatarClick={() => setShowProfile(true)} />
+      <ChatHeader 
+        onAvatarClick={() => setShowProfile(true)} 
+        onMoreClick={() => setShowActionDrawer(true)}
+      />
 
       <div className="flex-1 overflow-hidden chat-bg-pattern relative">
         <MessageVirtualizer
@@ -159,6 +172,17 @@ const ChatContainer = () => {
         user={selectedUser} 
         isOpen={showProfile} 
         onClose={() => setShowProfile(false)} 
+      />
+
+      <ChatActionDrawer 
+        open={showActionDrawer}
+        onClose={() => setShowActionDrawer(false)}
+        selectedUser={selectedUser}
+        chatSettings={chatSettings}
+        lockedChats={lockedChats}
+        setChatExpiry={setChatExpiry}
+        lockChat={lockChat}
+        unlockChat={unlockChat}
       />
 
       {activeMessageMenu && (

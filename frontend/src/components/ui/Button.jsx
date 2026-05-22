@@ -10,7 +10,7 @@ const Button = ({ children, variant = 'primary', size = 'md', className = '', ..
   };
   const variants = {
     primary: `${tokens.colors.primary} text-white hover:${tokens.colors.primaryDark}`,
-    ghost: 'bg-transparent text-slate-700 hover:bg-slate-100 dark:text-slate-200',
+    ghost: 'bg-transparent text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800',
     danger: `${tokens.colors.danger} text-white hover:bg-red-700`
   };
 
