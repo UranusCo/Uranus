@@ -72,7 +72,7 @@ const SidebarRail = ({ activeTab = "chats", setActiveTab = () => {}, forceShow =
                   : "rounded-2xl bg-slate-800 text-slate-400 hover:rounded-xl hover:bg-primary hover:text-white"
               }`}
             >
-              <img src={BlinkLogo} alt="Blink" className="w-5 h-5 object-contain filter brightness-0 invert" />
+              <img src="/blink.svg" alt="Blink" className="w-5 h-5 object-contain filter brightness-0 invert" />
             </div>
             <span className="absolute left-[70px] px-3 py-1.5 bg-slate-950 text-white text-xs font-semibold rounded-lg shadow-xl border border-slate-800 opacity-0 scale-95 origin-left pointer-events-none group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 whitespace-nowrap z-50">
               Direct Messages
