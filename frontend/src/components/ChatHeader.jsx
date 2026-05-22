@@ -18,8 +18,8 @@ const ChatHeader = ({ onSearchClick, onPinnedClick, onBurgerClick }) => {
   const [showChatInfoModal, setShowChatInfoModal] = useState(false);
   const menuRef = useRef(null);
 
-  const status = userStatus[selectedUser._id];
-  const isOnline = onlineUsers.includes(selectedUser._id);
+  const status = userStatus[selectedUser?._id];
+  const isOnline = onlineUsers.includes(selectedUser?._id);
 
   // Close menu on click outside
   useEffect(() => {
@@ -36,14 +36,16 @@ const ChatHeader = ({ onSearchClick, onPinnedClick, onBurgerClick }) => {
     };
   }, [showMenu]);
 
+  if (!selectedUser) return <div className="h-16 flex-shrink-0" />;
+
   return (
-    <div className="px-3 sm:px-4 py-2 sm:py-3 border-b border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md flex-shrink-0 z-20 select-none transition-colors duration-200">
+    <div className="px-3 sm:px-4 py-2 sm:py-3 border-b border-border dark:border-border-dark bg-surface/95 dark:bg-surface-dark/95 backdrop-blur-md flex-shrink-0 z-20 select-none transition-colors duration-200">
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
           {onBurgerClick && (
             <button
               onClick={onBurgerClick}
-              className="size-9 flex items-center justify-center rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 lg:hidden -ml-1 transition-colors focus:ring-2 focus:ring-blue-500 outline-none"
+              className="size-9 flex items-center justify-center rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 lg:hidden -ml-1 transition-colors focus:ring-2 focus:ring-primary outline-none"
               aria-label="Open Workspace Menu"
             >
               <Menu size={20} />
@@ -52,7 +54,7 @@ const ChatHeader = ({ onSearchClick, onPinnedClick, onBurgerClick }) => {
           {/* Back button — mobile only */}
           <button
             onClick={() => setSelectedUser(null)}
-            className={`size-9 flex items-center justify-center rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 lg:hidden transition-colors focus:ring-2 focus:ring-blue-500 outline-none ${onBurgerClick ? "" : "-ml-1"}`}
+            className={`size-9 flex items-center justify-center rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 lg:hidden transition-colors focus:ring-2 focus:ring-primary outline-none ${onBurgerClick ? "" : "-ml-1"}`}
             aria-label="Back"
           >
             <ChevronLeft size={24} />
@@ -60,7 +62,7 @@ const ChatHeader = ({ onSearchClick, onPinnedClick, onBurgerClick }) => {
           
           {/* Avatar with Ring */}
           <div className="relative flex-shrink-0" onClick={() => setShowProfileModal(true)}>
-            <div className="size-10 sm:size-11 rounded-full relative shadow-sm border border-slate-200 dark:border-slate-750 overflow-hidden cursor-pointer">
+            <div className="size-10 sm:size-11 rounded-full relative shadow-sm border border-border dark:border-border-dark overflow-hidden cursor-pointer">
               <img src={selectedUser.profilePic || "/avatar.png"} alt={selectedUser.fullName} className="object-cover w-full h-full" />
               {isOnline && (
                 <span className="absolute bottom-0 right-0 size-3 bg-green-500 rounded-full ring-2 ring-white dark:ring-slate-800" />
@@ -70,19 +72,19 @@ const ChatHeader = ({ onSearchClick, onPinnedClick, onBurgerClick }) => {
 
           {/* User info */}
           <div className="flex-1 min-w-0 text-left cursor-pointer" onClick={() => setShowProfileModal(true)}>
-            <h3 className="font-bold text-[15px] sm:text-[16px] text-slate-800 dark:text-slate-100 leading-tight hover:text-blue-500 dark:hover:text-blue-400 transition-colors truncate">
+            <h3 className="font-bold text-[15px] sm:text-[16px] text-slate-900 dark:text-slate-100 leading-tight hover:text-primary transition-colors truncate">
               {selectedUser.fullName}
             </h3>
             <div className="flex items-center gap-1.5 mt-0.5">
               {isOnline ? (
-                <span className="text-[11px] text-emerald-500 dark:text-emerald-400 font-bold">Active Now</span>
+                <span className="text-[11px] text-emerald-500 font-bold">Active Now</span>
               ) : (
-                <span className="text-[11px] text-slate-400 dark:text-slate-500 font-semibold">Offline</span>
+                <span className="text-[11px] text-slate-400 font-semibold">Offline</span>
               )}
               {status?.statusMessage && (
                 <>
                   <span className="text-[10px] text-slate-300 dark:text-slate-600">•</span>
-                  <span className="text-[11px] text-slate-400 dark:text-slate-500 truncate italic font-medium">&quot;{status.statusMessage}&quot;</span>
+                  <span className="text-[11px] text-slate-400 truncate italic font-medium">&quot;{status.statusMessage}&quot;</span>
                 </>
               )}
             </div>
