@@ -112,64 +112,6 @@ const ChatContainer = ({ onBurgerClick }) => {
     }
   };
 
-  useEffect(() => {
-    getMessages(selectedUser._id);
-    getPinnedMessages(selectedUser._id);
-  }, [selectedUser._id, getMessages, getPinnedMessages]);
-
-  const handleScrollToTop = async () => {
-    if (loadingMore || !isMoreMessagesAvailable) return;
-    setLoadingMore(true);
-    await getMessages(selectedUser._id, true);
-    setLoadingMore(false);
-  };
-
-  useEffect(() => {
-    const handler = (e) => {
-      if (!selectedUser?._id) return;
-
-      if (e.ctrlKey && e.key.toLowerCase() === "k") {
-        e.preventDefault();
-        setShowSearch((s) => !s);
-      }
-
-      if (e.ctrlKey && e.key.toLowerCase() === "m") {
-        e.preventDefault();
-        toggleMuteChat(selectedUser._id);
-      }
-
-      if (e.ctrlKey && e.key.toLowerCase() === "p") {
-        e.preventDefault();
-        togglePinChat(selectedUser._id);
-      }
-
-      if (e.ctrlKey && e.key.toLowerCase() === "e") {
-        e.preventDefault();
-        const lastOwn = [...messages].reverse().find((msg) => msg.senderId === authUser._id && !msg.isDeleted);
-        if (lastOwn) {
-          setEditingMessage(lastOwn._id);
-        }
-      }
-    };
-
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [messages, selectedUser, authUser, toggleMuteChat, togglePinChat, setEditingMessage]);
-
-  if (isMessagesLoading && messages.length === 0) {
-    return (
-      <div className="flex-1 flex flex-col h-full bg-slate-100 dark:bg-slate-900 transition-colors duration-200">
-        <ChatHeader onBurgerClick={onBurgerClick} />
-        <MessageSkeleton />
-        <MessageInput />
-      </div>
-    );
-  }
-
-
-
-
-
   const renderItem = useCallback((message, index) => {
     if (message.isTyping) {
       return (
@@ -228,6 +170,60 @@ const ChatContainer = ({ onBurgerClick }) => {
       </div>
     );
   }, [messages, selectedUser, activeMessageMenu, openMessageMenu, closeMessageMenu, handleLongPressStart, handleLongPressEnd, addReaction, removeReaction, markViewOnceOpened]);
+
+  useEffect(() => {
+    getMessages(selectedUser._id);
+    getPinnedMessages(selectedUser._id);
+  }, [selectedUser._id, getMessages, getPinnedMessages]);
+
+  const handleScrollToTop = async () => {
+    if (loadingMore || !isMoreMessagesAvailable) return;
+    setLoadingMore(true);
+    await getMessages(selectedUser._id, true);
+    setLoadingMore(false);
+  };
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (!selectedUser?._id) return;
+
+      if (e.ctrlKey && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setShowSearch((s) => !s);
+      }
+
+      if (e.ctrlKey && e.key.toLowerCase() === "m") {
+        e.preventDefault();
+        toggleMuteChat(selectedUser._id);
+      }
+
+      if (e.ctrlKey && e.key.toLowerCase() === "p") {
+        e.preventDefault();
+        togglePinChat(selectedUser._id);
+      }
+
+      if (e.ctrlKey && e.key.toLowerCase() === "e") {
+        e.preventDefault();
+        const lastOwn = [...messages].reverse().find((msg) => msg.senderId === authUser._id && !msg.isDeleted);
+        if (lastOwn) {
+          setEditingMessage(lastOwn._id);
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [messages, selectedUser, authUser, toggleMuteChat, togglePinChat, setEditingMessage]);
+
+  if (isMessagesLoading && messages.length === 0) {
+    return (
+      <div className="flex-1 flex flex-col h-full bg-slate-100 dark:bg-slate-900 transition-colors duration-200">
+        <ChatHeader onBurgerClick={onBurgerClick} />
+        <MessageSkeleton />
+        <MessageInput />
+      </div>
+    );
+  }
 
   const virtualItems = [
     ...messages,
