@@ -6,6 +6,7 @@ import SidebarSkeleton from "./skeletons/SidebarSkeleton";
 import FrequentContacts from "./FrequentContacts";
 import { Avatar, Badge } from "./ui/BlinkComponents";
 import { Search, Edit3 } from "lucide-react";
+import { formatMessageTime } from "../lib/utils";
 
 const ConversationList = () => {
   const {
@@ -77,12 +78,13 @@ const ConversationList = () => {
     const isOnline = onlineUsers.includes(user._id);
     const lastMessage = user.lastMessage;
     const isSelected = selectedUser?._id === user._id;
+    const lastTime = lastMessage?.createdAt ? formatMessageTime(lastMessage.createdAt) : "";
 
     return (
       <button
         key={user._id}
         onClick={() => setSelectedUser(user)}
-        className={`w-full flex items-center gap-3.5 p-3.5 mx-2 rounded-2xl transition-all duration-200 ${
+        className={`w-full flex items-center gap-3.5 p-3.5 mx-2 rounded-2xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50 ${
           isSelected 
             ? "bg-primary/10 shadow-soft" 
             : "hover:bg-slate-50 dark:hover:bg-slate-800"
@@ -90,12 +92,12 @@ const ConversationList = () => {
       >
         <div className="relative">
           <Avatar src={user.profilePic} size="md" />
-          {isOnline && <span className="absolute bottom-0 right-0 size-3 bg-green-500 rounded-full ring-2 ring-surface dark:ring-surface-dark" />}
+          {isOnline && <span className="absolute bottom-0 right-0 size-3 bg-green-500 rounded-full ring-2 ring-white dark:ring-slate-800" aria-label="Online" />}
         </div>
         <div className="flex-1 min-w-0 text-left">
           <div className="flex justify-between items-center mb-0.5">
             <p className="font-semibold text-slate-900 dark:text-slate-100 truncate text-sm">{user.fullName}</p>
-            <span className="text-[10px] text-slate-400 font-medium">12:30 PM</span>
+            <time className="text-[10px] text-slate-400 font-medium" dateTime={lastMessage?.createdAt}>{lastTime}</time>
           </div>
           <div className="flex justify-between items-center">
             <p className="text-xs text-slate-500 truncate">{lastMessage?.text || "..."}</p>

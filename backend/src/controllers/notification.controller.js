@@ -45,24 +45,6 @@ export const getNotifications = async (req, res) => {
   }
 };
 
-export const deleteOldNotifications = async () => {
-  try {
-    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-    const deleted = await Notification.deleteMany({
-      $or: [
-        { createdAt: { $lte: sevenDaysAgo } },
-        { isRead: true, updatedAt: { $lte: sevenDaysAgo } },
-      ],
-    });
-
-    if (deleted.deletedCount > 0) {
-      console.log(`Cleaned up ${deleted.deletedCount} old notifications`);
-    }
-  } catch (error) {
-    console.error("Error cleaning up old notifications:", error.message);
-  }
-};
-
 export const getUnreadCount = async (req, res) => {
   try {
     const userId = req.user._id;
