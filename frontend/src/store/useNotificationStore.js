@@ -72,6 +72,7 @@ export const useNotificationStore = create((set, get) => ({
         notifications: get().notifications.map((n) =>
           n._id === id ? { ...n, isRead: true } : n
         ),
+        unreadCount: Math.max(0, get().unreadCount - 1),
       });
     } catch (error) {
       useErrorStore.getState().handleApiError(error, "mark notification as read");
@@ -93,12 +94,26 @@ export const useNotificationStore = create((set, get) => ({
 
   deleteNotification: async (id) => {
     try {
+      const notification = get().notifications.find((n) => n._id === id);
       await axiosInstance.delete(`/notifications/${id}`);
       set({
         notifications: get().notifications.filter((n) => n._id !== id),
+        unreadCount: notification && !notification.isRead ? Math.max(0, get().unreadCount - 1) : get().unreadCount,
       });
     } catch (error) {
       useErrorStore.getState().handleApiError(error, "delete notification");
+    }
+  },
+
+  clearReadNotifications: async () => {
+    try {
+      await axiosInstance.delete("/notifications/read");
+      set({
+        notifications: get().notifications.filter((n) => !n.isRead),
+      });
+      toast.success("Cleared read notifications");
+    } catch (error) {
+      useErrorStore.getState().handleApiError(error, "clear read notifications");
     }
   },
 

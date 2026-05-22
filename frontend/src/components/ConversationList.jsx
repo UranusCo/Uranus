@@ -56,8 +56,10 @@ const ConversationList = () => {
 
   const displayUsers = searchInput ? searchResults : users;
   
-  // Filter base list to only friends or people with active requests (incoming or outgoing)
-  const baseList = displayUsers.filter(u => isRelated(u._id));
+  // Show all search results during search.
+  const baseList = searchInput
+    ? displayUsers
+    : displayUsers.filter((user) => user.lastMessage || isRelated(user._id));
 
   // Frequent users are only actual friends
   const frequentUsers = friends.slice(0, 5);

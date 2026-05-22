@@ -30,6 +30,7 @@ import friendshipRoutes from "./routes/friendship.route.js";
 import workspaceRoutes from "./routes/workspace.route.js";
 import { app, server } from "./lib/socket.js";
 import { deleteExpiredMessages } from "./controllers/message.controller.js";
+import { deleteOldNotifications } from "./controllers/notification.controller.js";
 
 import bcrypt from "bcryptjs";
 import User from "./models/user.model.js";
@@ -100,5 +101,7 @@ server.listen(PORT, async () => {
   await connectDB();
   await seedHelpCenter();
   await deleteExpiredMessages();
+  await deleteOldNotifications();
   setInterval(deleteExpiredMessages, 20 * 60 * 1000); // every 20 minutes
+  setInterval(deleteOldNotifications, 60 * 60 * 1000); // every hour
 });

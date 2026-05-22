@@ -8,6 +8,7 @@ const NotificationPanel = () => {
     notifications,
     getNotifications,
     markAllAsRead,
+    clearReadNotifications,
     isNotificationsLoading,
     loadMoreNotifications,
     hasMore,
@@ -22,15 +23,28 @@ const NotificationPanel = () => {
   return (
     <div className="flex flex-col h-full bg-surface dark:bg-surface-dark transition-colors duration-200 overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-5 pt-6 pb-4 flex-shrink-0">
-        <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">Notifications</h1>
-        <button
-          className="p-2 rounded-xl text-primary hover:bg-primary/10 transition-colors"
-          onClick={markAllAsRead}
-          title="Mark all as read"
-        >
-          <CheckCircle size={20} />
-        </button>
+      <div className="flex items-center justify-between px-5 pt-6 pb-4 flex-shrink-0 gap-3">
+        <div>
+          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">Notifications</h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Manage recent alerts and clear read items.</p>
+        </div>
+        <div className="flex gap-2">
+          <button
+            className="px-3 py-2 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+            onClick={clearReadNotifications}
+            title="Clear all read notifications"
+            disabled={!notifications.some((n) => n.isRead)}
+          >
+            Clear read
+          </button>
+          <button
+            className="p-2 rounded-xl text-primary hover:bg-primary/10 transition-colors"
+            onClick={markAllAsRead}
+            title="Mark all as read"
+          >
+            <CheckCircle size={20} />
+          </button>
+        </div>
       </div>
 
       {/* Pill Filters */}

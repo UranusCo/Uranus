@@ -2,10 +2,30 @@ import Notification from "../models/notification.model.js";
 import User from "../models/user.model.js";
 import { io, getReceiverSocketId } from "../lib/socket.js";
 
+export const deleteOldNotifications = async () => {
+  try {
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const deleted = await Notification.deleteMany({
+      $or: [
+        { createdAt: { $lte: sevenDaysAgo } },
+        { isRead: true, updatedAt: { $lte: sevenDaysAgo } },
+      ],
+    });
+
+    if (deleted.deletedCount > 0) {
+      console.log(`Cleaned up ${deleted.deletedCount} old notifications`);
+    }
+  } catch (error) {
+    console.error("Error cleaning up old notifications:", error.message);
+  }
+};
+
 export const getNotifications = async (req, res) => {
   try {
     const userId = req.user._id;
     const { page = 1, limit = 20, unreadOnly = false } = req.query;
+
+    await deleteOldNotifications();
 
     const query = { recipient: userId };
     if (unreadOnly === "true") {
@@ -22,6 +42,24 @@ export const getNotifications = async (req, res) => {
   } catch (error) {
     console.log("Error in getNotifications controller", error.message);
     res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const deleteOldNotifications = async () => {
+  try {
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const deleted = await Notification.deleteMany({
+      $or: [
+        { createdAt: { $lte: sevenDaysAgo } },
+        { isRead: true, updatedAt: { $lte: sevenDaysAgo } },
+      ],
+    });
+
+    if (deleted.deletedCount > 0) {
+      console.log(`Cleaned up ${deleted.deletedCount} old notifications`);
+    }
+  } catch (error) {
+    console.error("Error cleaning up old notifications:", error.message);
   }
 };
 
@@ -81,6 +119,24 @@ export const markAllAsRead = async (req, res) => {
     res.status(200).json({ message: "All notifications marked as read" });
   } catch (error) {
     console.log("Error in markAllAsRead controller", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const deleteReadNotifications = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const deleted = await Notification.deleteMany({ recipient: userId, isRead: true });
+
+    const receiverSocketId = getReceiverSocketId(userId);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("notification:count-update", await Notification.countDocuments({ recipient: userId, isRead: false }));
+      io.to(receiverSocketId).emit("notification:read-cleared");
+    }
+
+    res.status(200).json({ message: "Read notifications deleted", deletedCount: deleted.deletedCount });
+  } catch (error) {
+    console.log("Error deleting read notifications", error.message);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };

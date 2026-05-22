@@ -1,12 +1,12 @@
 import { formatDistanceToNow } from "../lib/utils";
-import { MessageSquare, UserPlus, Heart, Bell } from "lucide-react";
+import { MessageSquare, UserPlus, Heart, Bell, Trash2 } from "lucide-react";
 import { useNotificationStore } from "../store/useNotificationStore";
 import { useChatStore } from "../store/useChatStore";
 import { useNavigate } from "react-router-dom";
 import { Avatar } from "./ui/BlinkComponents";
 
 const NotificationItem = ({ notification }) => {
-  const { markAsRead } = useNotificationStore();
+  const { markAsRead, deleteNotification } = useNotificationStore();
   const { setSelectedUser, users } = useChatStore();
   const navigate = useNavigate();
 
@@ -67,6 +67,17 @@ const NotificationItem = ({ notification }) => {
         </p>
       </div>
 
+      <button
+        type="button"
+        onClick={async (event) => {
+          event.stopPropagation();
+          await deleteNotification(notification._id);
+        }}
+        className="absolute right-3 top-3 text-slate-400 hover:text-rose-500"
+        title="Delete notification"
+      >
+        <Trash2 className="size-4" />
+      </button>
       {!notification.isRead && (
         <div className="size-2 rounded-full bg-primary absolute right-3 top-1/2 -translate-y-1/2 shadow-soft" />
       )}

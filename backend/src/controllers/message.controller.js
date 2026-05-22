@@ -55,7 +55,7 @@ export const deleteExpiredMessages = async () => {
     const now = new Date();
     const expired = await Message.find({
       expiresAt: { $lte: now },
-      isExpired: false,
+      isExpired: { $ne: true },
     });
 
     if (expired.length === 0) return;
@@ -86,6 +86,7 @@ export const getUsersForSidebar = async (req, res) => {
         { senderId: loggedInUserId },
         { receiverId: loggedInUserId },
       ],
+      isExpired: { $ne: true },
     })
       .sort({ createdAt: -1 })
       .populate("senderId", "fullName profilePic email")
@@ -169,7 +170,7 @@ export const getMessages = async (req, res) => {
         { senderId: myId, receiverId: userToChatId },
         { senderId: userToChatId, receiverId: myId },
       ],
-      isExpired: false,
+      isExpired: { $ne: true },
     };
 
     if (before) {
@@ -647,6 +648,7 @@ export const searchMessages = async (req, res) => {
         { senderId: userId, receiverId: myId },
       ],
       isDeleted: false,
+      isExpired: { $ne: true },
       text: { $regex: query, $options: "i" },
     };
 
