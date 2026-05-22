@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
 import { LogOut, Settings, User, MessageCircle } from "lucide-react";
-import BlinkLogo from "../../public/Blink.svg";
 import { useState } from "react";
 import StatusUpdateModal from "./StatusUpdateModal";
 import NotificationBell from "./NotificationBell";
@@ -25,11 +24,12 @@ const Navbar = () => {
             <div className="flex items-center gap-8">
               <Link to="/" className="flex items-center gap-2.5 hover:opacity-80 transition-all">
                 <div className="size-9 rounded-xl bg-primary/10 dark:bg-primary/20 flex items-center justify-center overflow-hidden">
-                  <img src={BlinkLogo} alt="Blink Logo" className="w-5 h-5 object-contain" />
+                  <img src="/blink.svg" alt="Blink Logo" className="w-5 h-5 object-contain" />
                 </div>
                 <h1 className="text-lg font-bold text-slate-900 dark:text-slate-100">Blink</h1>
               </Link>
             </div>
+
 
             <div className="flex items-center gap-2.5">
               {authUser && (

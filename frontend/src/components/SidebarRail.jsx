@@ -7,7 +7,6 @@ import {
   LogOut, 
   Plus
 } from "lucide-react";
-import BlinkLogo from "../../public/Blink.svg";
 import NotificationBell from "./NotificationBell";
 
 const SidebarRail = ({ activeTab = "chats", setActiveTab = () => {}, forceShow = false }) => {
