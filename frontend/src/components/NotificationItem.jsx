@@ -3,34 +3,25 @@ import { MessageSquare, AtSign, Reply, UserPlus, Heart, Bell, Shield, Info } fro
 import { useNotificationStore } from "../store/useNotificationStore";
 import { useChatStore } from "../store/useChatStore";
 import { useNavigate } from "react-router-dom";
+import { Avatar } from "./ui/BlinkComponents";
 
-const NotificationItem = ({ notification, onClose }) => {
+const NotificationItem = ({ notification }) => {
   const { markAsRead, deleteNotification } = useNotificationStore();
-  const { setSelectedUser } = useChatStore();
+  const { setSelectedUser, users } = useChatStore();
   const navigate = useNavigate();
 
   const getIcon = () => {
     switch (notification.type) {
       case "direct_message":
       case "group_message":
-        return <MessageSquare className="size-4 text-blue-500" />;
-      case "mention":
-        return <AtSign className="size-4 text-purple-500" />;
-      case "reply":
-        return <Reply className="size-4 text-green-500" />;
+        return <MessageSquare className="size-3 text-primary" />;
       case "friend_request":
       case "friend_accept":
-      case "follow":
-        return <UserPlus className="size-4 text-pink-500" />;
+        return <UserPlus className="size-3 text-emerald-500" />;
       case "reaction":
-        return <Heart className="size-4 text-red-500" />;
-      case "security":
-        return <Shield className="size-4 text-orange-500" />;
-      case "welcome":
-      case "announcement":
-        return <Info className="size-4 text-yellow-500" />;
+        return <Heart className="size-3 text-rose-500" fill="currentColor" />;
       default:
-        return <Bell className="size-4 text-gray-500" />;
+        return <Bell className="size-3 text-primary" />;
     }
   };
 
@@ -40,61 +31,45 @@ const NotificationItem = ({ notification, onClose }) => {
     }
 
     if (notification.metadata?.conversationId) {
-      // Find user and select them
-      const { users } = useChatStore.getState();
       const user = users.find(u => u._id === notification.metadata.conversationId);
       if (user) {
         setSelectedUser(user);
         navigate("/");
       }
     }
-
-    if (onClose) onClose();
   };
 
   return (
     <div
-      className={`p-3 flex gap-3 hover:bg-slate-100 dark:hover:bg-slate-750/50 cursor-pointer transition-colors relative group ${
-        !notification.isRead ? "bg-slate-100/50 dark:bg-slate-700/30" : ""
+      className={`group px-3 py-3 mx-2 rounded-2xl flex gap-3 transition-all duration-200 cursor-pointer relative ${
+        !notification.isRead ? "bg-primary/5 shadow-soft" : "hover:bg-slate-50 dark:hover:bg-slate-800"
       }`}
       onClick={handleClick}
     >
-      {!notification.isRead && (
-        <div className="absolute left-1 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400" />
-      )}
-
       <div className="relative">
-        <img
-          src={notification.actor?.profilePic || "/avatar.png"}
-          alt={notification.actor?.fullName}
-          className="size-10 rounded-full object-cover border border-slate-200 dark:border-slate-700"
-        />
-        <div className="absolute -bottom-1 -right-1 bg-white dark:bg-slate-800 rounded-full p-1 border border-slate-200 dark:border-slate-700">
+        <Avatar src={notification.actor?.profilePic} size="md" />
+        <div className="absolute -bottom-1 -right-1 bg-surface dark:bg-surface-dark rounded-full p-1 border border-border dark:border-border-dark shadow-soft">
           {getIcon()}
         </div>
       </div>
 
       <div className="flex-1 min-w-0">
-        <div className="flex justify-between items-start gap-2">
-          <p className="text-sm font-semibold truncate text-slate-800 dark:text-slate-100">{notification.title}</p>
-          <span className="text-[10px] text-slate-400 dark:text-slate-500 whitespace-nowrap">
+        <div className="flex justify-between items-start gap-2 mb-0.5">
+          <p className={`text-sm leading-tight ${!notification.isRead ? "font-bold text-slate-900 dark:text-slate-100" : "font-semibold text-slate-700 dark:text-slate-300"}`}>
+            {notification.title}
+          </p>
+          <span className="text-[10px] text-slate-400 font-medium whitespace-nowrap pt-0.5">
             {formatDistanceToNow(new Date(notification.createdAt))}
           </span>
         </div>
-        <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mt-0.5">
+        <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
           {notification.body}
         </p>
       </div>
 
-      <button
-        className="absolute right-2 bottom-2 opacity-0 group-hover:opacity-100 text-[10px] font-semibold text-red-500 hover:text-red-600 dark:text-red-400 transition-opacity"
-        onClick={(e) => {
-          e.stopPropagation();
-          deleteNotification(notification._id);
-        }}
-      >
-        Delete
-      </button>
+      {!notification.isRead && (
+        <div className="size-2 rounded-full bg-primary absolute right-3 top-1/2 -translate-y-1/2 shadow-soft" />
+      )}
     </div>
   );
 };

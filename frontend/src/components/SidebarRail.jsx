@@ -5,9 +5,11 @@ import { useChatStore } from "../store/useChatStore";
 import { 
   Settings, 
   LogOut, 
-  Plus
+  Plus,
+  Users,
+  Bell,
+  MessageSquare
 } from "lucide-react";
-import NotificationBell from "./NotificationBell";
 
 const SidebarRail = ({ activeTab = "chats", setActiveTab = () => {}, forceShow = false }) => {
   const { logout, authUser } = useAuthStore();
@@ -51,6 +53,7 @@ const SidebarRail = ({ activeTab = "chats", setActiveTab = () => {}, forceShow =
     <>
       <aside className={`${forceShow ? "flex" : "hidden lg:flex"} flex-col items-center py-5 w-16 h-full bg-slate-900 border-r border-slate-800 justify-between flex-shrink-0 z-30 select-none transition-colors duration-200`}>
         <div className="flex flex-col items-center gap-4 w-full">
+          {/* Chats / Home */}
           <button
             onClick={() => {
               setSelectedWorkspace(null);
@@ -60,28 +63,86 @@ const SidebarRail = ({ activeTab = "chats", setActiveTab = () => {}, forceShow =
           >
             <span
               className={`absolute left-0 w-1 bg-white rounded-r-md transition-all duration-300 ${
-                selectedWorkspace === null
+                activeTab === "chats" && selectedWorkspace === null
                   ? "h-8"
                   : "h-0 group-hover:h-3"
               }`}
             />
             <div
               className={`size-12 flex items-center justify-center transition-all duration-300 cursor-pointer overflow-hidden ${
-                selectedWorkspace === null
+                activeTab === "chats" && selectedWorkspace === null
                   ? "rounded-xl bg-primary text-white"
                   : "rounded-2xl bg-slate-800 text-slate-400 hover:rounded-xl hover:bg-primary hover:text-white"
               }`}
             >
-              <img src="/blink.svg" alt="Blink" className="w-5 h-5 object-contain filter brightness-0 invert" />
+              <MessageSquare size={22} fill={activeTab === "chats" ? "currentColor" : "none"} />
             </div>
             <span className="absolute left-[70px] px-3 py-1.5 bg-slate-950 text-white text-xs font-semibold rounded-lg shadow-xl border border-slate-800 opacity-0 scale-95 origin-left pointer-events-none group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 whitespace-nowrap z-50">
               Direct Messages
             </span>
           </button>
 
+          {/* Friends Tab */}
+          <button
+            onClick={() => {
+              setSelectedWorkspace(null);
+              setActiveTab("users");
+            }}
+            className="relative group flex items-center justify-center w-full focus:outline-none"
+          >
+            <span
+              className={`absolute left-0 w-1 bg-white rounded-r-md transition-all duration-300 ${
+                activeTab === "users"
+                  ? "h-8"
+                  : "h-0 group-hover:h-3"
+              }`}
+            />
+            <div
+              className={`size-12 flex items-center justify-center transition-all duration-300 cursor-pointer overflow-hidden ${
+                activeTab === "users"
+                  ? "rounded-xl bg-primary text-white"
+                  : "rounded-2xl bg-slate-800 text-slate-400 hover:rounded-xl hover:bg-primary hover:text-white"
+              }`}
+            >
+              <Users size={22} fill={activeTab === "users" ? "currentColor" : "none"} />
+            </div>
+            <span className="absolute left-[70px] px-3 py-1.5 bg-slate-950 text-white text-xs font-semibold rounded-lg shadow-xl border border-slate-800 opacity-0 scale-95 origin-left pointer-events-none group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 whitespace-nowrap z-50">
+              Friends
+            </span>
+          </button>
+
+          {/* Notifications Tab */}
+          <button
+            onClick={() => {
+              setSelectedWorkspace(null);
+              setActiveTab("notifications");
+            }}
+            className="relative group flex items-center justify-center w-full focus:outline-none"
+          >
+            <span
+              className={`absolute left-0 w-1 bg-white rounded-r-md transition-all duration-300 ${
+                activeTab === "notifications"
+                  ? "h-8"
+                  : "h-0 group-hover:h-3"
+              }`}
+            />
+            <div
+              className={`size-12 flex items-center justify-center transition-all duration-300 cursor-pointer overflow-hidden ${
+                activeTab === "notifications"
+                  ? "rounded-xl bg-primary text-white"
+                  : "rounded-2xl bg-slate-800 text-slate-400 hover:rounded-xl hover:bg-primary hover:text-white"
+              }`}
+            >
+              <Bell size={22} fill={activeTab === "notifications" ? "currentColor" : "none"} />
+            </div>
+            <span className="absolute left-[70px] px-3 py-1.5 bg-slate-950 text-white text-xs font-semibold rounded-lg shadow-xl border border-slate-800 opacity-0 scale-95 origin-left pointer-events-none group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 whitespace-nowrap z-50">
+              Notifications
+            </span>
+          </button>
+
           <div className="w-8 h-[2px] bg-slate-800 rounded-full" />
 
-          <div className="flex flex-col gap-3 w-full items-center overflow-y-auto max-h-[calc(100vh-320px)] scrollbar-none">
+          <div className="flex flex-col gap-3 w-full items-center overflow-y-auto max-h-[calc(100vh-420px)] scrollbar-none">
             {workspaces.map((ws) => {
               const isActive = selectedWorkspace?._id === ws._id;
               return (
@@ -127,10 +188,6 @@ const SidebarRail = ({ activeTab = "chats", setActiveTab = () => {}, forceShow =
         </div>
 
         <div className="flex flex-col items-center gap-4 w-full px-2 mt-auto">
-          <div className="relative size-10 flex items-center justify-center rounded-xl transition-all duration-200 hover:bg-slate-800 text-slate-400 hover:text-white cursor-pointer">
-            <NotificationBell hideText={true} dropdownClass="left-14 bottom-0 origin-bottom-left" />
-          </div>
-
           {authUser && (
             <Link 
               to="/profile" 
