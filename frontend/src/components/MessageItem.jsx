@@ -54,14 +54,8 @@ const MessageItem = ({
   const showAvatar = !isSelf && !isNextSameSender;
   const showNameHeader = !isSelf && (!isPrevSameSender || message.isDeleted);
   const bubbleRoundness = isSelf
-    ? (isPrevSameSender && isNextSameSender ? "rounded-2xl"
-      : isPrevSameSender ? "rounded-br-2xl"
-      : isNextSameSender ? "rounded-tr-2xl"
-      : "rounded-br-2xl rounded-tr-none")
-    : (isPrevSameSender && isNextSameSender ? "rounded-2xl"
-      : isPrevSameSender ? "rounded-bl-2xl"
-      : isNextSameSender ? "rounded-tl-2xl"
-      : "rounded-bl-2xl rounded-tl-none");
+    ? "rounded-[20px] rounded-tr-[4px]"
+    : "rounded-[20px] rounded-tl-[4px]";
 
   const commonBubbleClasses = `relative flex flex-col select-text px-4 py-2.5 border shadow-soft transition-all no-callout group/bubble ${bubbleRoundness} ${
     message.isDeleted
@@ -71,7 +65,7 @@ const MessageItem = ({
         : "bg-surface dark:bg-surface-dark text-slate-900 dark:text-slate-100 border-border dark:border-border-dark"
   } hover:cursor-pointer`;
 
-  const marginBottom = isNextSameSender ? "mb-0.5" : "mb-0";
+  const marginBottom = isNextSameSender ? "mb-0.5" : "mb-3.5";
 
   return (
     <div
@@ -194,7 +188,7 @@ const MessageContent = ({
       {/* Bubble Row */}
       <div className={`flex gap-1.5 items-end ${isSelf ? "justify-end" : ""}`}>
         <div
-          className={`${commonBubbleClasses} ${message.isDeleted ? "" : (isSelf ? "bubble-tail-self" : "bubble-tail-other")}`}
+          className={`${commonBubbleClasses}`}
           onDoubleClick={handleDoubleClick}
           onContextMenu={handleContextMenu}
           onTouchStart={message.isDeleted ? undefined : (e) => { e.stopPropagation(); handleLongPressStart?.(message._id); }}
