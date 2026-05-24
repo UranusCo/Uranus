@@ -7,7 +7,7 @@ import FrequentContacts from "./FrequentContacts";
 import { Avatar } from "./ui/BlinkComponents";
 import { Button } from "./ui";
 import Input from "./ui/Input";
-import { Search, Edit3, Zap, MoreHorizontal, CheckCircle2 } from "lucide-react";
+import { Search, Edit3, Zap, MoreHorizontal, CheckCircle2, MessageSquare } from "lucide-react";
 import { formatMessageTime } from "../lib/utils";
 
 const ConversationList = () => {
