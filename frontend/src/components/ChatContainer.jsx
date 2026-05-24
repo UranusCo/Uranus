@@ -176,9 +176,7 @@ const ChatContainer = () => {
         />
       </div>
 
-      <div className="p-4 bg-surface dark:bg-surface-dark border-t border-border dark:border-border-dark shadow-soft z-10">
-        <MessageInput />
-      </div>
+      <MessageInput />
 
       <UserProfilePanel 
         user={selectedUser} 
