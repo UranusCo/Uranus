@@ -8,7 +8,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
-      includeAssets: ['blink.svg', 'robots.txt', 'apple-touch-icon.png'],
+      includeAssets: ['blink.svg', 'icon-192.png', 'icon-512.png', 'robots.txt', 'apple-touch-icon.png'],
       manifest: {
         id: 'com.blink.chat',
         name: 'Blink Chat',
@@ -32,6 +32,18 @@ export default defineConfig({
             src: 'blink.svg',
             sizes: '512x512',
             type: 'image/svg+xml',
+            purpose: 'any',
+          },
+          {
+            src: 'icon-192.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'any',
+          },
+          {
+            src: 'icon-512.png',
+            sizes: '512x512',
+            type: 'image/png',
             purpose: 'any',
           },
           {
