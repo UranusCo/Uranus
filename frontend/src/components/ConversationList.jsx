@@ -7,8 +7,7 @@ import FrequentContacts from "./FrequentContacts";
 import { Avatar } from "./ui/BlinkComponents";
 import { Button } from "./ui";
 import Input from "./ui/Input";
-import Badge from "./ui/Badge";
-import { Search, Edit3 } from "lucide-react";
+import { Search, Edit3, Zap, MoreHorizontal, CheckCircle2 } from "lucide-react";
 import { formatMessageTime } from "../lib/utils";
 
 const ConversationList = () => {
@@ -70,37 +69,23 @@ const ConversationList = () => {
       }
     };
     window.addEventListener('keydown', onKeyDown);
-    const onOpen = () => searchRef.current?.focus();
-    window.addEventListener('openChatSearch', onOpen);
-    return () => {
-      window.removeEventListener('keydown', onKeyDown);
-      window.removeEventListener('openChatSearch', onOpen);
-    };
+    return () => window.removeEventListener('keydown', onKeyDown);
   }, []);
 
-  // Helper to determine if a user is related (friend or has request)
   const isRelated = (userId) => {
     if (!userId) return false;
     const uid = String(userId);
-    
-    // Check if they are already friends
     const isFriend = friends.some(f => String(f._id) === uid);
     if (isFriend) return true;
-
-    // Check if there's an incoming pending request from them
     const hasIncoming = requests.some(r => r.requesterId && String(r.requesterId._id) === uid);
     if (hasIncoming) return true;
-
-    // Check if there's an outgoing pending request to them
     const hasOutgoing = sentRequests.some(r => r.receiverId && String(r.receiverId._id) === uid);
     if (hasOutgoing) return true;
-
     return false;
   };
 
   const displayUsers = searchInput ? searchResults : users;
   
-  // Show all past chats plus related users in the sidebar.
   const baseList = displayUsers
     .filter((user) => searchInput || user.lastMessage || isRelated(user._id))
     .sort((a, b) => {
@@ -109,7 +94,6 @@ const ConversationList = () => {
       return bTime - aTime;
     });
 
-  // Frequent users are only actual friends
   const frequentUsers = friends.slice(0, 5);
   
   const pinnedUsers = baseList.filter((user) => authUser?.pinnedChats?.includes(user._id));
@@ -128,87 +112,138 @@ const ConversationList = () => {
         key={user._id}
         onClick={() => setSelectedUser(user)}
         onContextMenu={(e) => handleContextMenu(e, user._id)}
-        className={`w-full flex items-center gap-3.5 p-3.5 mx-2 rounded-2xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50 ${
+        className={`w-full flex items-center gap-4 px-5 py-4 transition-all duration-200 border-b border-slate-50 dark:border-slate-800/50 relative overflow-hidden group ${
           isSelected 
-            ? "bg-primary/10 shadow-soft" 
-            : "hover:bg-slate-50 dark:hover:bg-slate-800"
+            ? "bg-slate-50 dark:bg-slate-800/50" 
+            : "hover:bg-slate-50/50 dark:hover:bg-slate-800/30"
         }`}
       >
-        <div className="relative">
-          <Avatar src={user.profilePic} size="md" />
-          {isOnline && <span className="absolute bottom-0 right-0 size-3 bg-green-500 rounded-full ring-2 ring-white dark:ring-slate-800" aria-label="Online" />}
+        <div className="relative flex-shrink-0">
+          <Avatar src={user.profilePic} size="lg" className="ring-2 ring-transparent group-hover:ring-primary/20" />
+          {isOnline && (
+            <div className="absolute bottom-0 right-0 size-3.5 bg-[#00FF88] rounded-full border-2 border-white dark:border-slate-800 shadow-sm" />
+          )}
         </div>
+
         <div className="flex-1 min-w-0 text-left">
-          <div className="flex justify-between items-center mb-0.5">
-            <p className="font-semibold text-slate-900 dark:text-slate-100 truncate text-sm">{user.fullName}</p>
-            <time className="text-[10px] text-slate-400 font-medium" dateTime={lastMessage?.createdAt}>{lastTime}</time>
+          <div className="flex justify-between items-center mb-1">
+            <h3 className="font-semibold text-slate-900 dark:text-slate-100 truncate text-[16px]">
+              {user.fullName}
+            </h3>
+            <span className="text-[12px] text-slate-400 font-medium">{lastTime}</span>
           </div>
+          
           <div className="flex justify-between items-center">
-            <p className="text-xs text-slate-500 truncate">{lastMessage?.text || "..."}</p>
-            <Badge count={user.unreadCount} />
+            <p className={`text-[14px] truncate ${user.unreadCount > 0 ? "text-slate-900 dark:text-slate-100 font-medium" : "text-slate-500"}`}>
+              {lastMessage?.senderId === authUser._id && <span className="text-primary mr-1 font-bold">You:</span>}
+              {lastMessage?.text || "No messages yet"}
+            </p>
+            
+            {user.unreadCount > 0 ? (
+              <div className="ml-2 px-2 py-0.5 min-w-[20px] h-5 rounded-full bg-gradient-to-br from-[#00D4FF] to-[#0080FF] flex items-center justify-center text-white text-[11px] font-bold shadow-lg shadow-primary/20">
+                {user.unreadCount}
+              </div>
+            ) : (
+              lastMessage?.senderId === authUser._id && (
+                <CheckCircle2 size={14} className="text-primary/40 ml-2" />
+              )
+            )}
           </div>
         </div>
+
+        {isSelected && (
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-12 bg-primary rounded-r-full" />
+        )}
       </button>
     );
   };
 
   return (
-    <aside className="h-full w-full lg:w-[320px] bg-surface dark:bg-surface-dark flex flex-col transition-colors duration-200 border-r border-border dark:border-border-dark">
-      <div className="flex items-center justify-between px-5 pt-6 pb-4">
-        <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">Chats</h1>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="p-2 rounded-xl"
-          onClick={() => setSearchInput('')}
-          title="New chat"
-        >
-          <Edit3 size={18} />
-        </Button>
-      </div>
+    <aside className="h-full w-full bg-white dark:bg-surface-dark flex flex-col relative overflow-hidden">
+      {/* Premium Header */}
+      <div className="px-5 py-5 border-b border-slate-50 dark:border-slate-800/50 backdrop-blur-xl bg-white/80 dark:bg-surface-dark/80 sticky top-0 z-20">
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-2.5">
+            <div className="size-9 rounded-xl bg-gradient-to-br from-[#00D4FF] to-[#0080FF] flex items-center justify-center shadow-lg shadow-primary/30">
+              <Zap size={20} className="text-white fill-white" />
+            </div>
+            <h1 className="text-[26px] font-bold tracking-tight text-slate-900 dark:text-slate-100">Blink</h1>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => searchRef.current?.focus()}
+              className="p-2 text-slate-500 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all"
+            >
+              <Search size={22} />
+            </button>
+            <button className="p-2 text-slate-500 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all">
+              <Edit3 size={22} />
+            </button>
+          </div>
+        </div>
 
-      <div className="px-5 mb-2">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
-          <Input
+        <div className="relative group">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4.5 text-slate-400 group-focus-within:text-primary transition-colors" />
+          <input
             type="text"
-            placeholder="Search..."
+            placeholder="Search messages or people"
             value={searchInput}
             onChange={handleSearch}
             ref={searchRef}
-            aria-label="Search chats"
-            className="w-full pl-9 pr-4 py-2 rounded-2xl text-sm"
+            className="w-full pl-11 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-transparent focus:border-primary/20 focus:bg-white dark:focus:bg-slate-900 rounded-2xl text-[14px] text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-primary/5 transition-all"
           />
         </div>
       </div>
 
-      {!searchInput && <FrequentContacts users={frequentUsers} onSelectUser={setSelectedUser} />}
-
-      <div className="flex-1 overflow-y-auto space-y-1 pt-2 pb-6">
-        {pinnedUsers.length === 0 && unpinnedUsers.length === 0 ? (
-          <div className="text-center py-10 px-4">
-            <p className="text-slate-500 text-sm">No conversations yet.</p>
-            <p className="text-slate-400 text-xs mt-1">Start by adding friends from the Friends tab!</p>
+      <div className="flex-1 overflow-y-auto scrollbar-none">
+        {!searchInput && frequentUsers.length > 0 && (
+          <div className="py-2">
+            <FrequentContacts users={frequentUsers} onSelectUser={setSelectedUser} />
           </div>
-        ) : (
-          <>
-            {pinnedUsers.map(renderUserItem)}
-            {unpinnedUsers.map(renderUserItem)}
-          </>
         )}
+
+        <div className="pb-20">
+          {pinnedUsers.length === 0 && unpinnedUsers.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 px-10 text-center">
+              <div className="size-16 rounded-3xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center mb-4">
+                <MessageSquare className="size-8 text-slate-300" />
+              </div>
+              <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-1">No chats yet</h3>
+              <p className="text-slate-400 text-sm">Start a conversation with your friends!</p>
+            </div>
+          ) : (
+            <>
+              {pinnedUsers.map(renderUserItem)}
+              {unpinnedUsers.map(renderUserItem)}
+            </>
+          )}
+        </div>
       </div>
 
       {activeContextMenu && (
         <>
           <div className="fixed inset-0 z-[9998]" onClick={closeContextMenu} />
           <div 
-            className="fixed z-[9999] bg-surface dark:bg-surface-dark border border-border dark:border-border-dark rounded-xl shadow-elevated py-1.5 min-w-[180px] animate-in fade-in zoom-in-95 duration-100"
+            className="fixed z-[9999] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-2xl py-2 min-w-[200px] animate-in fade-in zoom-in-95 duration-200"
             style={{ top: menuPosition.top, left: menuPosition.left }}
           >
-            <button className="w-full px-4 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Archive chat</button>
-            <button className="w-full px-4 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Mute notifications</button>
-            <button className="w-full px-4 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border-t border-border dark:border-border-dark mt-1">Exit group</button>
-            <button className="w-full px-4 py-2 text-left text-sm text-danger hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Delete chat</button>
+            {[
+              { label: "Pin to top", icon: "Pin" },
+              { label: "Mute notifications", icon: "BellOff" },
+              { label: "Mark as read", icon: "CheckCircle" },
+              { label: "Archive chat", icon: "Archive" },
+              { label: "Delete", icon: "Trash2", danger: true }
+            ].map((item, idx) => (
+              <button
+                key={item.label}
+                className={`w-full px-4 py-2.5 text-left text-[14px] flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors ${
+                  item.danger ? "text-red-500 font-medium" : "text-slate-700 dark:text-slate-300"
+                } ${idx === 3 ? "border-b border-slate-50 dark:border-slate-800 mb-1" : ""}`}
+                onClick={closeContextMenu}
+              >
+                {item.label}
+              </button>
+            ))}
           </div>
         </>
       )}

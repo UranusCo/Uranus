@@ -1,9 +1,6 @@
-import { X, Search, MoreVertical, Download, ChevronLeft, Phone, Video, Menu } from "lucide-react";
+import { X, Search, MoreVertical, Phone, Video, Menu, ArrowLeft, MoreHorizontal } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
-import { useState, useEffect, useRef } from "react";
-import ThemeToggle from "./ThemeToggle";
-import ChatActionDrawer from "./ChatActionDrawer";
 import { IconButton } from "./ui";
 
 const ChatHeader = ({ onSearchClick, onPinnedClick, onBurgerClick, onAvatarClick, onMoreClick }) => {
@@ -16,94 +13,74 @@ const ChatHeader = ({ onSearchClick, onPinnedClick, onBurgerClick, onAvatarClick
   if (!selectedUser) return <div className="h-16 flex-shrink-0" />;
 
   return (
-    <div className="px-3 sm:px-4 py-2 sm:py-3 border-b border-border dark:border-border-dark bg-surface/95 dark:bg-surface-dark/95 backdrop-blur-md flex-shrink-0 z-20 select-none transition-colors duration-200">
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-          {onBurgerClick && (
-            <button
-              onClick={onBurgerClick}
-              className="size-9 flex items-center justify-center rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 lg:hidden -ml-1 transition-colors focus:ring-2 focus:ring-primary outline-none"
-              aria-label="Open Workspace Menu"
-            >
-              <Menu size={20} />
-            </button>
-          )}
+    <div className="px-4 py-3 border-b border-slate-50 dark:border-slate-800/50 bg-white/80 dark:bg-surface-dark/80 backdrop-blur-xl flex-shrink-0 z-20 select-none transition-all duration-300">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3 flex-1 min-w-0">
           {/* Back button — mobile only */}
           <button
             onClick={() => setSelectedUser(null)}
-            className={`size-9 flex items-center justify-center rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 lg:hidden transition-colors focus:ring-2 focus:ring-primary outline-none ${onBurgerClick ? "" : "-ml-1"}`}
+            className="p-2 -ml-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors md:hidden"
             aria-label="Back"
           >
-            <ChevronLeft size={24} />
+            <ArrowLeft size={22} className="text-slate-900 dark:text-slate-100" />
           </button>
           
           {/* Avatar with Ring */}
-          <div className="relative flex-shrink-0" onClick={onAvatarClick}>
-            <div className="size-10 sm:size-11 rounded-full relative shadow-sm border border-border dark:border-border-dark overflow-hidden cursor-pointer">
+          <div className="relative flex-shrink-0 cursor-pointer group" onClick={onAvatarClick}>
+            <div className="size-10 rounded-full relative overflow-hidden transition-transform duration-300 group-hover:scale-105">
               <img src={selectedUser.profilePic || "/avatar.png"} alt={selectedUser.fullName} className="object-cover w-full h-full" />
-              {isOnline && (
-                <span className="absolute bottom-0 right-0 size-3 bg-green-500 rounded-full ring-2 ring-white dark:ring-slate-800" />
-              )}
             </div>
+            {isOnline && (
+              <span className="absolute bottom-0 right-0 size-3 bg-[#00FF88] rounded-full border-2 border-white dark:border-slate-800 shadow-sm" />
+            )}
           </div>
 
           {/* User info */}
           <div className="flex-1 min-w-0 text-left cursor-pointer" onClick={onAvatarClick}>
-            <h3 className="font-bold text-[15px] sm:text-[16px] text-slate-900 dark:text-slate-100 leading-tight hover:text-primary transition-colors truncate">
+            <h3 className="font-bold text-[17px] text-slate-900 dark:text-slate-100 leading-tight truncate">
               {selectedUser.fullName}
             </h3>
             <div className="flex items-center gap-1.5 mt-0.5">
-              {isOnline ? (
-                <span className="text-[11px] text-emerald-500 font-bold">Active Now</span>
-              ) : (
-                <span className="text-[11px] text-slate-400 font-semibold">Offline</span>
-              )}
+              <span className={`text-[12px] font-medium ${isOnline ? "text-[#00FF88]" : "text-slate-400"}`}>
+                {isOnline ? "Active now" : "Offline"}
+              </span>
               {status?.statusMessage && (
-                <>
-                  <span className="text-[10px] text-slate-300 dark:text-slate-600">•</span>
-                  <span className="text-[11px] text-slate-400 truncate italic font-medium">&quot;{status.statusMessage}&quot;</span>
-                </>
+                <span className="text-[12px] text-slate-400 truncate hidden sm:inline">• "{status.statusMessage}"</span>
               )}
             </div>
           </div>
         </div>
 
         {/* Action icons */}
-        <div className="flex items-center gap-0.5 sm:gap-1">
-          {/* Call & Video Call Icons - Hidden on very small screens if needed, but keeping for now */}
-          <IconButton type="button" title="Voice Call" className="hidden sm:inline-flex" variant="ghost">
-            <Phone size={18} />
-          </IconButton>
-          <IconButton type="button" title="Video Call" className="hidden sm:inline-flex" variant="ghost">
-            <Video size={18} />
-          </IconButton>
+        <div className="flex items-center gap-1">
+          <button className="p-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all text-primary hover:scale-105">
+            <Phone size={20} />
+          </button>
+          <button className="p-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all text-primary hover:scale-105">
+            <Video size={20} />
+          </button>
+          
+          <div className="w-[1px] h-6 bg-slate-100 dark:bg-slate-800 mx-1 hidden sm:block" />
 
-          <div className="hidden md:block">
-            <ThemeToggle />
-          </div>
-
-          <IconButton
-            type="button"
+          <button
             onClick={onSearchClick}
-            title="Search messages"
-            className="hidden sm:inline-flex"
-            variant="ghost"
+            className="p-2.5 text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all"
           >
-            <Search size={18} />
-          </IconButton>
+            <Search size={20} />
+          </button>
 
-          <IconButton
-            type="button"
+          <button
             onClick={onMoreClick}
-            aria-label="Open chat actions"
-            variant="ghost"
+            className="p-2.5 text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all"
           >
-            <MoreVertical size={18} />
-          </IconButton>
+            <MoreHorizontal size={20} />
+          </button>
 
-          {/* Close button — desktop only */}
-          <button onClick={() => setSelectedUser(null)} className="size-8 flex items-center justify-center rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors hidden lg:inline-flex" title="Close Chat">
-            <X size={17} />
+          <button 
+            onClick={() => setSelectedUser(null)} 
+            className="p-2.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-full transition-all hidden lg:inline-flex"
+          >
+            <X size={20} />
           </button>
         </div>
       </div>

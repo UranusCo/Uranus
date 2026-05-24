@@ -217,126 +217,95 @@ const MessageInput = () => {
   }
 
   return (
-    <div className="w-full px-2 sm:px-6 py-2 sm:py-3 bg-surface dark:bg-surface-dark border-t border-border dark:border-border-dark flex-shrink-0 select-none transition-all duration-200 relative">
-      <div className="max-w-[850px] w-full mx-auto relative">
+    <div className="w-full px-4 py-4 bg-white/80 dark:bg-surface-dark/80 backdrop-blur-xl border-t border-slate-50 dark:border-slate-800/50 flex-shrink-0 z-20">
+      <div className="max-w-[1000px] mx-auto relative">
         
         {emojiSuggestions.length > 0 && (
-          <div className="absolute bottom-full mb-3 left-0 z-50 bg-surface dark:bg-surface-dark border border-border dark:border-border-dark rounded-2xl shadow-soft flex flex-col overflow-hidden animate-fadeIn w-48">
+          <div className="absolute bottom-full mb-3 left-0 z-50 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-fadeIn w-48">
             {emojiSuggestions.map((emoji) => (
               <button
                 key={emoji.name}
                 onClick={() => selectEmoji(emoji.char)}
-                className="px-3 py-2 flex items-center gap-2 hover:bg-slate-100 dark:hover:bg-slate-800 text-sm transition-colors"
+                className="px-4 py-2.5 flex items-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-800 text-[14px] transition-colors"
               >
                 <span>{emoji.char}</span>
-                <span className="text-slate-400 dark:text-slate-500 text-xs">:{emoji.name}:</span>
+                <span className="text-slate-400 dark:text-slate-500 text-[12px]">:{emoji.name}:</span>
               </button>
             ))}
           </div>
         )}
 
         {(imagePreview || filePreview) && (
-          <div className="mb-3 flex flex-col gap-2 animate-fadeIn">
-            <div className="relative inline-block">
+          <div className="mb-4 flex flex-col gap-2 animate-fadeIn">
+            <div className="relative inline-block group">
               {imagePreview ? (
-                <img src={imagePreview} alt="Preview" className="w-20 h-20 object-cover rounded-xl border border-border dark:border-border-dark shadow-soft" />
+                <img src={imagePreview} alt="Preview" className="w-24 h-24 object-cover rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xl" />
               ) : (
-                <div className="w-20 h-20 flex items-center justify-center bg-slate-100 dark:bg-slate-900 rounded-xl border border-border dark:border-border-dark">
-                  <Paperclip size={24} className="text-slate-400 dark:text-slate-500" />
-                  <span className="ml-1 text-[10px] truncate max-w-[60px] text-slate-500 dark:text-slate-400">{filePreview?.name}</span>
+                <div className="w-24 h-24 flex items-center justify-center bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xl">
+                  <Paperclip size={28} className="text-primary" />
+                  <span className="ml-1 text-[10px] truncate max-w-[60px] text-slate-500">{filePreview?.name}</span>
                 </div>
               )}
-              <button onClick={removeAttachment} className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 flex items-center justify-center transition-colors shadow-sm" type="button">
-                <X className="size-3.5" />
+              <button 
+                onClick={removeAttachment} 
+                className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-white dark:bg-slate-800 text-red-500 border border-slate-100 dark:border-slate-700 flex items-center justify-center transition-all hover:scale-110 shadow-lg"
+              >
+                <X className="size-4" />
               </button>
             </div>
-            <label className="inline-flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-bold cursor-pointer select-none">
-              <input type="checkbox" checked={isViewOnce} onChange={(e) => setIsViewOnce(e.target.checked)} className="w-4 h-4 text-primary border-border dark:border-border-dark rounded bg-transparent focus:ring-primary focus:ring-1 cursor-pointer transition-all" />
+            <label className="inline-flex items-center gap-2 text-[12px] text-slate-500 font-bold cursor-pointer hover:text-primary transition-colors">
+              <input type="checkbox" checked={isViewOnce} onChange={(e) => setIsViewOnce(e.target.checked)} className="w-4 h-4 text-primary border-slate-200 rounded focus:ring-primary/20" />
               View once media
             </label>
           </div>
         )}
 
-        <div className="flex items-end w-full gap-1 sm:gap-2">
-          {/* Action Buttons Group */}
-          <div className={`flex items-center gap-0.5 transition-all duration-300 ${text.length > 0 ? 'w-10 overflow-hidden' : 'w-auto'}`}>
-            {text.length > 0 ? (
-              <IconButton 
-                size="lg" 
-                onClick={() => setIsExpanded(!isExpanded)}
-                className="text-primary"
-              >
-                <Plus className={`transition-transform duration-300 ${isExpanded ? 'rotate-45' : ''}`} />
-              </IconButton>
-            ) : (
-              <div className="flex items-center gap-0.5 animate-fadeIn">
-                <IconButton 
-                  size="md" 
-                  onClick={() => setIsExpanded(!isExpanded)}
-                  className="sm:hidden"
-                >
-                  <Plus />
-                </IconButton>
-                <div className="hidden sm:flex items-center gap-0.5">
-                  <IconButton onClick={() => imageInputRef.current?.click()} title="Photos"><Image /></IconButton>
-                  <IconButton onClick={() => fileInputRef.current?.click()} title="Files"><Paperclip /></IconButton>
-                  <IconButton 
-                    onClick={() => setChatSetting('sendOnEnter', !sendOnEnter)}
-                    variant={sendOnEnter ? 'active' : 'ghost'}
-                    title="Settings"
-                  ><Square size={16} /></IconButton>
-                </div>
-              </div>
-            )}
-            
-            <input type="file" accept="image/*" className="hidden" ref={imageInputRef} onChange={handleImageChange} disabled={isSending} />
-            <input type="file" className="hidden" ref={fileInputRef} onChange={handleFileChange} disabled={isSending} />
+        <div className="flex items-end gap-3">
+          {/* Actions Container */}
+          <div className="flex items-center gap-1 mb-1">
+            <IconButton 
+              size="lg" 
+              onClick={() => imageInputRef.current?.click()}
+              className="text-slate-400 hover:text-primary hover:bg-slate-50 dark:hover:bg-slate-800 rounded-full"
+            >
+              <Paperclip size={22} />
+            </IconButton>
           </div>
 
-          {/* Expanded Actions */}
-          {isExpanded && text.length > 0 && (
-            <div className="flex items-center gap-1 animate-fadeIn">
-              <IconButton size="md" onClick={() => imageInputRef.current?.click()}><Image /></IconButton>
-              <IconButton size="md" onClick={() => fileInputRef.current?.click()}><Paperclip /></IconButton>
-            </div>
-          )}
-
-          {/* Input Area */}
-          <div className="flex-1 flex items-end bg-slate-100 dark:bg-slate-800/50 rounded-[24px] px-3 py-1.5 transition-all duration-200 focus-within:bg-slate-200/50 dark:focus-within:bg-slate-800 border border-transparent focus-within:border-primary/20">
+          {/* Main Input Area */}
+          <div className="flex-1 flex items-end bg-slate-50 dark:bg-slate-900/50 rounded-[28px] px-4 py-2 transition-all duration-300 focus-within:bg-white dark:focus-within:bg-slate-900 border border-transparent focus-within:border-primary/20 focus-within:ring-4 focus-within:ring-primary/5">
             {isRecording ? (
-              <div className="flex-1 flex items-center gap-3 px-2 py-1.5 text-rose-500 font-bold animate-pulse">
-                <div className="size-2.5 rounded-full bg-rose-500" />
+              <div className="flex-1 flex items-center gap-3 py-2 text-red-500 font-bold animate-pulse">
+                <div className="size-2 rounded-full bg-red-500 shadow-lg shadow-red-500/50" />
                 <span className="text-sm">Recording {formatTime(recordingTime)}</span>
               </div>
             ) : (
               <textarea
                 ref={inputRef}
                 rows={1}
-                className="flex-1 max-h-[120px] resize-none bg-transparent border-none outline-none focus:outline-none focus:ring-0 text-[15px] text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 leading-6 py-1 pr-2"
+                className="flex-1 max-h-[150px] resize-none bg-transparent border-none outline-none focus:outline-none focus:ring-0 text-[15px] text-slate-900 dark:text-slate-100 placeholder-slate-400 leading-[1.6] py-2 pr-2"
                 placeholder={editingMessageId ? "Edit message..." : "Type a message..."}
                 value={text}
                 onChange={handleTextChange}
                 onKeyDown={(e) => {
                   if (isSending) return;
-                  if (sendOnEnter) {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      handleSendMessage();
-                    }
+                  if (sendOnEnter && e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSendMessage();
                   }
                 }}
                 disabled={isSending}
               />
             )}
             
-            <div className="flex items-center self-end mb-0.5">
+            <div className="flex items-center self-end mb-1">
               <IconButton
-                size="sm"
+                size="md"
                 onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                variant={showEmojiPicker ? 'active' : 'ghost'}
+                className={`${showEmojiPicker ? "text-primary" : "text-slate-400"} hover:text-primary rounded-full`}
                 disabled={isSending || isRecording}
               >
-                <Smile />
+                <Smile size={22} />
               </IconButton>
               {showEmojiPicker && <EmojiPicker onSelect={(emoji) => {
                 const newText = text + emoji;
@@ -346,30 +315,30 @@ const MessageInput = () => {
             </div>
           </div>
 
-          {/* Send / Mic Button */}
-          <div className="flex items-center">
+          {/* Primary Action Button */}
+          <div className="mb-1">
             {hasContent || isRecording ? (
-              <IconButton
-                variant="active"
-                size="lg"
+              <button
                 onClick={handleSendMessage}
                 disabled={isSending}
-                className="bg-primary hover:bg-primary-dark text-white"
+                className="size-12 rounded-full bg-gradient-to-br from-[#00D4FF] to-[#0080FF] text-white flex items-center justify-center shadow-lg shadow-primary/30 transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
               >
-                {isSending ? <Loader className="animate-spin" /> : <Send />}
-              </IconButton>
+                {isSending ? <Loader className="animate-spin" size={20} /> : <Send size={20} className="fill-white" />}
+              </button>
             ) : (
-              <IconButton
-                size="lg"
+              <button
                 onClick={isRecording ? stopRecording : startRecording}
-                className="text-primary"
+                className="size-12 rounded-full bg-slate-50 dark:bg-slate-900 text-slate-400 hover:text-primary hover:bg-white dark:hover:bg-slate-800 flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-sm border border-transparent hover:border-primary/10"
               >
-                <Mic />
-              </IconButton>
+                <Mic size={22} />
+              </button>
             )}
           </div>
         </div>
       </div>
+      
+      <input type="file" accept="image/*" className="hidden" ref={imageInputRef} onChange={handleImageChange} disabled={isSending} />
+      <input type="file" className="hidden" ref={fileInputRef} onChange={handleFileChange} disabled={isSending} />
     </div>
   );
 };

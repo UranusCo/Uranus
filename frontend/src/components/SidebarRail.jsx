@@ -73,8 +73,8 @@ const SidebarRail = ({ activeTab = "chats", setActiveTab = () => {}, forceShow =
              <div
                className={`size-12 flex items-center justify-center transition-all duration-300 cursor-pointer overflow-hidden ${
                  activeTab === "chats" && selectedWorkspace === null
-                   ? "rounded-xl bg-primary text-white"
-                   : "rounded-2xl bg-slate-800 text-slate-400 hover:rounded-xl hover:bg-primary hover:text-white"
+                   ? "rounded-xl bg-gradient-to-br from-[#00D4FF] to-[#0080FF] text-white shadow-lg shadow-primary/20"
+                   : "rounded-2xl bg-slate-800 text-slate-400 hover:rounded-xl hover:bg-slate-700 hover:text-white"
                }`}
              >
                <MessageSquare size={22} fill={activeTab === "chats" ? "currentColor" : "none"} aria-hidden="true" />
@@ -88,7 +88,7 @@ const SidebarRail = ({ activeTab = "chats", setActiveTab = () => {}, forceShow =
                setSelectedWorkspace(null);
                setActiveTab("users");
              }}
-             className="relative group flex items-center justify-center w-full focus:outline-none focus:ring-2 focus:ring-primary/50 rounded-xl"
+             className="relative group flex items-center justify-center w-full focus:outline-none rounded-xl"
              aria-label="Friends"
              aria-current={activeTab === "users"}
            >
@@ -102,8 +102,8 @@ const SidebarRail = ({ activeTab = "chats", setActiveTab = () => {}, forceShow =
              <div
                className={`size-12 flex items-center justify-center transition-all duration-300 cursor-pointer overflow-hidden ${
                  activeTab === "users"
-                   ? "rounded-xl bg-primary text-white"
-                   : "rounded-2xl bg-slate-800 text-slate-400 hover:rounded-xl hover:bg-primary hover:text-white"
+                   ? "rounded-xl bg-gradient-to-br from-[#00D4FF] to-[#0080FF] text-white shadow-lg shadow-primary/20"
+                   : "rounded-2xl bg-slate-800 text-slate-400 hover:rounded-xl hover:bg-slate-700 hover:text-white"
                }`}
              >
                <Users size={22} fill={activeTab === "users" ? "currentColor" : "none"} aria-hidden="true" />
@@ -117,7 +117,7 @@ const SidebarRail = ({ activeTab = "chats", setActiveTab = () => {}, forceShow =
                setSelectedWorkspace(null);
                setActiveTab("notifications");
              }}
-             className="relative group flex items-center justify-center w-full focus:outline-none focus:ring-2 focus:ring-primary/50 rounded-xl"
+             className="relative group flex items-center justify-center w-full focus:outline-none rounded-xl"
              aria-label="Notifications"
              aria-current={activeTab === "notifications"}
            >
@@ -131,8 +131,8 @@ const SidebarRail = ({ activeTab = "chats", setActiveTab = () => {}, forceShow =
              <div
                className={`size-12 flex items-center justify-center transition-all duration-300 cursor-pointer overflow-hidden ${
                  activeTab === "notifications"
-                   ? "rounded-xl bg-primary text-white"
-                   : "rounded-2xl bg-slate-800 text-slate-400 hover:rounded-xl hover:bg-primary hover:text-white"
+                   ? "rounded-xl bg-gradient-to-br from-[#00D4FF] to-[#0080FF] text-white shadow-lg shadow-primary/20"
+                   : "rounded-2xl bg-slate-800 text-slate-400 hover:rounded-xl hover:bg-slate-700 hover:text-white"
                }`}
              >
                <Bell size={22} fill={activeTab === "notifications" ? "currentColor" : "none"} aria-hidden="true" />

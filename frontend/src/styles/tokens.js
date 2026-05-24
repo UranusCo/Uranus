@@ -1,37 +1,55 @@
 const tokens = {
   colors: {
-    primary: 'bg-blue-600',
-    primaryDark: 'bg-blue-700',
+    primary: 'bg-gradient-to-br from-[#00D4FF] to-[#0080FF]',
+    primaryHex: '#00D4FF',
+    secondaryHex: '#0080FF',
     primaryText: 'text-white',
-    text: 'text-slate-900',
-    surface: 'bg-white',
-    surfaceDark: 'bg-slate-800',
-    border: 'border-slate-200',
-    borderDark: 'dark:border-slate-700',
-    danger: 'bg-red-600',
-    success: 'bg-emerald-500',
-    muted: 'text-slate-500'
+    text: {
+      main: 'text-slate-900',
+      muted: 'text-slate-500',
+      light: 'text-slate-400',
+    },
+    background: {
+      main: 'bg-white',
+      soft: 'bg-slate-50',
+      dark: 'bg-slate-900',
+    },
+    surface: {
+      main: 'bg-white/80',
+      hover: 'hover:bg-slate-50/50',
+      active: 'active:bg-slate-100',
+    },
+    border: 'border-slate-100',
+    status: {
+      online: 'bg-[#00FF88]',
+      offline: 'bg-slate-300',
+    },
+    shadows: {
+      primary: 'shadow-lg shadow-[#00D4FF]/30',
+      soft: 'shadow-sm shadow-black/5',
+    }
   },
   spacing: {
     xs: '4px',
     sm: '8px',
     md: '16px',
-    lg: '24px'
+    lg: '24px',
+    xl: '32px'
   },
   radii: {
-    sm: '6px',
+    sm: '8px',
     md: '12px',
-    lg: '18px'
+    lg: '16px',
+    xl: '24px',
+    full: '9999px'
   },
   typography: {
-    body: '14px',
-    small: '12px',
-    large: '16px'
-  },
-  elevation: {
-    soft: 'shadow-soft',
-    medium: 'shadow-md',
-    large: 'shadow-2xl'
+    h1: 'text-[28px] font-bold tracking-tight',
+    h2: 'text-[20px] font-semibold',
+    h3: 'text-[17px] font-semibold',
+    body: 'text-[15px]',
+    small: 'text-[13px]',
+    xs: 'text-[11px]'
   }
 };
 

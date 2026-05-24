@@ -6,8 +6,8 @@ export default {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#4F46E5',
-          dark: '#4338CA',
+          DEFAULT: '#00D4FF',
+          dark: '#0080FF',
           foreground: '#ffffff',
         },
         surface: {
@@ -15,15 +15,15 @@ export default {
           dark: '#0f172a',
         },
         background: {
-          DEFAULT: '#f9fafb',
+          DEFAULT: '#ffffff',
           dark: '#020617',
         },
         border: {
-          DEFAULT: '#e5e7eb',
+          DEFAULT: '#f1f5f9',
           dark: '#1e293b',
         },
         success: {
-          DEFAULT: '#10b981',
+          DEFAULT: '#00FF88',
           foreground: '#ffffff',
         },
         warning: {
@@ -38,10 +38,12 @@ export default {
       borderRadius: {
         'xl': '1rem',
         '2xl': '1.5rem',
+        '3xl': '2rem',
       },
       boxShadow: {
         'soft': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
         'elevated': '0 4px 12px rgba(0, 0, 0, 0.08)',
+        'premium': '0 10px 15px -3px rgba(0, 212, 255, 0.2), 0 4px 6px -2px rgba(0, 128, 255, 0.1)',
       }
     },
   },

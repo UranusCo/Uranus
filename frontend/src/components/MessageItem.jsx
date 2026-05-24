@@ -54,18 +54,18 @@ const MessageItem = ({
   const showAvatar = !isSelf && !isNextSameSender;
   const showNameHeader = !isSelf && (!isPrevSameSender || message.isDeleted);
   const bubbleRoundness = isSelf
-    ? "rounded-[20px] rounded-tr-[4px]"
-    : "rounded-[20px] rounded-tl-[4px]";
+    ? "rounded-2xl rounded-tr-sm"
+    : "rounded-2xl rounded-tl-sm";
 
-  const commonBubbleClasses = `relative flex flex-col select-text px-4 py-2.5 border shadow-soft transition-all no-callout group/bubble ${bubbleRoundness} ${
+  const commonBubbleClasses = `relative flex flex-col select-text px-4 py-2.5 shadow-sm transition-all no-callout group/bubble ${bubbleRoundness} ${
     message.isDeleted
-      ? "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border-border dark:border-border-dark italic font-normal"
+      ? "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 italic font-normal"
       : isSelf
-        ? "bg-primary text-white border-transparent"
-        : "bg-surface dark:bg-surface-dark text-slate-900 dark:text-slate-100 border-border dark:border-border-dark"
+        ? "bg-gradient-to-br from-[#00D4FF] to-[#0080FF] text-white shadow-lg shadow-primary/20"
+        : "bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-50 dark:border-slate-700/50"
   } hover:cursor-pointer`;
 
-  const marginBottom = isNextSameSender ? "mb-0.5" : "mb-3.5";
+  const marginBottom = isNextSameSender ? "mb-1" : "mb-4";
 
   return (
     <div
@@ -156,8 +156,8 @@ const MessageContent = ({
             href={part}
             target="_blank"
             rel="noopener noreferrer"
-            className={`underline decoration-2 underline-offset-2 transition-opacity hover:opacity-80 ${
-              isSelf ? "text-white font-bold" : "text-primary dark:text-primary font-bold"
+            className={`underline decoration-2 underline-offset-2 transition-opacity hover:opacity-80 font-semibold ${
+              isSelf ? "text-white" : "text-primary dark:text-primary"
             }`}
             onClick={(e) => e.stopPropagation()}
           >
@@ -171,22 +171,22 @@ const MessageContent = ({
 
   return (
     <>
-      {/* Header: Sender name (only for first message in a group from sender) */}
+      {/* Header: Sender name */}
       {showNameHeader && !message.isDeleted && (
-        <div className="flex items-center gap-1.5 mb-0.5 px-1 text-[11px] text-primary font-bold select-none">
+        <div className="flex items-center gap-1.5 mb-1 px-1 text-[12px] text-primary font-bold select-none">
           {selectedUser?.fullName}
         </div>
       )}
 
       {/* Quoted Message */}
       {message.replyTo && !message.isDeleted && (
-        <div className="mb-1.5">
+        <div className="mb-1">
           <QuotedMessage replyTo={message.replyTo} />
         </div>
       )}
 
       {/* Bubble Row */}
-      <div className={`flex gap-1.5 items-end ${isSelf ? "justify-end" : ""}`}>
+      <div className={`flex gap-2 items-end ${isSelf ? "justify-end" : ""}`}>
         <div
           className={`${commonBubbleClasses}`}
           onDoubleClick={handleDoubleClick}
@@ -196,18 +196,18 @@ const MessageContent = ({
           onTouchMove={message.isDeleted ? undefined : handleLongPressEnd}
           title={message.isDeleted ? undefined : "Double-tap to ❤️"}
         >
-          {/* Menu Trigger Overlay (WhatsApp Style) */}
+          {/* Menu Trigger Overlay */}
           {!message.isDeleted && (
-            <div className={`absolute top-1 ${isSelf ? "right-1" : "right-1"} opacity-0 group-hover/bubble:opacity-100 transition-all duration-200 z-10`}>
+            <div className={`absolute top-2 ${isSelf ? "right-2" : "right-2"} opacity-0 group-hover/bubble:opacity-100 transition-all duration-200 z-10`}>
               <button
                 onClick={handleMenuClick}
-                className={`p-1 rounded-full backdrop-blur-sm transition-colors ${
+                className={`p-1 rounded-full backdrop-blur-md transition-all ${
                   isSelf 
                     ? "bg-black/10 hover:bg-black/20 text-white/90" 
-                    : "bg-slate-200/50 hover:bg-slate-300/50 text-slate-600 dark:text-slate-400"
+                    : "bg-slate-100/80 hover:bg-slate-200/80 text-slate-500"
                 }`}
               >
-                <ChevronDown size={16} />
+                <ChevronDown size={14} />
               </button>
             </div>
           )}
@@ -225,7 +225,7 @@ const MessageContent = ({
                   alt="Attachment"
                   loading="lazy"
                   decoding="async"
-                  className="max-w-full sm:max-w-[260px] rounded-xl mb-1 object-cover"
+                  className="max-w-full sm:max-w-[300px] rounded-xl mb-1 object-cover shadow-sm"
                 />
               )}
               {message.file && (
@@ -236,14 +236,14 @@ const MessageContent = ({
                       alt={message.file.name}
                       loading="lazy"
                       decoding="async"
-                      className="max-w-full sm:max-w-[260px] rounded-xl object-cover"
+                      className="max-w-full sm:max-w-[300px] rounded-xl object-cover shadow-sm"
                     />
                   ) : message.file.type.startsWith("video/") ? (
-                    <video controls className="max-w-full sm:max-w-[260px] rounded-xl">
+                    <video controls className="max-w-full sm:max-w-[300px] rounded-xl shadow-sm">
                       <source src={message.file.url} type={message.file.type} />
                     </video>
                   ) : message.file.type.startsWith("audio/") ? (
-                    <div className={`p-2 rounded-xl min-w-[180px] ${isSelf ? "bg-white/10" : "bg-slate-100 dark:bg-slate-800"}`}>
+                    <div className={`p-2 rounded-xl min-w-[200px] ${isSelf ? "bg-white/10" : "bg-slate-50 dark:bg-slate-900/50"}`}>
                       <audio controls className="w-full h-8">
                         <source src={message.file.url} type={message.file.type} />
                       </audio>
@@ -253,24 +253,28 @@ const MessageContent = ({
                       href={message.file.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`flex items-center gap-2 p-2 rounded-xl transition-colors ${
+                      className={`flex items-center gap-3 p-3 rounded-xl transition-all ${
                         isSelf 
                           ? "bg-white/10 hover:bg-white/15 text-white" 
-                          : "bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-slate-100"
+                          : "bg-slate-50 dark:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-900 dark:text-slate-100"
                       }`}
                     >
-                      <Paperclip size={14} />
-                      <span className="text-xs font-medium truncate max-w-[100px]">{message.file.name}</span>
-                      <span className="text-[10px] opacity-75">
-                        ({(message.file.size / 1024 / 1024).toFixed(2)} MB)
-                      </span>
+                      <div className={`p-2 rounded-lg ${isSelf ? "bg-white/20" : "bg-primary/10 text-primary"}`}>
+                        <Paperclip size={16} />
+                      </div>
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-sm font-semibold truncate max-w-[150px]">{message.file.name}</span>
+                        <span className="text-[10px] opacity-70">
+                          {(message.file.size / 1024 / 1024).toFixed(2)} MB
+                        </span>
+                      </div>
                     </a>
                   )}
                 </div>
               )}
               {message.text && (
                 <div className="flex flex-col">
-                  <p className="text-[14px] leading-relaxed break-words font-medium pr-4">
+                  <p className="text-[15px] leading-[1.5] break-words font-medium pr-4">
                     {linkify(message.text)}
                     {message.isEdited && !message.isDeleted && (
                       <span className="text-[10px] opacity-70 ml-1.5 font-normal">edited</span>
@@ -286,32 +290,27 @@ const MessageContent = ({
                   })()}
                 </div>
               )}
-              {message.viewOnce && message.viewedOnce && (
-                <p className={`mt-1 text-xs ${isSelf ? "text-white/60" : "text-slate-500 dark:text-slate-400"}`}>
-                  Opened • View once media
-                </p>
-              )}
             </>
           )}
 
-          <div className={`flex items-center gap-1 mt-1 -mb-1 ${isSelf ? "justify-end" : "justify-start"}`}>
-            <span className={`text-[10px] font-medium ${isSelf ? "text-white/60" : "text-slate-500 dark:text-slate-400"}`}>
+          <div className={`flex items-center gap-1.5 mt-1.5 -mb-0.5 ${isSelf ? "justify-end" : "justify-start"}`}>
+            <span className={`text-[11px] font-medium ${isSelf ? "text-white/70" : "text-slate-400"}`}>
               {formatMessageTime(message.createdAt)}
             </span>
             {message.isPinned && !message.isDeleted && (
-              <Pin size={10} className="text-amber-400" />
+              <Pin size={10} className="text-amber-400 fill-amber-400" />
             )}
             {isSelf && !message.isDeleted && (
               message.isRead
-                ? <CheckCheck size={12} className="text-blue-200" />
-                : <Check size={12} className="text-white/50" />
+                ? <CheckCheck size={14} className="text-white shadow-sm" />
+                : <Check size={14} className="text-white/50" />
             )}
           </div>
         </div>
       </div>
 
       {!message.isDeleted && (
-        <div className={`select-none ${isSelf ? "pl-1" : "pl-1"}`}>
+        <div className={`mt-1 ${isSelf ? "pr-1" : "pl-1"}`}>
           <MessageReactions message={message} />
         </div>
       )}
