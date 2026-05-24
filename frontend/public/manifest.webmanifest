@@ -1,25 +1,51 @@
 {
+  "id": "com.blink.chat",
   "name": "Blink Chat",
   "short_name": "Blink",
-  "description": "Next-gen chat app with advanced QoL features.",
+  "description": "Premium, modern chat platform with high-speed performance and sophisticated design.",
   "lang": "en-US",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "theme_color": "#070724",
-  "background_color": "#0b0f19",
+  "theme_color": "#00D4FF",
+  "background_color": "#ffffff",
+  "categories": [
+    "communication",
+    "social",
+    "utilities"
+  ],
   "icons": [
     {
-      "src": "/Blink.svg",
+      "src": "/blink.svg",
       "sizes": "192x192",
-      "type": "image/svg+xml"
+      "type": "image/svg+xml",
+      "purpose": "any"
     },
     {
-      "src": "/Blink.svg",
+      "src": "/blink.svg",
       "sizes": "512x512",
-      "type": "image/svg+xml"
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/blink.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
     }
-  ]
+  ],
+  "shortcuts": [
+    {
+      "name": "Open Chats",
+      "url": "/",
+      "icons": [
+        {
+          "src": "/blink.svg",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false
 }
-

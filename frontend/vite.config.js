@@ -2,38 +2,87 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'favicon.ico', 'robots.txt'],
+      injectRegister: 'auto',
+      includeAssets: ['blink.svg', 'robots.txt', 'apple-touch-icon.png'],
       manifest: {
+        id: 'com.blink.chat',
         name: 'Blink Chat',
         short_name: 'Blink',
-        description: 'Modern next-gen chat app with advanced features.',
-        theme_color: '#070724',
-        background_color: '#0b0f19',
+        description: 'Premium, modern chat platform with high-speed performance and sophisticated design.',
+        theme_color: '#00D4FF',
+        background_color: '#ffffff',
         display: 'standalone',
+        orientation: 'portrait',
         scope: '/',
         start_url: '/',
+        categories: ['communication', 'social', 'utilities'],
         icons: [
           {
-            src: 'vite.svg',
+            src: 'blink.svg',
             sizes: '192x192',
             type: 'image/svg+xml',
+            purpose: 'any',
           },
           {
-            src: 'vite.svg',
+            src: 'blink.svg',
             sizes: '512x512',
             type: 'image/svg+xml',
+            purpose: 'any',
+          },
+          {
+            src: 'blink.svg',
+            sizes: '192x192',
+            type: 'image/svg+xml',
+            purpose: 'maskable',
           },
         ],
+        shortcuts: [
+          {
+            name: 'Open Chats',
+            url: '/',
+            icons: [{ src: 'blink.svg', sizes: '192x192' }]
+          }
+        ]
       },
       workbox: {
         navigateFallback: '/index.html',
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        cleanupOutdatedCaches: true,
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/images\.unsplash\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'unsplash-images',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          {
+            urlPattern: /^https:\/\/res\.cloudinary\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'cloudinary-assets',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 60 * 24 * 30,
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          }
+        ]
       },
       strategies: 'injectManifest',
       srcDir: 'src',
@@ -44,8 +93,7 @@ export default defineConfig({
     }),
   ],
   build: {
-    minify: false,
-    sourcemap: true,
+    minify: true,
+    sourcemap: false,
   },
 })
-
