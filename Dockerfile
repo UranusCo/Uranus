@@ -17,12 +17,15 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Install backend dependencies
+# Install backend dependencies (including devDependencies to run 'npm run build')
 COPY backend/package*.json ./backend/
-RUN cd backend && npm install --omit=dev
+RUN cd backend && npm install
 
 # Copy backend source
 COPY backend ./backend
+
+# Build backend
+RUN cd backend && npm run build
 
 # Copy built frontend into backend/public
 COPY --from=frontend-build /app/frontend/dist ./backend/public
@@ -34,5 +37,5 @@ WORKDIR /app/backend
 
 EXPOSE 5001
 
-# Ensure node_env is production for startup
-CMD ["node", "--trace-uncaught", "src/index.js"]
+# Run the compiled code
+CMD ["node", "--trace-uncaught", "dist/index.js"]

@@ -1,16 +1,16 @@
-import mongoose from \"mongoose\";
-import User from \"../models/user.model.js\";
-import Message from \"../models/message.model.js\";
-import Friendship from \"../models/friendship.model.js\";
+﻿import mongoose from "mongoose";
+import User from "../models/user.model.js";
+import Message from "../models/message.model.js";
+import Friendship from "../models/friendship.model.js";
 
-import cloudinary from \"../lib/cloudinary.js\";
-import { getReceiverSocketId, io } from \"../lib/socket.js\";
-import NotificationService from \"../services/notification.service.js\";
-import multer from \"multer\";
-import crypto from \"crypto\";
-import { getLinkMetadata } from \"../lib/linkPreview.js\";
-import catchAsync from \"../utils/catchAsync.js\";
-import AppError from \"../utils/AppError.js\";
+import cloudinary from "../lib/cloudinary.js";
+import { getReceiverSocketId, io } from "../lib/socket.js";
+import NotificationService from "../services/notification.service.js";
+import multer from "multer";
+import crypto from "crypto";
+import { getLinkMetadata } from "../lib/linkPreview.js";
+import catchAsync from "../utils/catchAsync.js";
+import AppError from "../utils/AppError.js";
 
 
 const storage = multer.memoryStorage();
@@ -1186,11 +1186,11 @@ function formatChatAsText(data) {
     }
 
     if (msg.replyTo) {
-      text += `↳ Replying to: "${msg.replyTo.text}"\n`;
+      text += `Γå│ Replying to: "${msg.replyTo.text}"\n`;
     }
 
     if (msg.forwardedFrom) {
-      text += `↳ Forwarded from: ${msg.forwardedFrom.sender}\n`;
+      text += `Γå│ Forwarded from: ${msg.forwardedFrom.sender}\n`;
     }
 
     if (msg.reactions && Object.keys(msg.reactions).length > 0) {
@@ -1201,7 +1201,7 @@ function formatChatAsText(data) {
     }
 
     if (msg.isPinned) {
-      text += '📌 Pinned message\n';
+      text += '≡ƒôî Pinned message\n';
     }
 
     text += '\n';
@@ -1233,3 +1233,4 @@ function formatChatAsCSV(data) {
 
   return csv;
 }
+
