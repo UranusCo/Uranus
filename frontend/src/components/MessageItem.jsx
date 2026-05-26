@@ -1,5 +1,7 @@
 import { useAuthStore } from "../store/useAuthStore";
+import { useChatStore } from "../store/useChatStore";
 import { formatMessageTime } from "../lib/utils";
+
 import { Paperclip, Check, CheckCheck, MoreVertical, Pin, ChevronDown } from "lucide-react";
 import MessageReactions from "./MessageReactions";
 import QuotedMessage from "./QuotedMessage";
@@ -22,6 +24,7 @@ const MessageItem = ({
   markViewOnceOpened
 }) => {
   const { authUser } = useAuthStore();
+  const { setLightboxImage } = useChatStore();
   const isSelf = message.senderId === authUser._id;
 
   const handleDoubleClick = message.isDeleted ? undefined : () => {
@@ -100,6 +103,7 @@ const MessageItem = ({
                markViewOnceOpened={markViewOnceOpened}
                commonBubbleClasses={commonBubbleClasses}
                openMessageMenu={openMessageMenu}
+               setLightboxImage={setLightboxImage}
              />
           </div>
         </div>
@@ -119,6 +123,7 @@ const MessageItem = ({
             markViewOnceOpened={markViewOnceOpened}
             commonBubbleClasses={commonBubbleClasses}
             openMessageMenu={openMessageMenu}
+            setLightboxImage={setLightboxImage}
           />
         </div>
       )}
@@ -137,7 +142,8 @@ const MessageContent = ({
   handleMenuClick,
   markViewOnceOpened,
   commonBubbleClasses,
-  openMessageMenu
+  openMessageMenu,
+  setLightboxImage,
 }) => {
   const handleContextMenu = (e) => {
     e.preventDefault();
@@ -225,7 +231,8 @@ const MessageContent = ({
                   alt="Attachment"
                   loading="lazy"
                   decoding="async"
-                  className="max-w-full sm:max-w-[300px] rounded-xl mb-1 object-cover shadow-sm"
+                  className="max-w-full sm:max-w-[300px] rounded-xl mb-1 object-cover shadow-sm cursor-zoom-in"
+                  onClick={(e) => { e.stopPropagation(); setLightboxImage(message.image); }}
                 />
               )}
               {message.file && (
@@ -236,7 +243,8 @@ const MessageContent = ({
                       alt={message.file.name}
                       loading="lazy"
                       decoding="async"
-                      className="max-w-full sm:max-w-[300px] rounded-xl object-cover shadow-sm"
+                      className="max-w-full sm:max-w-[300px] rounded-xl object-cover shadow-sm cursor-zoom-in"
+                      onClick={(e) => { e.stopPropagation(); setLightboxImage(message.file.url); }}
                     />
                   ) : message.file.type.startsWith("video/") ? (
                     <video controls className="max-w-full sm:max-w-[300px] rounded-xl shadow-sm">

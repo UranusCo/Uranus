@@ -46,11 +46,33 @@ const ChatContainer = () => {
     setChatExpiry,
     lockChat,
     unlockChat,
+    setPendingAttachment,
   } = useChatStore();
   const [showProfile, setShowProfile] = useState(false);
   const [showActionDrawer, setShowActionDrawer] = useState(false);
   const [activeMessageMenu, setActiveMessageMenu] = useState(null);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      setPendingAttachment(file);
+    }
+  };
 
   const openMessageMenu = useCallback((messageId, position) => {
     const menuHeight = 270;
@@ -160,7 +182,12 @@ const ChatContainer = () => {
   ];
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-background dark:bg-background-dark overflow-hidden relative transition-colors duration-200">
+    <div 
+      className="flex-1 flex flex-col h-full bg-background dark:bg-background-dark overflow-hidden relative transition-colors duration-200"
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
       <ChatHeader 
         onAvatarClick={() => setShowProfile(true)} 
         onMoreClick={() => setShowActionDrawer(true)}
@@ -174,6 +201,18 @@ const ChatContainer = () => {
           isMoreAvailable={isMoreMessagesAvailable}
           isLoadingMore={isLoadingMoreMessages}
         />
+        
+        {isDragging && (
+          <div className="absolute inset-0 z-[100] bg-primary/10 backdrop-blur-[2px] border-4 border-dashed border-primary m-4 rounded-3xl flex flex-col items-center justify-center animate-in fade-in duration-200 pointer-events-none">
+            <div className="size-20 rounded-full bg-primary/20 flex items-center justify-center mb-4">
+              <div className="size-12 rounded-full bg-primary flex items-center justify-center text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+              </div>
+            </div>
+            <h3 className="text-2xl font-bold text-primary">Drop to upload</h3>
+            <p className="text-primary/60 font-medium">Files, images, and more</p>
+          </div>
+        )}
       </div>
 
       <MessageInput />

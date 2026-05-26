@@ -17,12 +17,36 @@ import { useEffect } from "react";
 import { Loader } from "lucide-react";
 import { Toaster } from "react-hot-toast";
 import ErrorModal from "./components/ErrorModal";
+import CommandPalette from "./components/CommandPalette";
+import ImageLightbox from "./components/ImageLightbox";
 
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth, socket } = useAuthStore();
   const { theme } = useThemeStore();
   const { currentError, clearError, retryCurrentError } = useErrorStore();
+  const { toggleCommandPalette, setCommandPaletteOpen, setEditingMessage, setReplyingToMessage } = useChatStore();
   const location = useLocation();
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+      const isCommandK = (isMac ? e.metaKey : e.ctrlKey) && e.key === 'k';
+
+      if (isCommandK) {
+        e.preventDefault();
+        toggleCommandPalette();
+      }
+
+      if (e.key === 'Escape') {
+        setCommandPaletteOpen(false);
+        setEditingMessage(null);
+        setReplyingToMessage(null);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [toggleCommandPalette, setCommandPaletteOpen, setEditingMessage, setReplyingToMessage]);
 
   useEffect(() => {
     checkAuth();
@@ -97,6 +121,9 @@ const App = () => {
         onClose={clearError}
         onRetry={currentError?.onRetry ? retryCurrentError : null}
       />
+
+      <CommandPalette />
+      <ImageLightbox />
     </div>
   );
 };

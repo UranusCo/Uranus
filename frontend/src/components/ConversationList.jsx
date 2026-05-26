@@ -67,10 +67,40 @@ const ConversationList = () => {
         e.preventDefault();
         searchRef.current?.focus();
       }
+
+      if (e.altKey && (key === 'arrowup' || key === 'arrowdown')) {
+        e.preventDefault();
+        const displayUsers = searchInput ? searchResults : users;
+        const baseList = displayUsers
+          .filter((user) => searchInput || user.lastMessage || isRelated(user._id))
+          .sort((a, b) => {
+            const aTime = a.lastMessage ? new Date(a.lastMessage.createdAt).getTime() : 0;
+            const bTime = b.lastMessage ? new Date(b.lastMessage.createdAt).getTime() : 0;
+            return bTime - aTime;
+          });
+
+        const sortedUsers = [
+          ...baseList.filter((user) => authUser?.pinnedChats?.includes(user._id)),
+          ...baseList.filter((user) => !authUser?.pinnedChats?.includes(user._id))
+        ];
+
+        if (sortedUsers.length === 0) return;
+
+        const currentIndex = sortedUsers.findIndex(u => u._id === selectedUser?._id);
+        let nextIndex;
+
+        if (key === 'arrowup') {
+          nextIndex = currentIndex <= 0 ? sortedUsers.length - 1 : currentIndex - 1;
+        } else {
+          nextIndex = currentIndex === -1 || currentIndex === sortedUsers.length - 1 ? 0 : currentIndex + 1;
+        }
+
+        setSelectedUser(sortedUsers[nextIndex]);
+      }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, []);
+  }, [searchInput, searchResults, users, selectedUser, setSelectedUser, authUser, friends, requests, sentRequests]);
 
   const isRelated = (userId) => {
     if (!userId) return false;
@@ -230,7 +260,8 @@ const ConversationList = () => {
             {[
               { label: "Pin to top", icon: "Pin" },
               { label: "Mute notifications", icon: "BellOff" },
-              { label: "Mark as read", icon: "CheckCircle" },
+              { label: "Mark as read", icon: "CheckCircle", action: () => setSelectedUser(users.find(u => u._id === activeContextMenu)) },
+              { label: "Mark as unread", icon: "Circle", action: () => markAsUnread(activeContextMenu) },
               { label: "Archive chat", icon: "Archive" },
               { label: "Delete", icon: "Trash2", danger: true }
             ].map((item, idx) => (
@@ -238,8 +269,11 @@ const ConversationList = () => {
                 key={item.label}
                 className={`w-full px-4 py-2.5 text-left text-[14px] flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors ${
                   item.danger ? "text-red-500 font-medium" : "text-slate-700 dark:text-slate-300"
-                } ${idx === 3 ? "border-b border-slate-50 dark:border-slate-800 mb-1" : ""}`}
-                onClick={closeContextMenu}
+                } ${idx === 4 ? "border-b border-slate-50 dark:border-slate-800 mb-1" : ""}`}
+                onClick={() => {
+                  if (item.action) item.action();
+                  closeContextMenu();
+                }}
               >
                 {item.label}
               </button>

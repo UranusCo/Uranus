@@ -766,6 +766,22 @@ export const useChatStore = create((set, get) => ({
     set({ editingMessageId: messageId });
   },
 
+  setCommandPaletteOpen: (isOpen) => set({ isCommandPaletteOpen: isOpen }),
+  toggleCommandPalette: () => set({ isCommandPaletteOpen: !get().isCommandPaletteOpen }),
+
+  setPendingAttachment: (attachment) => set({ pendingAttachment: attachment }),
+
+  markAsUnread: (userId) => {
+    set({
+      users: get().users.map(u => 
+        u._id === userId ? { ...u, unreadCount: (u.unreadCount || 0) + 1 } : u
+      )
+    });
+  },
+
+  lightboxImage: null,
+  setLightboxImage: (imageUrl) => set({ lightboxImage: imageUrl }),
+
   setReplyingToMessage: (message) => {
     set({ replyingToMessage: message });
   },

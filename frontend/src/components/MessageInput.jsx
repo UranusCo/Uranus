@@ -29,9 +29,26 @@ const MessageInput = () => {
   const recordingIntervalRef = useRef(null);
   const inputRef = useRef(null);
   
-  const { sendMessage, selectedUser, editingMessageId, editMessage, replyingToMessage, drafts, setDraft } = useChatStore();
+  const { sendMessage, selectedUser, editingMessageId, editMessage, replyingToMessage, drafts, setDraft, pendingAttachment, setPendingAttachment } = useChatStore();
   const { socket, authUser } = useAuthStore();
   const { friends, requests, sentRequests } = useFriendStore();
+
+  useEffect(() => {
+    if (pendingAttachment) {
+      if (pendingAttachment.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImagePreview(reader.result);
+          setFilePreview(null);
+        };
+        reader.readAsDataURL(pendingAttachment);
+      } else {
+        setFilePreview(pendingAttachment);
+        setImagePreview(null);
+      }
+      setPendingAttachment(null);
+    }
+  }, [pendingAttachment, setPendingAttachment]);
 
   useEffect(() => {
     if (selectedUser) {
