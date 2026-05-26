@@ -29,15 +29,21 @@ import notificationRoutes from "./routes/notification.route.js";
 import friendshipRoutes from "./routes/friendship.route.js";
 import workspaceRoutes from "./routes/workspace.route.js";
 import { app, server } from "./lib/socket.js";
-import { deleteExpiredMessages } from "./controllers/message.controller.js";
-import { deleteOldNotifications } from "./controllers/notification.controller.js";
+import { deleteExpiredMessages } from \"./controllers/message.controller.js\";
+import { deleteOldNotifications } from \"./controllers/notification.controller.js\";
 
-import bcrypt from "bcryptjs";
-import User from "./models/user.model.js";
+import bcrypt from \"bcryptjs\";
+import User from \"./models/user.model.js\";
+import AppError from \"./utils/AppError.js\";
+import globalErrorHandler from \"./middleware/error.middleware.js\";
+import requestLogger from \"./middleware/logger.middleware.js\";
 
 const PORT = process.env.PORT || 5000;
 
-app.use(express.json({ limit: "10mb" }));
+
+app.use(requestLogger);
+app.use(express.json({ limit: \"10mb\" }));
+
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
 app.use(
@@ -55,20 +61,29 @@ app.use(
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/notifications", notificationRoutes);
-app.use("/api/friends", friendshipRoutes);
-app.use("/api/workspaces", workspaceRoutes);
+app.use(\"/api/friends\", friendshipRoutes);
+app.use(\"/api/workspaces\", workspaceRoutes);
 
-if (process.env.NODE_ENV === "production") {
+// Handle unknown API routes
+app.all(\"/api/*\", (req, res, next) => {
+  next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+});
+
+if (process.env.NODE_ENV === \"production\") {
   // Serve static frontend files from backend/public
-  app.use(express.static(path.join(__dirname, "../public")));
+  app.use(express.static(path.join(__dirname, \"../public\")));
 
   // Return index.html for SPA routing
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../public", "index.html"));
+  app.get(\"*\", (req, res) => {
+    res.sendFile(path.join(__dirname, \"../public\", \"index.html\"));
   });
 }
 
+// Global Error Handler
+app.use(globalErrorHandler);
+
 async function seedHelpCenter() {
+
   try {
     const email = process.env.HELP_CENTER_EMAIL || "pansiluco@gmail.com";
     const helpCenterPassword = process.env.HELP_CENTER_PASSWORD || "Pansilu2012@";
