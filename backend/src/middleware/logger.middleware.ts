@@ -1,4 +1,6 @@
-const requestLogger = (req, res, next) => {
+import { Request, Response, NextFunction } from "express";
+
+const requestLogger = (req: Request, res: Response, next: NextFunction): void => {
   const start = Date.now();
   
   // Log the request

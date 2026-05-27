@@ -68,7 +68,6 @@ interface ChatState {
   toggleCommandPalette: () => void;
   setPendingAttachment: (attachment: File | null) => void;
   markAsUnread: (userId: string) => void;
-  setLightboxImage: (imageUrl: string | null) => void;
   setReplyingToMessage: (message: IMessage | null) => void;
   exportChat: (userId: string, format?: string, includeDeleted?: boolean) => Promise<any>;
   initWorkspaces: () => Promise<void>;
@@ -113,7 +112,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   isMoreMessagesAvailable: true,
   isCommandPaletteOpen: false,
   pendingAttachment: null,
-  lightboxImage: null,
+  
 
   workspaces: [],
   selectedWorkspace: null,
@@ -781,8 +780,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     });
   },
 
-  lightboxImage: null,
-  setLightboxImage: (imageUrl) => set({ lightboxImage: imageUrl }),
+
 
   setReplyingToMessage: (message) => {
     set({ replyingToMessage: message });

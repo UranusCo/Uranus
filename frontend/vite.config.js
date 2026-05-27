@@ -98,7 +98,7 @@ export default defineConfig({
       },
       strategies: 'injectManifest',
       srcDir: 'src',
-      filename: 'service-worker.js',
+      filename: 'service-worker.ts',
       devOptions: {
         enabled: true,
       },

@@ -30,7 +30,7 @@ const users = [
   },
 ];
 
-const seedDB = async () => {
+const seedDB = async (): Promise<void> => {
   try {
     await connectDB();
 

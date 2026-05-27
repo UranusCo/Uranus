@@ -1,8 +1,8 @@
-﻿import mongoose from "mongoose";
+import { Request, Response, NextFunction } from "express";
+import mongoose from "mongoose";
 import User from "../models/user.model.js";
 import Message from "../models/message.model.js";
 import Friendship from "../models/friendship.model.js";
-
 import cloudinary from "../lib/cloudinary.js";
 import { getReceiverSocketId, io } from "../lib/socket.js";
 import NotificationService from "../services/notification.service.js";
@@ -11,13 +11,13 @@ import crypto from "crypto";
 import { getLinkMetadata } from "../lib/linkPreview.js";
 import catchAsync from "../utils/catchAsync.js";
 import AppError from "../utils/AppError.js";
-
+import { AuthRequest } from "../middleware/auth.middleware.js";
 
 const storage = multer.memoryStorage();
 
-export const getLinkPreview = async (req, res) => {
+export const getLinkPreview = async (req: Request, res: Response): Promise<any> => {
   try {
-    let { url } = req.query;
+    let { url } = req.query as { url?: string };
     if (!url) return res.status(400).json({ error: "URL query parameter is required" });
 
     // Handle cases where the URL might be "undefined" as a string or empty
@@ -36,11 +36,12 @@ export const getLinkPreview = async (req, res) => {
     }
 
     res.status(200).json(metadata);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error in getLinkPreview controller:", error.message);
     res.status(500).json({ error: "Internal server error during link preview generation" });
   }
 };
+
 const upload = multer({
   storage,
   limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
@@ -50,10 +51,10 @@ const upload = multer({
   },
 });
 
-const hashPin = (pin) =>
+const hashPin = (pin: string): string =>
   crypto.createHash("sha256").update(pin).digest("hex");
 
-export const deleteExpiredMessages = async () => {
+export const deleteExpiredMessages = async (): Promise<void> => {
   try {
     const now = new Date();
     const expired = await Message.find({
@@ -74,12 +75,12 @@ export const deleteExpiredMessages = async () => {
     );
 
     console.log(`Expired ${expired.length} messages from automated cleanup`);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Failed to clean up expired messages:", error.message);
   }
 };
 
-export const getUsersForSidebar = async (req, res) => {
+export const getUsersForSidebar = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const loggedInUserId = req.user._id;
 
@@ -97,7 +98,7 @@ export const getUsersForSidebar = async (req, res) => {
 
     // Get unique users from messages and organize by chat
     const userMap = new Map();
-    messages.forEach((msg) => {
+    messages.forEach((msg: any) => {
       if (!msg.senderId || !msg.receiverId) return; // Skip if user account was deleted
 
       const otherUser = msg.senderId._id.toString() === loggedInUserId.toString() ? msg.receiverId : msg.senderId;
@@ -111,7 +112,7 @@ export const getUsersForSidebar = async (req, res) => {
 
     // Get all other users and add them if not in recent chats
     const allUsers = await User.find({ _id: { $ne: loggedInUserId } }).select("-password");
-    allUsers.forEach((user) => {
+    allUsers.forEach((user: any) => {
       if (!userMap.has(user._id.toString())) {
         userMap.set(user._id.toString(), {
           ...user.toObject(),
@@ -120,22 +121,22 @@ export const getUsersForSidebar = async (req, res) => {
       }
     });
 
-    const users = Array.from(userMap.values()).sort((a, b) => {
-      const aTime = a.lastMessage ? new Date(a.lastMessage.createdAt) : new Date(0);
-      const bTime = b.lastMessage ? new Date(b.lastMessage.createdAt) : new Date(0);
+    const users = Array.from(userMap.values()).sort((a: any, b: any) => {
+      const aTime = a.lastMessage ? new Date(a.lastMessage.createdAt).getTime() : 0;
+      const bTime = b.lastMessage ? new Date(b.lastMessage.createdAt).getTime() : 0;
       return bTime - aTime;
     });
 
     res.status(200).json(users);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error in getUsersForSidebar: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
-export const searchUsers = async (req, res) => {
+export const searchUsers = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
-    const { query } = req.query;
+    const { query } = req.query as { query?: string };
     const loggedInUserId = req.user._id;
 
     if (!query || query.trim() === "") {
@@ -151,24 +152,24 @@ export const searchUsers = async (req, res) => {
     }).select("-password");
 
     res.status(200).json(searchResults);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error in searchUsers: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
-export const getMessages = async (req, res) => {
+export const getMessages = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
     const { id: userToChatId } = req.params;
-    const { limit = 30, before } = req.query;
+    const { limit = "30", before } = req.query as { limit?: string; before?: string };
     const myId = req.user._id;
 
     // Validate incoming id to avoid casting strings like 'locked' to ObjectId
-    if (!mongoose.Types.ObjectId.isValid(userToChatId)) {
+    if (!mongoose.Types.ObjectId.isValid(userToChatId as string)) {
       return res.status(400).json({ error: "Invalid user id" });
     }
 
-    const query = {
+    const query: any = {
       $or: [
         { senderId: myId, receiverId: userToChatId },
         { senderId: userToChatId, receiverId: myId },
@@ -177,23 +178,23 @@ export const getMessages = async (req, res) => {
     };
 
     if (before) {
-      query.createdAt = { $lt: new Date(before) };
+      query.createdAt = { $lt: new Date(before as string) };
     }
 
     const messages = await Message.find(query)
       .sort({ createdAt: -1 })
-      .limit(parseInt(limit))
+      .limit(parseInt(limit as string))
       .populate("replyTo");
 
     // Reverse to maintain chronological order for the frontend
     res.status(200).json(messages.reverse());
-  } catch (error) {
+  } catch (error: any) {
     console.log("Error in getMessages controller: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
-export const markMessagesAsRead = async (req, res) => {
+export const markMessagesAsRead = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { userId } = req.params;
     const myId = req.user._id;
@@ -201,7 +202,7 @@ export const markMessagesAsRead = async (req, res) => {
     // Mark all messages from userId to myId as read
     await Message.updateMany(
       {
-        senderId: userId,
+        senderId: userId as string,
         receiverId: myId,
         isRead: false,
       },
@@ -212,13 +213,13 @@ export const markMessagesAsRead = async (req, res) => {
     );
 
     // Emit read receipt to sender
-    const senderSocketId = getReceiverSocketId(userId);
+    const senderSocketId = getReceiverSocketId(userId as string);
     if (senderSocketId) {
       io.to(senderSocketId).emit("messagesReadReceipt", myId);
     }
 
     res.status(200).json({ message: "Messages marked as read" });
-  } catch (error) {
+  } catch (error: any) {
     console.log("Error in markMessagesAsRead: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
@@ -226,7 +227,7 @@ export const markMessagesAsRead = async (req, res) => {
 
 export const sendMessage = [
   upload.single("file"),
-  async (req, res) => {
+  async (req: any, res: Response): Promise<any> => {
     try {
       const { text, image, replyTo, viewOnce, expiresAt } = req.body;
       const { id: receiverId } = req.params;
@@ -344,7 +345,7 @@ export const sendMessage = [
         const originalMessage = await Message.findById(replyTo);
         if (originalMessage && originalMessage.senderId.toString() !== senderId.toString() && originalMessage.senderId.toString() !== receiverId.toString()) {
           NotificationService.createNotification({
-            recipient: originalMessage.senderId,
+            recipient: originalMessage.senderId.toString() as any,
             actor: senderId,
             type: "reply",
             title: "Replied to your message",
@@ -358,7 +359,7 @@ export const sendMessage = [
       }
 
       res.status(201).json(newMessage);
-    } catch (error) {
+    } catch (error: any) {
       console.log("Error in sendMessage controller: ", error.message);
       res.status(500).json({ error: "Internal server error" });
     }
@@ -366,7 +367,7 @@ export const sendMessage = [
 ];
 
 // Add reaction to message
-export const addReaction = async (req, res) => {
+export const addReaction = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
     const { messageId } = req.params;
     const { emoji } = req.body;
@@ -386,7 +387,7 @@ export const addReaction = async (req, res) => {
     }
 
     const usersWithReaction = message.reactions.get(emoji);
-    if (!usersWithReaction.some(id => id.toString() === userId.toString())) {
+    if (usersWithReaction && !usersWithReaction.some((id: any) => id.toString() === userId.toString())) {
       usersWithReaction.push(userId);
       message.markModified("reactions");
     }
@@ -396,7 +397,7 @@ export const addReaction = async (req, res) => {
     // Send notification to message sender
     if (message.senderId.toString() !== userId.toString()) {
       NotificationService.createNotification({
-        recipient: message.senderId,
+        recipient: message.senderId.toString() as any,
         actor: userId,
         type: "reaction",
         title: "Reacted to your message",
@@ -413,7 +414,7 @@ export const addReaction = async (req, res) => {
     const senderId = message.senderId;
     const otherUserId = userId.toString() === senderId.toString() ? receiverId : senderId;
 
-    const otherUserSocketId = getReceiverSocketId(otherUserId);
+    const otherUserSocketId = getReceiverSocketId(otherUserId.toString());
     if (otherUserSocketId) {
       io.to(otherUserSocketId).emit("messageReactionAdded", {
         messageId,
@@ -424,14 +425,14 @@ export const addReaction = async (req, res) => {
     }
 
     res.status(200).json({ reactions: Object.fromEntries(message.reactions) });
-  } catch (error) {
+  } catch (error: any) {
     console.log("Error in addReaction: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
 // Remove reaction from message
-export const removeReaction = async (req, res) => {
+export const removeReaction = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
     const { messageId } = req.params;
     const { emoji } = req.body;
@@ -444,14 +445,16 @@ export const removeReaction = async (req, res) => {
 
     if (message.reactions && message.reactions.has(emoji)) {
       const usersWithReaction = message.reactions.get(emoji);
-      const index = usersWithReaction.findIndex(id => id.toString() === userId.toString());
-      if (index !== -1) {
-        usersWithReaction.splice(index, 1);
-        if (usersWithReaction.length === 0) {
-          message.reactions.delete(emoji);
+      if (usersWithReaction) {
+        const index = usersWithReaction.findIndex((id: any) => id.toString() === userId.toString());
+        if (index !== -1) {
+          usersWithReaction.splice(index, 1);
+          if (usersWithReaction.length === 0) {
+            message.reactions.delete(emoji);
+          }
+          message.markModified("reactions");
+          await message.save();
         }
-        message.markModified("reactions");
-        await message.save();
       }
     }
 
@@ -460,7 +463,7 @@ export const removeReaction = async (req, res) => {
     const senderId = message.senderId;
     const otherUserId = userId.toString() === senderId.toString() ? receiverId : senderId;
 
-    const otherUserSocketId = getReceiverSocketId(otherUserId);
+    const otherUserSocketId = getReceiverSocketId(otherUserId.toString());
     if (otherUserSocketId) {
       io.to(otherUserSocketId).emit("messageReactionRemoved", {
         messageId,
@@ -471,14 +474,14 @@ export const removeReaction = async (req, res) => {
     }
 
     res.status(200).json({ reactions: Object.fromEntries(message.reactions || new Map()) });
-  } catch (error) {
+  } catch (error: any) {
     console.log("Error in removeReaction: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
 // Edit message
-export const editMessage = async (req, res) => {
+export const editMessage = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
     const { messageId } = req.params;
     const { text } = req.body;
@@ -498,7 +501,7 @@ export const editMessage = async (req, res) => {
       message.editHistory = [];
     }
     message.editHistory.push({
-      text: message.text,
+      text: message.text || "",
       editedAt: new Date(),
     });
 
@@ -510,7 +513,7 @@ export const editMessage = async (req, res) => {
 
     // Emit to other user
     const receiverId = message.receiverId;
-    const otherUserSocketId = getReceiverSocketId(receiverId);
+    const otherUserSocketId = getReceiverSocketId(receiverId.toString());
     if (otherUserSocketId) {
       io.to(otherUserSocketId).emit("messageEdited", {
         messageId,
@@ -521,14 +524,14 @@ export const editMessage = async (req, res) => {
     }
 
     res.status(200).json(message);
-  } catch (error) {
+  } catch (error: any) {
     console.log("Error in editMessage: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
 // Delete message
-export const deleteMessage = async (req, res) => {
+export const deleteMessage = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
     const { messageId } = req.params;
     const userId = req.user._id;
@@ -560,21 +563,21 @@ export const deleteMessage = async (req, res) => {
     // Emit to other user
     const receiverId = message.receiverId;
     if (receiverId) {
-      const otherUserSocketId = getReceiverSocketId(receiverId);
+      const otherUserSocketId = getReceiverSocketId(receiverId.toString());
       if (otherUserSocketId) {
         io.to(otherUserSocketId).emit("messageDeleted", { messageId, text: deletionText });
       }
     }
 
     res.status(200).json({ message: "Message deleted successfully", text: deletionText });
-  } catch (error) {
+  } catch (error: any) {
     console.log("Error in deleteMessage: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
 // Pin/Unpin message
-export const togglePinMessage = async (req, res) => {
+export const togglePinMessage = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
     const { messageId } = req.params;
     const userId = req.user._id;
@@ -585,7 +588,7 @@ export const togglePinMessage = async (req, res) => {
     }
 
     message.isPinned = !message.isPinned;
-    message.pinnedAt = message.isPinned ? new Date() : null;
+    message.pinnedAt = message.isPinned ? new Date() : undefined;
     message.pinnedBy = message.isPinned ? userId : null;
 
     await message.save();
@@ -595,7 +598,7 @@ export const togglePinMessage = async (req, res) => {
     const senderId = message.senderId;
     const otherUserId = userId.toString() === senderId.toString() ? receiverId : senderId;
 
-    const otherUserSocketId = getReceiverSocketId(otherUserId);
+    const otherUserSocketId = getReceiverSocketId(otherUserId.toString());
     if (otherUserSocketId) {
       io.to(otherUserSocketId).emit("messagePinToggled", {
         messageId,
@@ -604,14 +607,14 @@ export const togglePinMessage = async (req, res) => {
     }
 
     res.status(200).json(message);
-  } catch (error) {
+  } catch (error: any) {
     console.log("Error in togglePinMessage: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
 // Get pinned messages
-export const getPinnedMessages = async (req, res) => {
+export const getPinnedMessages = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { userId } = req.params;
     const myId = req.user._id;
@@ -619,8 +622,8 @@ export const getPinnedMessages = async (req, res) => {
     const pinnedMessages = await Message.find({
       isPinned: true,
       $or: [
-        { senderId: myId, receiverId: userId },
-        { senderId: userId, receiverId: myId },
+        { senderId: myId, receiverId: userId as string },
+        { senderId: userId as string, receiverId: myId },
       ],
     })
       .populate("senderId", "fullName profilePic")
@@ -628,27 +631,27 @@ export const getPinnedMessages = async (req, res) => {
       .sort({ pinnedAt: -1 });
 
     res.status(200).json(pinnedMessages);
-  } catch (error) {
+  } catch (error: any) {
     console.log("Error in getPinnedMessages: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
 // Search messages
-export const searchMessages = async (req, res) => {
+export const searchMessages = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
     const { userId } = req.params;
-    const { query, sender } = req.query;
+    const { query, sender } = req.query as { query?: string; sender?: string };
     const myId = req.user._id;
 
     if (!query || query.trim() === "") {
       return res.status(200).json([]);
     }
 
-    const filterObj = {
+    const filterObj: any = {
       $or: [
-        { senderId: myId, receiverId: userId },
-        { senderId: userId, receiverId: myId },
+        { senderId: myId, receiverId: userId as string },
+        { senderId: userId as string, receiverId: myId },
       ],
       isDeleted: false,
       isExpired: { $ne: true },
@@ -656,7 +659,7 @@ export const searchMessages = async (req, res) => {
     };
 
     if (sender) {
-      filterObj.senderId = sender === "me" ? myId : userId;
+      filterObj.senderId = sender === "me" ? myId : (userId as string);
     }
 
     const results = await Message.find(filterObj)
@@ -666,13 +669,13 @@ export const searchMessages = async (req, res) => {
       .limit(50);
 
     res.status(200).json(results);
-  } catch (error) {
+  } catch (error: any) {
     console.log("Error in searchMessages: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
-export const setChatDisappearing = async (req, res) => {
+export const setChatDisappearing = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
     const { userId } = req.params;
     const { expiryLabel, expiresAt } = req.body;
@@ -680,7 +683,7 @@ export const setChatDisappearing = async (req, res) => {
     if (!me) return res.status(404).json({ error: "User not found" });
 
     const settings = me.chatSettings || new Map();
-    settings.set(userId, {
+    settings.set(userId as string, {
       expiryLabel,
       expiresAt: expiresAt ? new Date(expiresAt) : null,
     });
@@ -688,25 +691,25 @@ export const setChatDisappearing = async (req, res) => {
     await me.save();
 
     res.status(200).json({ expiryLabel, expiresAt });
-  } catch (error) {
+  } catch (error: any) {
     console.log("Error in setChatDisappearing: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
-export const getLockedChats = async (req, res) => {
+export const getLockedChats = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const me = await User.findById(req.user._id).select("lockedChats");
-    const lockedIds = me.lockedChats || [];
+    const lockedIds = me?.lockedChats || [];
     const chats = await User.find({ _id: { $in: lockedIds } }).select("fullName email profilePic");
     res.status(200).json(chats);
-  } catch (error) {
+  } catch (error: any) {
     console.log("Error in getLockedChats: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
-export const lockChat = async (req, res) => {
+export const lockChat = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
     const { userId } = req.params;
     const { pin } = req.body;
@@ -720,21 +723,21 @@ export const lockChat = async (req, res) => {
     if (!me.lockedChats) me.lockedChats = [];
     if (!me.lockPins) me.lockPins = new Map();
 
-    if (!me.lockedChats.some((id) => id.toString() === userId)) {
-      me.lockedChats.push(userId);
+    if (!me.lockedChats.some((id: any) => id.toString() === (userId as string))) {
+      me.lockedChats.push(userId as string);
     }
-    me.lockPins.set(userId, hashPin(pin));
+    me.lockPins.set(userId as string, hashPin(pin));
     me.markModified("lockPins");
     await me.save();
 
     res.status(200).json({ locked: true });
-  } catch (error) {
+  } catch (error: any) {
     console.log("Error in lockChat: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
-export const unlockChat = async (req, res) => {
+export const unlockChat = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
     const { userId } = req.params;
     const { pin } = req.body;
@@ -742,19 +745,19 @@ export const unlockChat = async (req, res) => {
     const me = await User.findById(req.user._id);
     if (!me) return res.status(404).json({ error: "User not found" });
 
-    const storedHash = me.lockPins?.get(userId);
+    const storedHash = me.lockPins?.get(userId as string);
     if (!storedHash || storedHash !== hashPin(pin)) {
       return res.status(403).json({ error: "Invalid PIN" });
     }
 
     res.status(200).json({ unlocked: true });
-  } catch (error) {
+  } catch (error: any) {
     console.log("Error in unlockChat: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
-export const markViewOnceOpened = async (req, res) => {
+export const markViewOnceOpened = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
     const { messageId } = req.params;
     const message = await Message.findById(messageId);
@@ -769,14 +772,14 @@ export const markViewOnceOpened = async (req, res) => {
     await message.save();
 
     res.status(200).json(message);
-  } catch (error) {
+  } catch (error: any) {
     console.log("Error in markViewOnceOpened: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
-// Forwrd message
-export const forwardMessage = async (req, res) => {
+// Forward message
+export const forwardMessage = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
     const { messageId } = req.params;
     const { receiverId } = req.body;
@@ -786,7 +789,7 @@ export const forwardMessage = async (req, res) => {
       return res.status(400).json({ error: "Receiver ID is required" });
     }
 
-    if (!mongoose.Types.ObjectId.isValid(messageId) || !mongoose.Types.ObjectId.isValid(receiverId)) {
+    if (!mongoose.Types.ObjectId.isValid(messageId as string) || !mongoose.Types.ObjectId.isValid(receiverId as string)) {
       return res.status(400).json({ error: "Invalid message or receiver ID" });
     }
 
@@ -846,14 +849,14 @@ export const forwardMessage = async (req, res) => {
     }
 
     res.status(201).json(forwardedMessage);
-  } catch (error) {
+  } catch (error: any) {
     console.log("Error in forwardMessage: ", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
 // Update user status
-export const updateUserStatus = async (req, res) => {
+export const updateUserStatus = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
     const { status, statusMessage } = req.body;
     const userId = req.user._id;
@@ -876,14 +879,14 @@ export const updateUserStatus = async (req, res) => {
     });
 
     res.status(200).json(user);
-  } catch (error) {
+  } catch (error: any) {
     console.log("Error in updateUserStatus: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
 // Get user status
-export const getUserStatus = async (req, res) => {
+export const getUserStatus = async (req: Request, res: Response): Promise<any> => {
   try {
     const { userId } = req.params;
 
@@ -894,134 +897,137 @@ export const getUserStatus = async (req, res) => {
     }
 
     res.status(200).json(user);
-  } catch (error) {
+  } catch (error: any) {
     console.log("Error in getUserStatus: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
 // Archive chat
-export const getCommunityData = async (req, res) => {
+export const getCommunityData = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
-    const me = await User.findById(req.user._id).select("communityIds subscribedChannels");
-    res.status(200).json({ communityIds: me.communityIds || [], subscribedChannels: me.subscribedChannels || [] });
-  } catch (error) {
+    const me = await User.findById(req.user._id).select("communityIds subscribedChannels") as any;
+    res.status(200).json({ communityIds: me?.communityIds || [], subscribedChannels: me?.subscribedChannels || [] });
+  } catch (error: any) {
     console.log("Error in getCommunityData: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
-export const toggleArchiveChat = async (req, res) => {
+export const toggleArchiveChat = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
     const { userId } = req.params;
     const myId = req.user._id;
 
     const user = await User.findById(myId);
+    if (!user) return res.status(404).json({ error: "User not found" });
 
     if (!user.archivedChats) {
       user.archivedChats = [];
     }
 
-    const chatIndex = user.archivedChats.findIndex(id => id.toString() === userId);
+    const chatIndex = user.archivedChats.findIndex(id => id.toString() === (userId as string));
 
     if (chatIndex > -1) {
       user.archivedChats.splice(chatIndex, 1);
     } else {
-      user.archivedChats.push(userId);
+      user.archivedChats.push(userId as string as any);
     }
 
     await user.save();
     res.status(200).json({ archived: chatIndex === -1 });
-  } catch (error) {
+  } catch (error: any) {
     console.log("Error in toggleArchiveChat: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
 // Pin chat
-export const togglePinChat = async (req, res) => {
+export const togglePinChat = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
     const { userId } = req.params;
     const myId = req.user._id;
 
     const user = await User.findById(myId);
+    if (!user) return res.status(404).json({ error: "User not found" });
 
     if (!user.pinnedChats) {
       user.pinnedChats = [];
     }
 
-    const chatIndex = user.pinnedChats.findIndex(id => id.toString() === userId);
+    const chatIndex = user.pinnedChats.findIndex(id => id.toString() === (userId as string));
 
     if (chatIndex > -1) {
       user.pinnedChats.splice(chatIndex, 1);
     } else {
-      user.pinnedChats.push(userId);
+      user.pinnedChats.push(userId as string as any);
     }
 
     await user.save();
     res.status(200).json({ pinned: chatIndex === -1 });
-  } catch (error) {
+  } catch (error: any) {
     console.log("Error in togglePinChat: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
 // Mute chat
-export const toggleMuteChat = async (req, res) => {
+export const toggleMuteChat = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
     const { userId } = req.params;
     const myId = req.user._id;
 
     const user = await User.findById(myId);
+    if (!user) return res.status(404).json({ error: "User not found" });
 
     if (!user.mutedChats) {
       user.mutedChats = [];
     }
 
-    const chatIndex = user.mutedChats.findIndex(id => id.toString() === userId);
+    const chatIndex = user.mutedChats.findIndex(id => id.toString() === (userId as string));
 
     if (chatIndex > -1) {
       user.mutedChats.splice(chatIndex, 1);
     } else {
-      user.mutedChats.push(userId);
+      user.mutedChats.push(userId as string as any);
     }
 
     await user.save();
     res.status(200).json({ muted: chatIndex === -1 });
-  } catch (error) {
+  } catch (error: any) {
     console.log("Error in toggleMuteChat: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
 // Clear chat history
-export const clearChatHistory = async (req, res) => {
+export const clearChatHistory = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
     const { userId } = req.params;
     const myId = req.user._id;
 
     await Message.deleteMany({
       $or: [
-        { senderId: myId, receiverId: userId },
-        { senderId: userId, receiverId: myId },
+        { senderId: myId, receiverId: userId as string },
+        { senderId: userId as string, receiverId: myId },
       ],
     });
 
     // Emit to other user
-    const otherUserSocketId = getReceiverSocketId(userId);
+    const otherUserSocketId = getReceiverSocketId(userId as string);
     if (otherUserSocketId) {
       io.to(otherUserSocketId).emit("chatCleared");
     }
 
     res.status(200).json({ message: "Chat history cleared" });
-  } catch (error) {
+  } catch (error: any) {
     console.log("Error in clearChatHistory: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
 // Update theme
-export const updateTheme = async (req, res) => {
+export const updateTheme = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
     const { theme } = req.body;
     const userId = req.user._id;
@@ -1033,19 +1039,21 @@ export const updateTheme = async (req, res) => {
     ).select("-password");
 
     res.status(200).json(user);
-  } catch (error) {
+  } catch (error: any) {
     console.log("Error in updateTheme: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
 // Set chat background
-export const setChatBackground = async (req, res) => {
+export const setChatBackground = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
     const { chatUserId, backgroundUrl } = req.body;
     const userId = req.user._id;
 
-    const user = await User.findById(userId);
+    const user = await User.findById(userId) as any;
+    if (!user) return res.status(404).json({ error: "User not found" });
+
     if (!user.chatBackgrounds) {
       user.chatBackgrounds = new Map();
     }
@@ -1055,17 +1063,17 @@ export const setChatBackground = async (req, res) => {
     await user.save();
 
     res.status(200).json({ message: "Background updated" });
-  } catch (error) {
+  } catch (error: any) {
     console.log("Error in setChatBackground: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
 // Export chat history
-export const exportChat = async (req, res) => {
+export const exportChat = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
     const { userId } = req.params;
-    const { format = 'json', includeDeleted = false } = req.query;
+    const { format = 'json', includeDeleted = false } = req.query as { format?: string; includeDeleted?: string | boolean };
     const loggedInUserId = req.user._id;
 
     // Verify the user is part of this chat
@@ -1076,10 +1084,10 @@ export const exportChat = async (req, res) => {
     // Get all messages between these users
     const messages = await Message.find({
       $or: [
-        { senderId: loggedInUserId, receiverId: userId },
-        { senderId: userId, receiverId: loggedInUserId },
+        { senderId: loggedInUserId, receiverId: userId as string },
+        { senderId: userId as string, receiverId: loggedInUserId },
       ],
-      ...(includeDeleted ? {} : { isDeleted: false }),
+      ...(includeDeleted === 'true' || includeDeleted === true ? {} : { isDeleted: false }),
     })
       .sort({ createdAt: 1 })
       .populate("senderId", "fullName email")
@@ -1089,8 +1097,9 @@ export const exportChat = async (req, res) => {
 
     // Get user info for the chat
     const chatUser = await User.findById(userId).select("fullName email");
+    if (!chatUser) return res.status(404).json({ error: "Chat partner not found" });
 
-    const exportData = {
+    const exportData: any = {
       exportedAt: new Date().toISOString(),
       chatWith: {
         id: chatUser._id,
@@ -1098,7 +1107,7 @@ export const exportChat = async (req, res) => {
         email: chatUser.email,
       },
       totalMessages: messages.length,
-      messages: messages.map(msg => ({
+      messages: messages.map((msg: any) => ({
         id: msg._id,
         timestamp: msg.createdAt,
         sender: {
@@ -1116,7 +1125,7 @@ export const exportChat = async (req, res) => {
         deletedAt: msg.deletedAt,
         isPinned: msg.isPinned,
         pinnedAt: msg.pinnedAt,
-        reactions: Object.fromEntries(msg.reactions),
+        reactions: Object.fromEntries(msg.reactions || new Map()),
         replyTo: msg.replyTo ? {
           id: msg.replyTo._id,
           text: msg.replyTo.text,
@@ -1152,20 +1161,20 @@ export const exportChat = async (req, res) => {
     res.setHeader('Content-Disposition', `attachment; filename="chat-${chatUser.fullName.replace(/\s+/g, '_')}.json"`);
     res.json(exportData);
 
-  } catch (error) {
+  } catch (error: any) {
     console.log("Error in exportChat: ", error.message);
     res.status(500).json({ error: "Failed to export chat" });
   }
 };
 
 // Helper function to format chat as text
-function formatChatAsText(data) {
+function formatChatAsText(data: any): string {
   let text = `Chat Export - ${data.chatWith.name}\n`;
   text += `Exported on: ${new Date(data.exportedAt).toLocaleString()}\n`;
   text += `Total messages: ${data.totalMessages}\n\n`;
   text += '='.repeat(50) + '\n\n';
 
-  data.messages.forEach(msg => {
+  data.messages.forEach((msg: any) => {
     const timestamp = new Date(msg.timestamp).toLocaleString();
     const sender = msg.sender.name;
     const isEdited = msg.isEdited ? ' (edited)' : '';
@@ -1186,22 +1195,22 @@ function formatChatAsText(data) {
     }
 
     if (msg.replyTo) {
-      text += `Γå│ Replying to: "${msg.replyTo.text}"\n`;
+      text += `┌─ Replying to: "${msg.replyTo.text}"\n`;
     }
 
     if (msg.forwardedFrom) {
-      text += `Γå│ Forwarded from: ${msg.forwardedFrom.sender}\n`;
+      text += `┌─ Forwarded from: ${msg.forwardedFrom.sender}\n`;
     }
 
     if (msg.reactions && Object.keys(msg.reactions).length > 0) {
       const reactions = Object.entries(msg.reactions)
-        .map(([emoji, users]) => `${emoji}(${users.length})`)
+        .map(([emoji, users]: any) => `${emoji}(${users.length})`)
         .join(' ');
       text += `Reactions: ${reactions}\n`;
     }
 
     if (msg.isPinned) {
-      text += '≡ƒôî Pinned message\n';
+      text += '📌 Pinned message\n';
     }
 
     text += '\n';
@@ -1211,10 +1220,10 @@ function formatChatAsText(data) {
 }
 
 // Helper function to format chat as CSV
-function formatChatAsCSV(data) {
+function formatChatAsCSV(data: any): string {
   let csv = 'Timestamp,Sender,Message,Image,File,IsEdited,IsDeleted,IsPinned,Reactions,ReplyTo,ForwardedFrom\n';
 
-  data.messages.forEach(msg => {
+  data.messages.forEach((msg: any) => {
     const timestamp = new Date(msg.timestamp).toISOString();
     const sender = msg.sender.name;
     const text = msg.text ? `"${msg.text.replace(/"/g, '""')}"` : '';
@@ -1224,7 +1233,7 @@ function formatChatAsCSV(data) {
     const isDeleted = msg.isDeleted ? 'Yes' : 'No';
     const isPinned = msg.isPinned ? 'Yes' : 'No';
     const reactions = msg.reactions ? Object.entries(msg.reactions).map
-    (([emoji, users]) => `${emoji}(${users.length})`).join('; ') : '';
+    (([emoji, users]: any) => `${emoji}(${users.length})`).join('; ') : '';
     const replyTo = msg.replyTo ? `"${msg.replyTo.text?.replace(/"/g, '""') || ''}"`:'';
     const forwardedFrom = msg.forwardedFrom ? msg.forwardedFrom.sender || '' : '';
 
@@ -1233,4 +1242,3 @@ function formatChatAsCSV(data) {
 
   return csv;
 }
-
