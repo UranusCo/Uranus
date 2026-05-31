@@ -135,4 +135,4 @@ export const checkAuth = (req: AuthRequest, res: Response) => {
   res.status(200).json(req.user);
 };
 
-};
+
