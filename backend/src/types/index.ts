@@ -23,6 +23,18 @@ export interface IUser {
     mentions: boolean;
     workspaceActivity: boolean;
   };
+  // New fields for profile handling
+  username: string;
+  handle: string;
+  publicProfile?: {
+    bio?: string;
+    avatar?: string;
+  };
+  privateProfile?: {
+    isPrivate?: boolean;
+    avatar?: string;
+  };
+  allowedViewers?: Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
 }
