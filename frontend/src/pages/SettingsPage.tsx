@@ -42,7 +42,7 @@ const SettingsPage = () => {
   };
 
   return (
-    <div className="h-screen bg-slate-50 dark:bg-slate-900 pt-20 transition-colors duration-200 overflow-y-auto pb-20">
+    <div data-context="settings" className="h-screen bg-slate-50 dark:bg-slate-900 pt-20 transition-colors duration-200 overflow-y-auto pb-20">
       <div className="container mx-auto px-4 max-w-4xl space-y-8">
         
         {/* Header Title */}

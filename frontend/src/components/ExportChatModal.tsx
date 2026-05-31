@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Download, FileText, FileJson, FileSpreadsheet, Loader } from "lucide-react";
 import { useChatStore } from "../store/useChatStore";
 import toast from "react-hot-toast";
@@ -45,8 +45,19 @@ const ExportChatModal = ({ user, onClose }) => {
     }
   };
 
+  useEffect(() => {
+    const handleClose = () => onClose();
+    const handleSubmit = () => handleExport();
+    window.addEventListener("close-active-modal", handleClose);
+    window.addEventListener("submit-active-modal", handleSubmit);
+    return () => {
+      window.removeEventListener("close-active-modal", handleClose);
+      window.removeEventListener("submit-active-modal", handleSubmit);
+    };
+  }, [onClose, handleExport]);
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div data-context="modal" className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"

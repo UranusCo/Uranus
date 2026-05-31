@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SidebarRail from "./components/SidebarRail";
 import ConversationList from "./components/ConversationList";
 import ChatContainer from "./components/ChatContainer";
@@ -11,7 +11,13 @@ import { useChatStore } from "./store/useChatStore";
 
 const AppLayout = () => {
   const { selectedUser } = useChatStore();
-  const [activeTab, setActiveTab] = useState("chats");
+  const [activeTab, setActiveTab] = useState(() => {
+    return localStorage.getItem("lastActiveTab") || "chats";
+  });
+
+  useEffect(() => {
+    localStorage.setItem("lastActiveTab", activeTab);
+  }, [activeTab]);
 
   const renderSideContent = () => {
     switch (activeTab) {

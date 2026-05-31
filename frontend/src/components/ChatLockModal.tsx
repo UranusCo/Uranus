@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const ChatLockModal = ({ chat, open, onSubmit, onClose }) => {
   const [pin, setPin] = useState("");
@@ -14,10 +14,22 @@ const ChatLockModal = ({ chat, open, onSubmit, onClose }) => {
     setPin("");
   };
 
+  useEffect(() => {
+    if (!open || !chat) return;
+    const handleClose = () => onClose();
+    const handleConfirm = () => handleSubmit();
+    window.addEventListener("close-active-modal", handleClose);
+    window.addEventListener("submit-active-modal", handleConfirm);
+    return () => {
+      window.removeEventListener("close-active-modal", handleClose);
+      window.removeEventListener("submit-active-modal", handleConfirm);
+    };
+  }, [open, chat, onClose, handleSubmit]);
+
   if (!open || !chat) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 transition-all duration-200">
+    <div data-context="modal" className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 transition-all duration-200">
       <div className="w-full max-w-sm rounded-3xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-2xl overflow-hidden animate-fadeIn">
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-700">
           <div>

@@ -23,7 +23,14 @@ import {
   Download,
   Clipboard,
   Scissors,
-  Eraser
+  Eraser,
+  Globe,
+  Inbox,
+  CheckCircle2,
+  X,
+  Bell,
+  Plus,
+  Send
 } from "lucide-react";
 import toast from "react-hot-toast";
 import ForwardModal from "./ForwardModal";
@@ -64,8 +71,8 @@ export const ContextMenuProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const [profileUser, setProfileUser] = useState<any | null>(null);
   const navigate = useNavigate();
 
-  const { authUser } = useAuthStore();
-  const { theme, toggleTheme } = useThemeStore();
+  const { authUser, logout } = useAuthStore();
+  const { theme, setTheme, toggleTheme } = useThemeStore();
   const {
     messages,
     addReaction,
@@ -135,6 +142,41 @@ export const ContextMenuProvider: React.FC<{ children: React.ReactNode }> = ({ c
       if (imageEl && type === "general") {
         type = "image";
         data = { src: imageEl.src, alt: imageEl.alt };
+      }
+
+      // 5. Detect Settings Context
+      const settingsEl = target.closest('[data-context="settings"]');
+      if (settingsEl && type === "general") {
+        type = "settings";
+        data = {};
+      }
+
+      // 6. Detect Modal Context
+      const modalEl = target.closest('[data-context="modal"]');
+      if (modalEl && type === "general") {
+        type = "modal";
+        data = {};
+      }
+
+      // 7. Detect Friends Section Context
+      const friendsSectionEl = target.closest('[data-context="friends-section"]');
+      if (friendsSectionEl && type === "general") {
+        type = "friends-section";
+        data = {};
+      }
+
+      // 8. Detect Sidebar Context
+      const sidebarEl = target.closest('[data-context="sidebar"]');
+      if (sidebarEl && type === "general") {
+        type = "sidebar";
+        data = {};
+      }
+
+      // 9. Detect Navbar Context
+      const navbarEl = target.closest('[data-context="navbar"]');
+      if (navbarEl && type === "general") {
+        type = "navbar";
+        data = {};
       }
 
       // Calculate safe coordinates inside viewport
@@ -509,6 +551,270 @@ export const ContextMenuProvider: React.FC<{ children: React.ReactNode }> = ({ c
                 <Download size={15} className="text-slate-400" />
                 Download Attachment
               </a>
+            </>
+          )}
+
+          {/* 6. Settings Context Menu */}
+          {menu.type === "settings" && (
+            <>
+              <button
+                onClick={() => {
+                  setTheme("light");
+                  hideMenu();
+                }}
+                className="w-full px-3 py-2 text-left hover:bg-slate-100/80 dark:hover:bg-slate-800/80 rounded-xl flex items-center gap-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-colors"
+              >
+                <SunMoon size={15} className="text-amber-500" />
+                Set Light Mode
+              </button>
+              <button
+                onClick={() => {
+                  setTheme("dark");
+                  hideMenu();
+                }}
+                className="w-full px-3 py-2 text-left hover:bg-slate-100/80 dark:hover:bg-slate-800/80 rounded-xl flex items-center gap-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-colors"
+              >
+                <SunMoon size={15} className="text-blue-400" />
+                Set Dark Mode
+              </button>
+              <button
+                onClick={() => {
+                  setTheme("system");
+                  hideMenu();
+                }}
+                className="w-full px-3 py-2 text-left hover:bg-slate-100/80 dark:hover:bg-slate-800/80 rounded-xl flex items-center gap-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-colors"
+              >
+                <SunMoon size={15} className="text-slate-400" />
+                Sync with OS Theme
+              </button>
+
+              <div className="h-px bg-slate-100 dark:bg-slate-850 my-1" />
+
+              <button
+                onClick={() => {
+                  const sendOnEnter = useChatStore.getState().chatSettings?.sendOnEnter ?? true;
+                  useChatStore.getState().setChatSetting('sendOnEnter', !sendOnEnter);
+                  toast.success(`Send on Enter: ${!sendOnEnter ? "Enabled" : "Disabled"}`);
+                  hideMenu();
+                }}
+                className="w-full px-3 py-2 text-left hover:bg-slate-100/80 dark:hover:bg-slate-800/80 rounded-xl flex items-center gap-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-colors"
+              >
+                <Send size={15} className="text-slate-400" />
+                Toggle Send on Enter
+              </button>
+
+              <button
+                onClick={() => {
+                  navigate("/");
+                  hideMenu();
+                }}
+                className="w-full px-3 py-2 text-left hover:bg-slate-100/80 dark:hover:bg-slate-800/80 rounded-xl flex items-center gap-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-colors"
+              >
+                <MessageSquare size={15} className="text-primary" />
+                Back to DMs
+              </button>
+            </>
+          )}
+
+          {/* 7. Modal Context Menu */}
+          {menu.type === "modal" && (
+            <>
+              <button
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent("close-active-modal"));
+                  hideMenu();
+                }}
+                className="w-full px-3 py-2 text-left hover:bg-slate-100/80 dark:hover:bg-slate-800/80 rounded-xl flex items-center gap-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-colors"
+              >
+                <X size={15} className="text-slate-400" />
+                Close Modal
+              </button>
+
+              <button
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent("submit-active-modal"));
+                  hideMenu();
+                }}
+                className="w-full px-3 py-2 text-left hover:bg-slate-100/80 dark:hover:bg-slate-800/80 rounded-xl flex items-center gap-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-colors"
+              >
+                <CheckCircle2 size={15} className="text-emerald-500" />
+                Submit / Confirm
+              </button>
+
+              <div className="h-px bg-slate-100 dark:bg-slate-850 my-1" />
+
+              <button
+                onClick={() => {
+                  toast.success("Help and guidelines for dialog forms loaded.");
+                  hideMenu();
+                }}
+                className="w-full px-3 py-2 text-left hover:bg-slate-100/80 dark:hover:bg-slate-800/80 rounded-xl flex items-center gap-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-colors"
+              >
+                <Settings size={15} className="text-slate-400" />
+                Form Assistance
+              </button>
+            </>
+          )}
+
+          {/* 8. Friends Section Context Menu */}
+          {menu.type === "friends-section" && (
+            <>
+              <button
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent("friends-tab-explore"));
+                  hideMenu();
+                }}
+                className="w-full px-3 py-2 text-left hover:bg-slate-100/80 dark:hover:bg-slate-800/80 rounded-xl flex items-center gap-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-colors"
+              >
+                <Globe size={15} className="text-blue-500" />
+                Explore People
+              </button>
+
+              <button
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent("friends-tab-friends"));
+                  hideMenu();
+                }}
+                className="w-full px-3 py-2 text-left hover:bg-slate-100/80 dark:hover:bg-slate-800/80 rounded-xl flex items-center gap-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-colors"
+              >
+                <Users size={15} className="text-indigo-500" />
+                View Friends
+              </button>
+
+              <button
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent("friends-tab-requests"));
+                  hideMenu();
+                }}
+                className="w-full px-3 py-2 text-left hover:bg-slate-100/80 dark:hover:bg-slate-800/80 rounded-xl flex items-center gap-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-colors"
+              >
+                <Inbox size={15} className="text-violet-500" />
+                Friend Requests
+              </button>
+
+              <div className="h-px bg-slate-100 dark:bg-slate-850 my-1" />
+
+              <button
+                onClick={() => {
+                  useChatStore.getState().getUsers();
+                  useFriendStore.getState().fetchFriends();
+                  useFriendStore.getState().fetchRequests();
+                  toast.success("Synchronized contacts list");
+                  hideMenu();
+                }}
+                className="w-full px-3 py-2 text-left hover:bg-slate-100/80 dark:hover:bg-slate-800/80 rounded-xl flex items-center gap-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-colors"
+              >
+                <RefreshCw size={15} className="text-slate-400" />
+                Refresh Connections
+              </button>
+            </>
+          )}
+
+          {/* 9. Sidebar Context Menu */}
+          {menu.type === "sidebar" && (
+            <>
+              <button
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent("sidebar-tab-chats"));
+                  hideMenu();
+                }}
+                className="w-full px-3 py-2 text-left hover:bg-slate-100/80 dark:hover:bg-slate-800/80 rounded-xl flex items-center gap-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-colors"
+              >
+                <MessageSquare size={15} className="text-blue-500" />
+                Direct Messages
+              </button>
+
+              <button
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent("sidebar-tab-users"));
+                  hideMenu();
+                }}
+                className="w-full px-3 py-2 text-left hover:bg-slate-100/80 dark:hover:bg-slate-800/80 rounded-xl flex items-center gap-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-colors"
+              >
+                <Users size={15} className="text-indigo-500" />
+                View Friends List
+              </button>
+
+              <button
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent("sidebar-tab-notifications"));
+                  hideMenu();
+                }}
+                className="w-full px-3 py-2 text-left hover:bg-slate-100/80 dark:hover:bg-slate-800/80 rounded-xl flex items-center gap-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-colors"
+              >
+                <Bell size={15} className="text-violet-500" />
+                Notifications
+              </button>
+
+              <div className="h-px bg-slate-100 dark:bg-slate-850 my-1" />
+
+              <button
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent("sidebar-create-server"));
+                  hideMenu();
+                }}
+                className="w-full px-3 py-2 text-left hover:bg-slate-100/80 dark:hover:bg-slate-800/80 rounded-xl flex items-center gap-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-colors"
+              >
+                <Plus size={15} className="text-emerald-500" />
+                Create a Server
+              </button>
+
+              <button
+                onClick={() => {
+                  logout();
+                  hideMenu();
+                }}
+                className="w-full px-3 py-2 text-left hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl flex items-center gap-2.5 text-xs font-semibold text-red-600 dark:text-red-400 transition-colors"
+              >
+                <LogOut size={15} className="text-red-500" />
+                Log Out Account
+              </button>
+            </>
+          )}
+
+          {/* 10. Navbar Context Menu */}
+          {menu.type === "navbar" && (
+            <>
+              {authUser && (
+                <button
+                  onClick={() => {
+                    window.dispatchEvent(new CustomEvent("navbar-status-modal"));
+                    hideMenu();
+                  }}
+                  className="w-full px-3 py-2 text-left hover:bg-slate-100/80 dark:hover:bg-slate-800/80 rounded-xl flex items-center gap-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-colors"
+                >
+                  <MessageCircle size={15} className="text-blue-500" />
+                  Update Status message
+                </button>
+              )}
+
+              <button
+                onClick={() => {
+                  navigate("/settings");
+                  hideMenu();
+                }}
+                className="w-full px-3 py-2 text-left hover:bg-slate-100/80 dark:hover:bg-slate-800/80 rounded-xl flex items-center gap-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-colors"
+              >
+                <Settings size={15} className="text-slate-400" />
+                Go to Settings
+              </button>
+
+              {authUser && (
+                <>
+                  <div className="h-px bg-slate-100 dark:bg-slate-850 my-1" />
+
+                  <button
+                    onClick={() => {
+                      logout();
+                      hideMenu();
+                    }}
+                    className="w-full px-3 py-2 text-left hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl flex items-center gap-2.5 text-xs font-semibold text-red-600 dark:text-red-400 transition-colors"
+                  >
+                    <LogOut size={15} className="text-red-500" />
+                    Log Out Account
+                  </button>
+                </>
+              )}
             </>
           )}
 

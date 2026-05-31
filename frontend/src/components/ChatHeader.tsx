@@ -2,6 +2,7 @@ import { X, Search, MoreVertical, Phone, Video, Menu, ArrowLeft, MoreHorizontal 
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
 import { IconButton } from "./ui";
+import { getUserHandle } from "../lib/utils";
 
 const ChatHeader = ({ onSearchClick, onPinnedClick, onBurgerClick, onAvatarClick, onMoreClick }) => {
    const { selectedUser, setSelectedUser, userStatus } = useChatStore();
@@ -37,8 +38,9 @@ const ChatHeader = ({ onSearchClick, onPinnedClick, onBurgerClick, onAvatarClick
 
           {/* User info */}
           <div className="flex-1 min-w-0 text-left cursor-pointer" onClick={onAvatarClick}>
-            <h3 className="font-bold text-[17px] text-slate-900 dark:text-slate-100 leading-tight truncate">
+            <h3 className="font-bold text-[17px] text-slate-900 dark:text-slate-100 leading-tight truncate flex items-center gap-1.5">
               {selectedUser.fullName}
+              <span className="text-[12px] text-slate-400 font-bold opacity-85">{getUserHandle(selectedUser)}</span>
             </h3>
             <div className="flex items-center gap-1.5 mt-0.5">
               <span className={`text-[12px] font-medium ${isOnline ? "text-[#00FF88]" : "text-slate-400"}`}>

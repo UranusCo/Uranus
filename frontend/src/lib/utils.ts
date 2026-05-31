@@ -20,3 +20,17 @@ export function formatDistanceToNow(date: string | Date): string {
   if (days < 7) return `${days}d ago`;
   return new Date(date).toLocaleDateString();
 }
+
+export function getUserHandle(user: any): string {
+  if (!user) return "";
+  if (user.handle) return user.handle;
+  if (user.email) {
+    const handlePart = user.email.split("@")[0];
+    return `@${handlePart.toLowerCase()}`;
+  }
+  if (user.fullName) {
+    const handlePart = user.fullName.replace(/\s+/g, "").toLowerCase();
+    return `@${handlePart}`;
+  }
+  return "@user";
+}

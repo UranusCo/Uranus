@@ -14,10 +14,18 @@ const ChatInfoModal = ({ open, onClose, user, chatSettings }) => {
     };
   }, []);
 
+  useEffect(() => {
+    if (!open || !user) return;
+    const handleClose = () => onClose();
+    window.addEventListener("close-active-modal", handleClose);
+    return () => window.removeEventListener("close-active-modal", handleClose);
+  }, [open, user, onClose]);
+
   if (!open || !user || !portalRoot) return null;
 
   return createPortal(
     <div
+      data-context="modal"
       className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4"
       role="dialog"
       aria-modal="true"

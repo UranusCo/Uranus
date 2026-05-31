@@ -8,7 +8,7 @@ import { Avatar } from "./ui/BlinkComponents";
 import { Button } from "./ui";
 import Input from "./ui/Input";
 import { Search, Edit3, Zap, MoreHorizontal, CheckCircle2, MessageSquare } from "lucide-react";
-import { formatMessageTime } from "../lib/utils";
+import { formatMessageTime, getUserHandle } from "../lib/utils";
 
   const ConversationList = () => {
   const {
@@ -136,8 +136,9 @@ import { formatMessageTime } from "../lib/utils";
 
         <div className="flex-1 min-w-0 text-left">
           <div className="flex justify-between items-center mb-1">
-            <h3 className="font-semibold text-slate-900 dark:text-slate-100 truncate text-[16px]">
+            <h3 className="font-semibold text-slate-900 dark:text-slate-100 truncate text-[16px] flex items-center gap-1.5">
               {user.fullName}
+              <span className="text-[11px] text-slate-400 font-bold opacity-85">{getUserHandle(user)}</span>
             </h3>
             <span className="text-[12px] text-slate-400 font-medium">{lastTime}</span>
           </div>

@@ -14,7 +14,7 @@ import {
   Inbox,
   Globe,
 } from "lucide-react";
-
+import { getUserHandle } from "../lib/utils";
 const UsersPanel = ({ setActiveTab }) => {
   const { getUsers, users, isUsersLoading, setSelectedUser } = useChatStore();
   const { authUser } = useAuthStore();
@@ -35,6 +35,20 @@ const UsersPanel = ({ setActiveTab }) => {
   useEffect(() => {
     getUsers();
   }, [getUsers]);
+
+  useEffect(() => {
+    const handleExplore = () => setActiveSubTab("explore");
+    const handleFriends = () => setActiveSubTab("friends");
+    const handleRequests = () => setActiveSubTab("requests");
+    window.addEventListener("friends-tab-explore", handleExplore);
+    window.addEventListener("friends-tab-friends", handleFriends);
+    window.addEventListener("friends-tab-requests", handleRequests);
+    return () => {
+      window.removeEventListener("friends-tab-explore", handleExplore);
+      window.removeEventListener("friends-tab-friends", handleFriends);
+      window.removeEventListener("friends-tab-requests", handleRequests);
+    };
+  }, []);
 
   // Filter out self and blocked users
   const isUserBlocked = (userId) => {
@@ -84,7 +98,7 @@ const UsersPanel = ({ setActiveTab }) => {
   const totalRequestsCount = requests.length;
 
   return (
-    <div className="h-full w-full bg-white dark:bg-slate-800 flex flex-col transition-all duration-200 border-r border-slate-200 dark:border-slate-700 select-none animate-fadeIn">
+    <div data-context="friends-section" className="h-full w-full bg-white dark:bg-slate-800 flex flex-col transition-all duration-200 border-r border-slate-200 dark:border-slate-700 select-none animate-fadeIn">
       {/* Header */}
       <div className="px-5 pt-6 pb-4 flex-shrink-0">
         <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
@@ -202,6 +216,7 @@ const UsersPanel = ({ setActiveTab }) => {
                     <div className="min-w-0">
                       <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 truncate flex items-center gap-1.5">
                         {user.fullName}
+                        <span className="text-[11px] text-slate-400 font-bold opacity-80">{getUserHandle(user)}</span>
                         {isHelpCenter && (
                           <span className="text-[10px] bg-blue-500/10 text-blue-500 dark:text-blue-400 border border-blue-500/20 px-1.5 py-0.5 rounded-full font-bold select-none">
                             Support
@@ -319,8 +334,9 @@ const UsersPanel = ({ setActiveTab }) => {
                             )}
                           </div>
                           <div className="min-w-0">
-                            <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 truncate">
+                            <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 truncate flex items-center gap-1.5">
                               {requester.fullName}
+                              <span className="text-[11px] text-slate-400 font-bold opacity-80">{getUserHandle(requester)}</span>
                             </h4>
                             <p className="text-[11px] text-slate-400 dark:text-slate-500 truncate font-semibold mt-0.5">
                               {requester.email}
@@ -386,8 +402,9 @@ const UsersPanel = ({ setActiveTab }) => {
                             )}
                           </div>
                           <div className="min-w-0">
-                            <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 truncate">
+                            <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 truncate flex items-center gap-1.5">
                               {receiver.fullName}
+                              <span className="text-[11px] text-slate-400 font-bold opacity-80">{getUserHandle(receiver)}</span>
                             </h4>
                             <p className="text-[11px] text-slate-400 dark:text-slate-500 truncate font-semibold mt-0.5">
                               {receiver.email}

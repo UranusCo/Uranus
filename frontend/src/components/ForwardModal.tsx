@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
 import { X, Search, Loader } from "lucide-react";
@@ -45,8 +45,19 @@ const ForwardModal = ({ messageId, onClose }) => {
     }
   };
 
+  useEffect(() => {
+    const handleClose = () => onClose();
+    const handleSubmit = () => handleForward();
+    window.addEventListener("close-active-modal", handleClose);
+    window.addEventListener("submit-active-modal", handleSubmit);
+    return () => {
+      window.removeEventListener("close-active-modal", handleClose);
+      window.removeEventListener("submit-active-modal", handleSubmit);
+    };
+  }, [onClose, handleForward]);
+
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-all duration-200">
+    <div data-context="modal" className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-all duration-200">
       <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 w-full max-w-md p-6 shadow-2xl overflow-hidden animate-fadeIn">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Forward Message</h3>

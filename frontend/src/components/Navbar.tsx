@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
 import { LogOut, Settings, User, MessageCircle, Search } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import StatusUpdateModal from "./StatusUpdateModal";
 import NotificationBell from "./NotificationBell";
 
@@ -10,6 +10,12 @@ const Navbar = () => {
   const { logout, authUser } = useAuthStore();
   const [showStatusModal, setShowStatusModal] = useState(false);
 
+  useEffect(() => {
+    const openStatus = () => setShowStatusModal(true);
+    window.addEventListener("navbar-status-modal", openStatus);
+    return () => window.removeEventListener("navbar-status-modal", openStatus);
+  }, []);
+
   return (
     <>
       {showStatusModal && (
@@ -17,6 +23,7 @@ const Navbar = () => {
       )}
       
       <header
+        data-context="navbar"
         className="bg-surface/80 dark:bg-surface-dark/80 border-b border-border dark:border-border-dark fixed w-full top-0 z-40 backdrop-blur-md transition-colors duration-200"
       >
         <div className="container mx-auto px-4 h-16">

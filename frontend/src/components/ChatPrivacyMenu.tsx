@@ -30,7 +30,6 @@ const ChatPrivacyMenu = ({
   const [pin, setPin] = useState("");
   const [locked, setLocked] = useState(isLocked);
   const [statusMessage, setStatusMessage] = useState("");
-
   useEffect(() => {
     setLocked(isLocked);
     if (selectedUser) {
@@ -40,6 +39,15 @@ const ChatPrivacyMenu = ({
       }
     }
   }, [selectedUser, chatSettings, isLocked]);
+
+  useEffect(() => {
+    if (!open || !selectedUser) return;
+    const handleClose = () => onClose();
+    window.addEventListener("close-active-modal", handleClose);
+    return () => {
+      window.removeEventListener("close-active-modal", handleClose);
+    };
+  }, [open, selectedUser, onClose]);
 
   const handleSaveExpiry = async () => {
     if (!selectedUser) return;
@@ -72,6 +80,7 @@ const ChatPrivacyMenu = ({
 
   return (
     <div 
+      data-context="modal"
       className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm sm:p-4 transition-all duration-200"
       onClick={onClose}
     >

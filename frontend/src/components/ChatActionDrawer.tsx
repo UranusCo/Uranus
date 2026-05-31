@@ -1,5 +1,5 @@
 import { X, Download, Pin, Shield, User, Info, Search } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ExportChatModal from "./ExportChatModal";
 import ChatPrivacyMenu from "./ChatPrivacyMenu";
 import UserProfileModal from "./UserProfileModal";
@@ -20,6 +20,12 @@ const ChatActionDrawer = ({
 }) => {
   const [activePanel, setActivePanel] = useState(null);
   const isLocked = selectedUser ? lockedChats.some((chat) => chat._id === selectedUser._id) : false;
+
+  useEffect(() => {
+    const handleClose = () => onClose();
+    window.addEventListener("close-active-modal", handleClose);
+    return () => window.removeEventListener("close-active-modal", handleClose);
+  }, [onClose]);
 
   if (!open) return null;
 
@@ -125,7 +131,7 @@ const ChatActionDrawer = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center animate-fadeIn">
+    <div data-context="modal" className="fixed inset-0 z-[9999] bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center animate-fadeIn">
       <div className="w-full sm:w-80 bg-white dark:bg-slate-800 rounded-t-3xl sm:rounded-3xl shadow-2xl p-4 max-h-[70vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4 px-2">
           <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">

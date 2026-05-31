@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useChatStore } from "../store/useChatStore";
 import { X, Loader } from "lucide-react";
 import toast from "react-hot-toast";
@@ -35,8 +35,19 @@ const StatusUpdateModal = ({ onClose }) => {
     }
   };
 
+  useEffect(() => {
+    const handleClose = () => onClose();
+    const handleSubmit = () => handleUpdate();
+    window.addEventListener("close-active-modal", handleClose);
+    window.addEventListener("submit-active-modal", handleSubmit);
+    return () => {
+      window.removeEventListener("close-active-modal", handleClose);
+      window.removeEventListener("submit-active-modal", handleSubmit);
+    };
+  }, [onClose, handleUpdate]);
+
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-all duration-200">
+    <div data-context="modal" className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-all duration-200">
       <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-md border border-slate-200/50 dark:border-slate-700/50 p-6 overflow-hidden animate-fadeIn">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Update Status</h3>

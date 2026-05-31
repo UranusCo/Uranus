@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
@@ -49,9 +49,28 @@ const SidebarRail = ({ activeTab = "chats", setActiveTab = () => {}, forceShow =
       .toUpperCase();
   };
 
+  useEffect(() => {
+    const showChats = () => { setSelectedWorkspace(null); setActiveTab("chats"); };
+    const showUsers = () => { setSelectedWorkspace(null); setActiveTab("users"); };
+    const showNotifs = () => { setSelectedWorkspace(null); setActiveTab("notifications"); };
+    const createWS = () => setShowCreateModal(true);
+
+    window.addEventListener("sidebar-tab-chats", showChats);
+    window.addEventListener("sidebar-tab-users", showUsers);
+    window.addEventListener("sidebar-tab-notifications", showNotifs);
+    window.addEventListener("sidebar-create-server", createWS);
+
+    return () => {
+      window.removeEventListener("sidebar-tab-chats", showChats);
+      window.removeEventListener("sidebar-tab-users", showUsers);
+      window.removeEventListener("sidebar-tab-notifications", showNotifs);
+      window.removeEventListener("sidebar-create-server", createWS);
+    };
+  }, [setActiveTab, setSelectedWorkspace]);
+
   return (
     <>
-      <aside className={`${forceShow ? "flex" : "hidden lg:flex"} flex-col items-center py-5 w-16 h-full bg-slate-900 border-r border-slate-800 justify-between flex-shrink-0 z-30 select-none transition-colors duration-200`}>
+      <aside data-context="sidebar" className={`${forceShow ? "flex" : "hidden lg:flex"} flex-col items-center py-5 w-16 h-full bg-slate-900 border-r border-slate-800 justify-between flex-shrink-0 z-30 select-none transition-colors duration-200`}>
         <div className="flex flex-col items-center gap-4 w-full">
           {/* Chats / Home */}
 <button

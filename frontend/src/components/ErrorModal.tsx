@@ -164,8 +164,20 @@ const ErrorModal = ({ error, onClose, onRetry }) => {
     }
   };
 
+  useEffect(() => {
+    if (!error) return;
+    const handleCloseEv = () => handleClose();
+    const handleSubmitEv = () => handleRetry();
+    window.addEventListener("close-active-modal", handleCloseEv);
+    window.addEventListener("submit-active-modal", handleSubmitEv);
+    return () => {
+      window.removeEventListener("close-active-modal", handleCloseEv);
+      window.removeEventListener("submit-active-modal", handleSubmitEv);
+    };
+  }, [error, handleClose, handleRetry]);
+
   return (
-    <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-300 ${
+    <div data-context="modal" className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-300 ${
       isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'
     }`}>
       {/* Backdrop */}

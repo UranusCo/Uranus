@@ -16,10 +16,19 @@ const UserProfileModal = ({ open, onClose, user }) => {
     };
   }, []);
 
+  useEffect(() => {
+    if (!open || !user) return;
+    const handleClose = () => onClose();
+    window.addEventListener("close-active-modal", handleClose);
+    return () => {
+      window.removeEventListener("close-active-modal", handleClose);
+    };
+  }, [open, user, onClose]);
+
   if (!open || !user || !portalRoot) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/70 backdrop-blur-md p-4 transition-all duration-200">
+    <div data-context="modal" className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/70 backdrop-blur-md p-4 transition-all duration-200">
       <div className="w-full max-w-md rounded-[32px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl overflow-hidden animate-fadeIn max-h-[90vh] flex flex-col">
         
         {/* Top bar with back/close */}

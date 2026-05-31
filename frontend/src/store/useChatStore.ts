@@ -135,7 +135,17 @@ export const useChatStore = create<ChatState>((set, get) => ({
     set({ isUsersLoading: true });
     try {
       const res = await axiosInstance.get("/messages/users");
-      set({ users: res.data });
+      const usersList = res.data;
+      set({ users: usersList });
+
+      // Auto-restore selected user from localStorage
+      const savedUserId = localStorage.getItem("lastSelectedUserId");
+      if (savedUserId) {
+        const found = usersList.find((u: any) => u._id === savedUserId);
+        if (found) {
+          get().setSelectedUser(found);
+        }
+      }
     } catch (error: any) {
       useErrorStore.getState().handleApiError(error, "load users");
     } finally {
@@ -757,6 +767,12 @@ export const useChatStore = create<ChatState>((set, get) => ({
       editingMessageId: null, 
       replyingToMessage: null 
     });
+
+    if (selectedUser) {
+      localStorage.setItem("lastSelectedUserId", selectedUser._id);
+    } else {
+      localStorage.removeItem("lastSelectedUserId");
+    }
   },
 
   clearSearch: () => {
