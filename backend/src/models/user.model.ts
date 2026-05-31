@@ -86,7 +86,7 @@ const userSchema = new Schema<IUserDocument>(
     },
     privateProfile: {
       type: new Schema({
-        bio: { type: String, default: '' },
+      isPrivate: { type: Boolean, default: false },
         avatar: { type: String, default: '' },
       }, { _id: false }),
       default: {},

@@ -107,6 +107,32 @@ export const getUserByUsername = catchAsync(async (req: AuthRequest, res: Respon
   res.status(200).json(user);
 });
 
+export const updateProfile = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
+  const allowedUpdates = ['username', 'handle', 'publicProfile', 'privateProfile'];
+  const updates = req.body;
+  const updateData: any = {};
+  // Filter allowed fields
+  for (const key of allowedUpdates) {
+    if (updates[key] !== undefined) {
+      updateData[key] = updates[key];
+    }
+  }
+  // Ensure uniqueness for username and handle if provided
+  if (updateData.username) {
+    const existing = await User.findOne({ username: updateData.username, _id: { $ne: req.user!._id } });
+    if (existing) return next(new AppError('Username already taken', 400));
+  }
+  if (updateData.handle) {
+    const existing = await User.findOne({ handle: updateData.handle, _id: { $ne: req.user!._id } });
+    if (existing) return next(new AppError('Handle already taken', 400));
+  }
+  const updatedUser = await User.findByIdAndUpdate(req.user!._id, updateData, { new: true, runValidators: true })
+    .select('-password');
+  res.status(200).json(updatedUser);
+});
+
 export const checkAuth = (req: AuthRequest, res: Response) => {
   res.status(200).json(req.user);
+};
+
 };
