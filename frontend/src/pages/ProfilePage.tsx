@@ -85,11 +85,61 @@ const ProfilePage = () => {
                 <Mail className="w-4 h-4" />
                 Email Address
               </div>
-              <p className="px-4 py-2.5 bg-slate-50 dark:bg-slate-900/40 rounded-xl border border-slate-200 dark:border-slate-700 font-semibold text-slate-800 dark:text-slate-100 text-sm">{authUser?.email}</p>
+              <p className="px-4 py-2.5 bg-slate-50 dark:bg-slate-900/40 rounded-xl border border-slate-200 dark:border-slate-700 font-semibold text-slate-800 dark:text-slate-100 text-sm">
+                {authUser?.email}
+              </p>
             </div>
-          </div>
+            <div className="space-y-1.5 mt-4">
+              <div className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                Username
+              </div>
+              <input
+                type="text"
+                value={authUser?.username || ''}
+                onChange={(e) => updateProfile({ username: e.target.value })}
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900/40 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100"
+              />
+            </div>
+            <div className="space-y-1.5 mt-4">
+              <div className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                Handle
+              </div>
+              <input
+                type="text"
+                value={authUser?.handle || ''}
+                onChange={(e) => updateProfile({ handle: e.target.value })}
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900/40 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100"
+              />
+            </div>
+            <div className="space-y-1.5 mt-4">
+              <div className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                Bio
+              </div>
+              <textarea
+                rows={3}
+                value={authUser?.publicProfile?.bio || ''}
+                onChange={(e) => updateProfile({ publicProfile: { bio: e.target.value } })}
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900/40 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100"
+              />
+            </div>
 
-          <div className="mt-6 bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-slate-200/50 dark:border-slate-700/50 p-6">
+          <div className="space-y-1.5 mt-4">
+  <div className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-2">
+    Private Profile
+  </div>
+  <label className="inline-flex items-center">
+    <input
+      type="checkbox"
+      checked={authUser?.privateProfile?.isPrivate || false}
+      onChange={(e) =>
+        updateProfile({ privateProfile: { isPrivate: e.target.checked } })
+      }
+      className="form-checkbox h-4 w-4 text-primary bg-slate-100 border-slate-300 rounded"
+    />
+    <span className="ml-2 text-sm text-slate-800 dark:text-slate-200">Enable private profile</span>
+  </label>
+</div>
+<div className="mt-6 bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-slate-200/50 dark:border-slate-700/50 p-6">
             <h2 className="text-xs font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wider mb-4">Account Information</h2>
             <div className="space-y-3 text-sm">
               <div className="flex items-center justify-between py-2 border-b border-slate-200 dark:border-slate-700 text-slate-750 dark:text-slate-200 font-medium">

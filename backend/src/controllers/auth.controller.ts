@@ -87,22 +87,24 @@ export const logout = (req: AuthRequest, res: Response) => {
   res.status(200).json({ message: "Logged out successfully" });
 };
 
-export const updateProfile = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
-  const { profilePic } = req.body;
-  const userId = req.user?._id;
-
-  if (!profilePic) {
-    return next(new AppError("Profile pic is required", 400));
+export const getUserByUsername = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
+  const { username } = req.params;
+  const requesterId = req.user?._id;
+  const user = await User.findOne({ username })
+    .select('-password -email')
+    .lean();
+  if (!user) {
+    return next(new AppError('User not found', 404));
   }
-
-  const uploadResponse = await cloudinary.uploader.upload(profilePic);
-  const updatedUser = await User.findByIdAndUpdate(
-    userId,
-    { profilePic: uploadResponse.secure_url },
-    { new: true }
-  ).select("-password");
-
-  res.status(200).json(updatedUser);
+  // If privateProfile exists, check visibility
+  if (user.privateProfile && user.allowedViewers && requesterId) {
+    const isAllowed = user.allowedViewers.some((id: any) => id.equals(requesterId));
+    if (!isAllowed) {
+      // hide private data
+      delete user.privateProfile;
+    }
+  }
+  res.status(200).json(user);
 });
 
 export const checkAuth = (req: AuthRequest, res: Response) => {

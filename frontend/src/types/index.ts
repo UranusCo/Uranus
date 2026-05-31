@@ -19,6 +19,18 @@ export interface IUser {
   };
   createdAt: string;
   updatedAt: string;
+  // New fields for profile management
+  username?: string;
+  handle?: string;
+  publicProfile?: {
+    bio?: string;
+    avatar?: string;
+  };
+  privateProfile?: {
+    bio?: string;
+    avatar?: string;
+  };
+  allowedViewers?: string[];
 }
 
 export interface IMessage {

@@ -67,6 +67,31 @@ const userSchema = new Schema<IUserDocument>(
       of: Schema.Types.Mixed,
       default: new Map(),
     },
+    username: {
+      type: String,
+      unique: true,
+      required: true,
+    },
+    handle: {
+      type: String,
+      unique: true,
+      required: true,
+    },
+    publicProfile: {
+      type: new Schema({
+        bio: { type: String, default: '' },
+        avatar: { type: String, default: '' },
+      }, { _id: false }),
+      default: {},
+    },
+    privateProfile: {
+      type: new Schema({
+        bio: { type: String, default: '' },
+        avatar: { type: String, default: '' },
+      }, { _id: false }),
+      default: {},
+    },
+    allowedViewers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   },
   { timestamps: true }
 );
