@@ -10,7 +10,7 @@ import Input from "./ui/Input";
 import { Search, Edit3, Zap, MoreHorizontal, CheckCircle2, MessageSquare } from "lucide-react";
 import { formatMessageTime } from "../lib/utils";
 
-const ConversationList = () => {
+  const ConversationList = () => {
   const {
     getUsers,
     users,
@@ -24,29 +24,7 @@ const ConversationList = () => {
   const { friends, requests, sentRequests, fetchFriends, fetchRequests } = useFriendStore();
   const { onlineUsers, authUser } = useAuthStore();
   const [searchInput, setSearchInput] = useState("");
-  const [activeContextMenu, setActiveContextMenu] = useState(null);
-  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const searchRef = useRef(null);
-  
-  const handleContextMenu = (e, userId) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    const menuWidth = 180;
-    const menuHeight = 200;
-    const offset = 8;
-    
-    let top = e.clientY;
-    let left = e.clientX;
-    
-    if (top + menuHeight > window.innerHeight) top = window.innerHeight - menuHeight - offset;
-    if (left + menuWidth > window.innerWidth) left = window.innerWidth - menuWidth - offset;
-    
-    setMenuPosition({ top, left });
-    setActiveContextMenu(userId);
-  };
-
-  const closeContextMenu = () => setActiveContextMenu(null);
   
   useEffect(() => {
     getUsers();
@@ -140,8 +118,9 @@ const ConversationList = () => {
     return (
       <button
         key={user._id}
+        data-context="conversation"
+        data-user-id={user._id}
         onClick={() => setSelectedUser(user)}
-        onContextMenu={(e) => handleContextMenu(e, user._id)}
         className={`w-full flex items-center gap-4 px-5 py-4 transition-all duration-200 border-b border-slate-50 dark:border-slate-800/50 relative overflow-hidden group ${
           isSelected 
             ? "bg-slate-50 dark:bg-slate-800/50" 
@@ -249,38 +228,6 @@ const ConversationList = () => {
           )}
         </div>
       </div>
-
-      {activeContextMenu && (
-        <>
-          <div className="fixed inset-0 z-[9998]" onClick={closeContextMenu} />
-          <div 
-            className="fixed z-[9999] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-2xl py-2 min-w-[200px] animate-in fade-in zoom-in-95 duration-200"
-            style={{ top: menuPosition.top, left: menuPosition.left }}
-          >
-            {[
-              { label: "Pin to top", icon: "Pin" },
-              { label: "Mute notifications", icon: "BellOff" },
-              { label: "Mark as read", icon: "CheckCircle", action: () => setSelectedUser(users.find(u => u._id === activeContextMenu)) },
-              { label: "Mark as unread", icon: "Circle", action: () => markAsUnread(activeContextMenu) },
-              { label: "Archive chat", icon: "Archive" },
-              { label: "Delete", icon: "Trash2", danger: true }
-            ].map((item, idx) => (
-              <button
-                key={item.label}
-                className={`w-full px-4 py-2.5 text-left text-[14px] flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors ${
-                  item.danger ? "text-red-500 font-medium" : "text-slate-700 dark:text-slate-300"
-                } ${idx === 4 ? "border-b border-slate-50 dark:border-slate-800 mb-1" : ""}`}
-                onClick={() => {
-                  if (item.action) item.action();
-                  closeContextMenu();
-                }}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-        </>
-      )}
     </aside>
   );
 };

@@ -15,8 +15,8 @@ const MessageItem = ({
   messages,
   selectedUser, 
   activeMessageMenu, 
-  openMessageMenu, 
-  closeMessageMenu,
+  openMessageMenu = () => {}, 
+  closeMessageMenu = () => {},
   handleLongPressStart = () => {},
   handleLongPressEnd = () => {},
   addReaction,
@@ -46,13 +46,15 @@ const MessageItem = ({
     }
   };
 
-  const isNextSameSender = messages && index < messagesLength - 1 &&
-    messages[index + 1]?.senderId === message.senderId &&
-    !messages[index + 1]?.isDeleted;
+  const isNextSameSender = Array.isArray(messages) && index < messagesLength - 1 &&
+    messages[index + 1] &&
+    messages[index + 1].senderId === message.senderId &&
+    !messages[index + 1].isDeleted;
 
-  const isPrevSameSender = messages && index > 0 &&
-    messages[index - 1]?.senderId === message.senderId &&
-    !messages[index - 1]?.isDeleted;
+  const isPrevSameSender = Array.isArray(messages) && index > 0 &&
+    messages[index - 1] &&
+    messages[index - 1].senderId === message.senderId &&
+    !messages[index - 1].isDeleted;
 
   const showAvatar = !isSelf && !isNextSameSender;
   const showNameHeader = !isSelf && (!isPrevSameSender || message.isDeleted);
@@ -72,6 +74,8 @@ const MessageItem = ({
 
   return (
     <div
+      data-context="message"
+      data-message-id={message._id}
       className={`flex flex-col ${isSelf ? "items-end" : "items-start"} w-full message-item group/msg ${marginBottom}`}
       style={{
         animation: `messageEntry 0.25s cubic-bezier(0.16, 1, 0.3, 1) ${Math.min(index * 0.015, 0.3)}s both`,
@@ -196,7 +200,6 @@ const MessageContent = ({
         <div
           className={`${commonBubbleClasses}`}
           onDoubleClick={handleDoubleClick}
-          onContextMenu={handleContextMenu}
           onTouchStart={message.isDeleted ? undefined : (e) => { e.stopPropagation(); handleLongPressStart?.(message._id); }}
           onTouchEnd={message.isDeleted ? undefined : handleLongPressEnd}
           onTouchMove={message.isDeleted ? undefined : handleLongPressEnd}

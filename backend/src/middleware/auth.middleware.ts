@@ -24,7 +24,12 @@ export const protectRoute = catchAsync(async (req: AuthRequest, res: Response, n
     return next(new AppError("Unauthorized - No Token Provided", 401));
   }
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
+  let decoded;
+  try {
+    decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
+  } catch (err) {
+    return next(new AppError("Unauthorized - Invalid Token", 401));
+  }
 
   if (!decoded) {
     return next(new AppError("Unauthorized - Invalid Token", 401));

@@ -182,6 +182,8 @@ const UsersPanel = ({ setActiveTab }) => {
               return (
                 <div
                   key={user._id}
+                  data-context="conversation"
+                  data-user-id={user._id}
                   className="flex items-center justify-between p-3.5 bg-slate-50/60 dark:bg-slate-900/20 border border-slate-100 dark:border-slate-800 rounded-2xl transition-all hover:bg-slate-50 dark:hover:bg-slate-900/40"
                 >
                   <div className="flex items-center gap-3 min-w-0">
@@ -299,6 +301,8 @@ const UsersPanel = ({ setActiveTab }) => {
                     return (
                       <div
                         key={requester._id}
+                        data-context="conversation"
+                        data-user-id={requester._id}
                         className="flex items-center justify-between p-3.5 bg-slate-50/60 dark:bg-slate-900/20 border border-slate-100 dark:border-slate-800 rounded-2xl"
                       >
                         <div className="flex items-center gap-3 min-w-0">
@@ -364,6 +368,8 @@ const UsersPanel = ({ setActiveTab }) => {
                     return (
                       <div
                         key={receiver._id}
+                        data-context="conversation"
+                        data-user-id={receiver._id}
                         className="flex items-center justify-between p-3.5 bg-slate-50/60 dark:bg-slate-900/20 border border-slate-100 dark:border-slate-800 rounded-2xl"
                       >
                         <div className="flex items-center gap-3 min-w-0">

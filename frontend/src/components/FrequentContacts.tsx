@@ -10,6 +10,8 @@ const FrequentContacts = ({ users, onSelectUser }) => {
         {users.map((user) => (
           <button
             key={user._id}
+            data-context="conversation"
+            data-user-id={user._id}
             onClick={() => onSelectUser(user)}
             className="flex flex-col items-center gap-2 group flex-shrink-0"
           >
