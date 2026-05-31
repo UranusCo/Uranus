@@ -111,6 +111,7 @@ const App: React.FC = () => {
 
         <Routes>
           <Route path="/" element={authUser ? <AppLayout /> : <Navigate to="/login" />} />
+          <Route path="/u/:username" element={authUser ? <AppLayout /> : <Navigate to="/login" />} />
           <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to="/" />} />
           <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
           <Route path="/settings" element={<SettingsPage />} />

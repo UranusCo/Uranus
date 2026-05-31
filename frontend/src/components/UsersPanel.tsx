@@ -15,6 +15,7 @@ import {
   Globe,
 } from "lucide-react";
 import { getUserHandle } from "../lib/utils";
+import { Link } from "react-router-dom";
 const UsersPanel = ({ setActiveTab }) => {
   const { getUsers, users, isUsersLoading, setSelectedUser } = useChatStore();
   const { authUser } = useAuthStore();
@@ -216,7 +217,13 @@ const UsersPanel = ({ setActiveTab }) => {
                     <div className="min-w-0">
                       <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 truncate flex items-center gap-1.5">
                         {user.fullName}
-                        <span className="text-[11px] text-slate-400 font-bold opacity-80">{getUserHandle(user)}</span>
+                        <Link
+                          to={`/u/${getUserHandle(user).replace("@", "")}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-[11px] text-primary hover:underline font-bold opacity-80"
+                        >
+                          {getUserHandle(user)}
+                        </Link>
                         {isHelpCenter && (
                           <span className="text-[10px] bg-blue-500/10 text-blue-500 dark:text-blue-400 border border-blue-500/20 px-1.5 py-0.5 rounded-full font-bold select-none">
                             Support
@@ -336,7 +343,13 @@ const UsersPanel = ({ setActiveTab }) => {
                           <div className="min-w-0">
                             <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 truncate flex items-center gap-1.5">
                               {requester.fullName}
-                              <span className="text-[11px] text-slate-400 font-bold opacity-80">{getUserHandle(requester)}</span>
+                              <Link
+                                to={`/u/${getUserHandle(requester).replace("@", "")}`}
+                                onClick={(e) => e.stopPropagation()}
+                                className="text-[11px] text-primary hover:underline font-bold opacity-80"
+                              >
+                                {getUserHandle(requester)}
+                              </Link>
                             </h4>
                             <p className="text-[11px] text-slate-400 dark:text-slate-500 truncate font-semibold mt-0.5">
                               {requester.email}
@@ -404,7 +417,13 @@ const UsersPanel = ({ setActiveTab }) => {
                           <div className="min-w-0">
                             <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 truncate flex items-center gap-1.5">
                               {receiver.fullName}
-                              <span className="text-[11px] text-slate-400 font-bold opacity-80">{getUserHandle(receiver)}</span>
+                              <Link
+                                to={`/u/${getUserHandle(receiver).replace("@", "")}`}
+                                onClick={(e) => e.stopPropagation()}
+                                className="text-[11px] text-primary hover:underline font-bold opacity-80"
+                              >
+                                {getUserHandle(receiver)}
+                              </Link>
                             </h4>
                             <p className="text-[11px] text-slate-400 dark:text-slate-500 truncate font-semibold mt-0.5">
                               {receiver.email}

@@ -3,6 +3,7 @@ import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
 import { useFriendStore } from "../store/useFriendStore";
 import SidebarSkeleton from "./skeletons/SidebarSkeleton";
+import { Link } from "react-router-dom";
 import FrequentContacts from "./FrequentContacts";
 import { Avatar } from "./ui/BlinkComponents";
 import { Button } from "./ui";
@@ -138,7 +139,13 @@ import { formatMessageTime, getUserHandle } from "../lib/utils";
           <div className="flex justify-between items-center mb-1">
             <h3 className="font-semibold text-slate-900 dark:text-slate-100 truncate text-[16px] flex items-center gap-1.5">
               {user.fullName}
-              <span className="text-[11px] text-slate-400 font-bold opacity-85">{getUserHandle(user)}</span>
+              <Link
+                to={`/u/${getUserHandle(user).replace("@", "")}`}
+                onClick={(e) => e.stopPropagation()}
+                className="text-[11px] text-primary hover:underline font-bold opacity-85"
+              >
+                {getUserHandle(user)}
+              </Link>
             </h3>
             <span className="text-[12px] text-slate-400 font-medium">{lastTime}</span>
           </div>

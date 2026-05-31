@@ -1,5 +1,6 @@
 import { X, Search, MoreVertical, Phone, Video, Menu, ArrowLeft, MoreHorizontal } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
+import { Link } from "react-router-dom";
 import { useChatStore } from "../store/useChatStore";
 import { IconButton } from "./ui";
 import { getUserHandle } from "../lib/utils";
@@ -40,7 +41,13 @@ const ChatHeader = ({ onSearchClick, onPinnedClick, onBurgerClick, onAvatarClick
           <div className="flex-1 min-w-0 text-left cursor-pointer" onClick={onAvatarClick}>
             <h3 className="font-bold text-[17px] text-slate-900 dark:text-slate-100 leading-tight truncate flex items-center gap-1.5">
               {selectedUser.fullName}
-              <span className="text-[12px] text-slate-400 font-bold opacity-85">{getUserHandle(selectedUser)}</span>
+              <Link
+                to={`/u/${getUserHandle(selectedUser).replace("@", "")}`}
+                onClick={(e) => e.stopPropagation()}
+                className="text-[12px] text-primary hover:underline font-bold opacity-85"
+              >
+                {getUserHandle(selectedUser)}
+              </Link>
             </h3>
             <div className="flex items-center gap-1.5 mt-0.5">
               <span className={`text-[12px] font-medium ${isOnline ? "text-[#00FF88]" : "text-slate-400"}`}>

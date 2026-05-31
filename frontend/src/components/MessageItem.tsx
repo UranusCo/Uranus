@@ -1,6 +1,7 @@
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
-import { formatMessageTime } from "../lib/utils";
+import { formatMessageTime, getUserHandle } from "../lib/utils";
+import { Link } from "react-router-dom";
 
 import { Paperclip, Check, CheckCheck, MoreVertical, Pin, ChevronDown } from "lucide-react";
 import MessageReactions from "./MessageReactions";
@@ -183,8 +184,15 @@ const MessageContent = ({
     <>
       {/* Header: Sender name */}
       {showNameHeader && !message.isDeleted && (
-        <div className="flex items-center gap-1.5 mb-1 px-1 text-[12px] text-primary font-bold select-none">
-          {selectedUser?.fullName}
+        <div className="flex items-center gap-2 mb-1 px-1 text-[12px] text-primary font-bold select-none">
+          <span>{selectedUser?.fullName}</span>
+          <Link
+            to={`/u/${getUserHandle(selectedUser).replace("@", "")}`}
+            className="text-[11px] text-slate-400 font-normal hover:underline cursor-pointer transition-opacity hover:opacity-85"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {getUserHandle(selectedUser)}
+          </Link>
         </div>
       )}
 

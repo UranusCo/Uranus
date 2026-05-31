@@ -8,16 +8,36 @@ import UsersPanel from "./components/UsersPanel";
 import NotificationPanel from "./components/NotificationPanel";
 import SettingsPage from "./pages/SettingsPage";
 import { useChatStore } from "./store/useChatStore";
+import { useParams, useNavigate } from "react-router-dom";
+import UserProfileModal from "./components/UserProfileModal";
+import { getUserHandle } from "./lib/utils";
 
 const AppLayout = () => {
-  const { selectedUser } = useChatStore();
+  const { selectedUser, setSelectedUser, users } = useChatStore();
   const [activeTab, setActiveTab] = useState(() => {
     return localStorage.getItem("lastActiveTab") || "chats";
   });
+  const [viewProfileUser, setViewProfileUser] = useState<any | null>(null);
+
+  const { username } = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     localStorage.setItem("lastActiveTab", activeTab);
   }, [activeTab]);
+
+  useEffect(() => {
+    if (username && users.length > 0) {
+      const foundUser = users.find((u) => {
+        const handle = getUserHandle(u).replace("@", "");
+        return handle.toLowerCase() === username.toLowerCase();
+      });
+      if (foundUser) {
+        setSelectedUser(foundUser);
+        setViewProfileUser(foundUser);
+      }
+    }
+  }, [username, users, setSelectedUser]);
 
   const renderSideContent = () => {
     switch (activeTab) {
@@ -58,6 +78,17 @@ const AppLayout = () => {
       <div className="md:hidden">
         {!selectedUser && <MobileBottomNav activeTab={activeTab} setActiveTab={setActiveTab} />}
       </div>
+
+      {viewProfileUser && (
+        <UserProfileModal
+          open={!!viewProfileUser}
+          onClose={() => {
+            setViewProfileUser(null);
+            navigate("/");
+          }}
+          user={viewProfileUser}
+        />
+      )}
     </div>
   );
 };
